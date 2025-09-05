@@ -3,7 +3,7 @@ import { categoriDto } from "./categorie.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Categori } from "./categorie.entity";
 import { Repository } from "typeorm";
-import data from "./seeder.js" 
+
 
 
 

@@ -1,9 +1,10 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Pin } from "./pins.entity";
+import { User } from "src/users/entities/user.entity";
 
 
 
-Entity({
+@Entity({
     name: "likes"
 })
 
@@ -15,7 +16,7 @@ export class Like {
     @ManyToOne(() => Pin, (pin) => pin.likes)
     pin: Pin;
 
-    @ManyToOne(() => User, (user) => user.likes)
+    @ManyToOne(() => User, (user) => user.like)
     user: User;
 
     @CreateDateColumn()

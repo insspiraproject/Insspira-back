@@ -1,20 +1,12 @@
-import { Module } from '@nestjs/common';
-<<<<<<< HEAD
+import { Module, OnModuleInit } from '@nestjs/common';
 import { CategoriModule } from './categories/categorie.module';
 import { PinModule } from './pins/pins.module';
 
-
-@Module({
-  imports: [CategoriModule, PinModule],
-  controllers: [],
-  providers: [],
-=======
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { CategoriSeeder } from './categories/categorie.seeder';
 
 @Module({
   imports: [
@@ -26,7 +18,7 @@ import { AuthModule } from './auth/auth.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: "postgres",
-        database: configService.get("DB_NAME") ,
+        database: configService.get("DB_NAME"),
         host: configService.get("DB_HOST"),
         port: configService.get("DB_PORT"),
         username: configService.get("DB_USERNAME"),
@@ -36,10 +28,18 @@ import { AuthModule } from './auth/auth.module';
       })
     }),
     UsersModule,
-    AuthModule
+    CategoriModule, PinModule,
+    AuthModule,
+   
   ],
-  controllers: [AppController],
-  providers: [AppService],
->>>>>>> bc96e41a2645fb492076b9f03daefc1ad844a6b8
+  controllers: [],
+  providers: [],
+
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit{
+  
+  constructor(private readonly categori: CategoriSeeder){}
+  async onModuleInit() {
+   await this.categori.run()
+  }
+}
