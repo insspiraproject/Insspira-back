@@ -12,5 +12,8 @@ export class pinsDto {
 
     @IsUUID("4", { message: "La categoría debe ser un UUID válido" })
     categoryId: string;
+
+    @IsUUID("4", { message: "La categoría debe ser un UUID válido" })
+    userId: string;
 }
 

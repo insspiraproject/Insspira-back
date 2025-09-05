@@ -1,4 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Comment } from 'src/pins/entitys/comments.entity';
+import { Like } from 'src/pins/entitys/likes.entity';
+import { Pin } from 'src/pins/entitys/pins.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { v4 as uuid} from "uuid";
 
 @Entity()
@@ -26,4 +29,15 @@ export class User {
 
     @Column({ default: false }) 
     isAdmin: boolean;
+
+    @OneToMany(()=> Pin, (pin)=> pin.user)
+    pins: Pin[];
+
+    @OneToMany(()=> Like, (like)=>like.user)
+    like: Like[];
+
+    @OneToMany(()=>Comment, (comment)=>comment.user)
+    comment: Comment[];
+
+
 }

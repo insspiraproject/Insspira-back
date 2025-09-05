@@ -2,8 +2,9 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "ty
 import { Comment } from "./comments.entity"
 import {Like} from "./likes.entity"
 import { Categori } from "src/categories/categorie.entity"
+import { User } from "src/users/entities/user.entity"
 
-Entity({
+@Entity({
     name: "pins"
 })
 
@@ -27,11 +28,11 @@ export class Pin {
     @Column({ default: 0 })
     views: number; 
 
-    @ManyToOne(()=> Categori, (cat)=> cat.pins)
+    @ManyToOne(()=> Categori, (cat) => cat.pins)
     category: Categori
 
-    @ManyToOne()
-    user_id: User 
+    @ManyToOne(() => User, (user) => user.pins)
+    user: User 
 
     @OneToMany(() => Like, (like) => like.pin)
     likes: Like[];
