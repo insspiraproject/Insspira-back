@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
-import { Comment } from "./commentsPins.entity"
-import {Like} from "./likePins.entity"
+import { Comment } from "./comments.entity"
+import {Like} from "./likes.entity"
 import { Categori } from "src/categories/categorie.entity"
 
 Entity({

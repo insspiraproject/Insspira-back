@@ -1,4 +1,4 @@
-import { Pin } from "src/pins/entitys/createPins.entity";
+import { Pin } from "src/pins/entitys/pins.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 

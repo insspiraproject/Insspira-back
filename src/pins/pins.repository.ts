@@ -1,13 +1,13 @@
 import {  Repository } from "typeorm";
-import { Pin } from "./entitys/createPins.entity";
+import { Pin } from "./entitys/pins.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { pinsDto } from "./pinsDtos/createPins.dto";
+import { pinsDto } from "./pinsDtos/pins.dto";
 import { NotFoundException } from "@nestjs/common";
 import { reportUnhandledError } from "rxjs/internal/util/reportUnhandledError";
-import { CreateLikeDto } from "./pinsDtos/likePins.dto";
-import { Like } from "./entitys/likePins.entity";
-import { Comment } from "./entitys/commentsPins.entity";
-import { CommentDto } from "./pinsDtos/commentPins.dto";
+import { CreateLikeDto } from "./pinsDtos/like.dto";
+import { Like } from "./entitys/likes.entity";
+import { Comment } from "./entitys/comments.entity";
+import { CommentDto } from "./pinsDtos/comments.dto";
 
 
 
@@ -48,7 +48,7 @@ export class PinsRepository {
 
         return {
             id: create.id,
-            category: {id: create.category_id},
+            category: {id: create.category},
             user: create.user_id,
             image: create.image,   
             description: create.description,

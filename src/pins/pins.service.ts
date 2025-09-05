@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PinsRepository } from "./pins.repository";
-import { pinsDto } from "./pinsDtos/createPins.dto";
-import { CreateLikeDto } from "./pinsDtos/likePins.dto";
-import { CommentDto} from "./pinsDtos/commentPins.dto";
+import { pinsDto } from "./pinsDtos/pins.dto";
+import { CreateLikeDto } from "./pinsDtos/like.dto";
+import { CommentDto} from "./pinsDtos/comments.dto";
 
 
 @Injectable()
