@@ -1,6 +1,6 @@
 
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
-import { Pin } from "./createPins.entity";
+import { Pin } from "./pins.entity";
 
 
 
