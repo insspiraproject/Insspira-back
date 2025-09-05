@@ -24,30 +24,23 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.0",
-<<<<<<< HEAD
-    "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/typeorm": "^11.0.0",
-=======
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
     "auth0": "^4.29.0",
     "axios": "^1.11.0",
->>>>>>> bc96e41a2645fb492076b9f03daefc1ad844a6b8
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "cors": "^2.8.5",
-<<<<<<< HEAD
-    "jsonwebtoken": "^9.0.2",
-=======
+
     "express-openid-connect": "^2.19.2",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
->>>>>>> bc96e41a2645fb492076b9f03daefc1ad844a6b8
+
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
