@@ -18,7 +18,7 @@ export class User {
     @Column({type:"bigint", nullable: true})
     phone: string;
 
-    @Column()
+    @Column({ type: "date", nullable: true })
     birthdate: Date;
 
     @Column({ nullable: true }) 

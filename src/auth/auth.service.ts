@@ -29,12 +29,12 @@ export class AuthService {
             user = await this.usersService.createUser({
                 username: name,
                 email,
-                birthdate: null,
+                birthdate: new Date('1900-01-01'), 
                 phone: null,
                 password: null,
                 isAdmin: false,
                 auth0Id: sub,
-            } as any);
+              } as any);
             }
             return user;
         }
