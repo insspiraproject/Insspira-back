@@ -33,6 +33,7 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "express-openid-connect": "^2.19.2",
     "jsonwebtoken": "^9.0.2",
