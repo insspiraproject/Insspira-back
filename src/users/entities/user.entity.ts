@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { v4 as uuid} from "uuid";
 
 @Entity()
@@ -26,4 +26,5 @@ export class User {
 
     @Column({ default: false }) 
     isAdmin: boolean;
+
 }
