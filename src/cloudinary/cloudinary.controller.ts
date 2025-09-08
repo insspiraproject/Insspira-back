@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req } from '@nestjs/common';
 import { CloudinaryService } from './cloudinary.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -8,7 +8,12 @@ export class CloudinaryController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get('signature')
-    getSignature(@Query('folder') folder: string) {
-        return this.cloudinaryService.generateUploadSignature(folder || 'pinterest');
+    getSignature(@Req() req) {
+        
+        const userId = req.user.id; 
+
+        const folder = `pins/${userId}`;
+
+        return this.cloudinaryService.generateUploadSignature(folder);
     }
 }

@@ -12,10 +12,11 @@ export class CloudinaryService {
         );
 
         return {
-        timestamp,
-        signature,
-        apiKey: process.env.CLOUDINARY_API_KEY!,
-        cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
+            timestamp,
+            signature,
+            apiKey: process.env.CLOUDINARY_API_KEY!,
+            cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
+            folder
         };
     }
 }
