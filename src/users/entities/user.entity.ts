@@ -12,7 +12,7 @@ export class User {
     @Column({ unique: true, nullable: true })
     auth0Id: string;
 
-    @Column({length: 50})
+    @Column({length: 50, nullable: true})
     name: string;
 
     @Column({length: 50})

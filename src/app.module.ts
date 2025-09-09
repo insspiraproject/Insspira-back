@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { CategorySeeder } from './categories/category.seeder';
+import { AppController } from './auth/auth.controller';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { CategorySeeder } from './categories/category.seeder';
     PinModule,
     AuthModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 

@@ -1,5 +1,7 @@
-import { Controller, Get, Req, Post } from '@nestjs/common';
+import { Controller, Get, Req, Post, Body, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,5 +25,23 @@ export class AuthController {
     logout(@Req() req: any) {
         req.logout(); 
         return { message: 'Logout successful' };
+    }
+
+    @Post('register')
+    async register(@Body() createUserDto: CreateUserDto) {
+        return this.authService.register(createUserDto);
+    }
+
+    @Post('login')
+    async login(@Body() loginUserDto: LoginUserDto) {
+        return this.authService.login(loginUserDto);
+    }
+}
+
+@Controller()
+export class AppController {
+    @Get()
+    redirectToHome(@Res() res) {
+        return res.redirect('/home');
     }
 }
