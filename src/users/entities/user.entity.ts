@@ -13,6 +13,9 @@ export class User {
     auth0Id: string;
 
     @Column({length: 50})
+    name: string;
+
+    @Column({length: 50})
     username: string;
 
     @Column({ length:50, unique: true })
@@ -21,11 +24,11 @@ export class User {
     @Column({type:"bigint", nullable: true})
     phone: string;
 
-    @Column({ type: "date", nullable: true })
-    birthdate: Date;
-
     @Column({ nullable: true }) 
     password: string;
+
+    @Column({ nullable: true }) 
+    confirmPassword: string;
 
     @Column({ default: false }) 
     isAdmin: boolean;
