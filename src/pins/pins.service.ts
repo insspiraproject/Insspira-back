@@ -5,6 +5,7 @@ import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { CommentDto} from "./pinsDtos/comments.dto";
 
 
+
 @Injectable()
 
 
@@ -27,8 +28,8 @@ export class PinsService {
        return await this.repository.modifiPins(dtoPin, id)
     }
 
-    async postPinsService(dtoPin: pinsDto) {
-        return await this.repository.createPins(dtoPin)
+    async postPinsService(dtoPin: pinsDto, idCategori:string, idUser:string) {
+        return await this.repository.createPins(dtoPin, idCategori, idUser)
     }
 
     async deletePinsService(id: string) {

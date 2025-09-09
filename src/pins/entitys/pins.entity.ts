@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Comment } from "./comments.entity"
 import {Like} from "./likes.entity"
 import { Categorie } from "src/categories/categorie.entity"
@@ -33,6 +33,7 @@ export class Pin {
     category: Categorie
 
     @ManyToOne(() => User, (user) => user.pins)
+    @JoinColumn({ name: "userId" })
     user: User 
 
     @OneToMany(() => Like, (like) => like.pin)
