@@ -1,15 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { categoriDto } from "./categorie.dto";
-import { CategoriRepository } from "./categorie.repository";
+import { CategorieRepository } from "./categorie.repository";
 
 
 
 
 @Injectable()
 
-export class CategoriService {
+export class CategorieService {
     
-    constructor(private readonly repo:CategoriRepository){}
+    
+    constructor(private readonly repo:CategorieRepository){}
+
+    async viewService() {
+        return await this.repo.createView()
+    }
 
     async categoriService(dto: categoriDto) {
         return this.repo.createCategori(dto)

@@ -15,6 +15,7 @@ import { Categori } from "src/categories/categorie.entity";
 
 export class PinsRepository {
     
+    
 
     constructor(
         @InjectRepository(Categori)
@@ -53,7 +54,8 @@ export class PinsRepository {
         const create = await this.pinsRepo.create({
             ...dtoPin,
             category: initialización,
-            user: {id: dtoPin.userId} as any
+            user: {id: dtoPin.userId} as any,
+            hashtags: dtoPin.hashtags.map(tagsId => ({id: tagsId}))
             })
 
         
@@ -65,6 +67,7 @@ export class PinsRepository {
             user: {id: dtoPin.userId},
             image: create.image,   
             description: create.description,
+            hashtag: dtoPin.hashtags.map(id => ({id})),
             like: create.likesCount,
             comment: create.commentsCount,
             view: create.views
@@ -78,7 +81,11 @@ export class PinsRepository {
 
         if(!pin) throw new NotFoundException("Error al modidificar una publicación.")
 
-        const modifi =  this.pinsRepo.merge(pin, dtoPin)
+        const modifi =  this.pinsRepo.merge(
+            pin, {    
+                ...dtoPin,
+               hashtags: dtoPin.hashtags.map(id => ({id})),
+            })
 
         return this.pinsRepo.save(modifi)
     
@@ -168,6 +175,16 @@ export class PinsRepository {
         if(!commentId) throw new NotFoundException("No se encontro el comentario.")
 
         return await this.commentRepo.remove(commentId)
+    }
+
+    async createSearch(query: string) {
+        
+        return this.pinsRepo
+        .createQueryBuilder("p")
+        .leftJoinAndSelect("p.hashtag", "h")
+        .where("p.description ILIKE :q", {q: `%${query}%`})
+        .orWhere("h.tag ILIKE :q", { q: `%${query}%` })
+        .getMany()
     }
 
 

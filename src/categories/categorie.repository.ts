@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { categoriDto } from "./categorie.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Categori } from "./categorie.entity";
+import { Categorie } from "./categorie.entity";
 import { Repository } from "typeorm";
 
 
@@ -9,12 +9,15 @@ import { Repository } from "typeorm";
 
 @Injectable()
 
-export class CategoriRepository {
+export class CategorieRepository {
     
-    constructor(@InjectRepository(Categori)
-    private readonly categori: Repository<Categori>   
-    ){
+    
+    constructor(@InjectRepository(Categorie)
+    private readonly categori: Repository<Categorie>   
+    ){}
 
+    async createView() {
+        return this.categori.find()
     }
 
     async createCategori(dto: categoriDto) {

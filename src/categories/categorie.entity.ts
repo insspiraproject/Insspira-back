@@ -6,7 +6,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
     name: "categories"
 })
 
-export class Categori {
+export class Categorie {
 
     @PrimaryGeneratedColumn("uuid")
     id:string

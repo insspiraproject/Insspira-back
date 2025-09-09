@@ -22,7 +22,7 @@ import { CategoriSeeder } from './categories/categorie.seeder';
         host: configService.get("DB_HOST"),
         port: configService.get("DB_PORT"),
         username: configService.get("DB_USERNAME"),
-        password: configService.get("DB_PASSWORD"),
+        password: configService.get("DB_PASSWORD") as string,
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true
       })
