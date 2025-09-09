@@ -1,5 +1,5 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { CategoriModule } from './categories/categorie.module';
+import { CategorieModule } from './categories/categorie.module';
 import { PinModule } from './pins/pins.module';
 
 import { UsersModule } from './users/users.module';
@@ -28,7 +28,7 @@ import { CategoriSeeder } from './categories/categorie.seeder';
       })
     }),
     UsersModule,
-    CategoriModule, PinModule,
+    CategorieModule, PinModule,
     AuthModule,
    
   ],

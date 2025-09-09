@@ -8,7 +8,7 @@ import { Like } from "./entitys/likes.entity";
 import { Comment } from "./entitys/comments.entity";
 import { CommentDto } from "./pinsDtos/comments.dto";
 import { User } from "src/users/entities/user.entity";
-import { Categori } from "src/categories/categorie.entity";
+import { Categorie } from "src/categories/categorie.entity";
 
 
 
@@ -18,8 +18,8 @@ export class PinsRepository {
     
 
     constructor(
-        @InjectRepository(Categori)
-        private readonly categoriRepo: Repository<Categori>,
+        @InjectRepository(Categorie)
+        private readonly categoriRepo: Repository<Categorie>,
 
         @InjectRepository(Pin)
         private readonly pinsRepo: Repository<Pin>,

@@ -13,4 +13,4 @@ import { CategoriSeeder } from './categorie.seeder';
   providers: [CategorieRepository, CategorieService, CategoriSeeder],
   exports:[CategoriSeeder]
 })
-export class CategoriModule {}
+export class CategorieModule {}
