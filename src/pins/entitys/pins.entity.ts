@@ -1,8 +1,9 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Comment } from "./comments.entity"
 import {Like} from "./likes.entity"
 import { Categori } from "src/categories/categorie.entity"
 import { User } from "src/users/entities/user.entity"
+import { Hashtag } from "./hashtag.entity"
 
 @Entity({
     name: "pins"
@@ -16,7 +17,7 @@ export class Pin {
     @Column()
     image: string   
 
-    @Column()
+    @Column({unique: false})
     description: string
 
     @Column({ default: 0 })
@@ -39,4 +40,8 @@ export class Pin {
 
     @OneToMany(() => Comment, (comment) => comment.pin)
     comment: Comment[];
+
+    @ManyToMany(() => Hashtag, (hashtag) => hashtag.pins, { cascade: true })
+    @JoinTable()
+    hashtags: Hashtag[];
 }

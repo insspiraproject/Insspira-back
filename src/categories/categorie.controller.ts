@@ -1,6 +1,6 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { categoriDto } from "./categorie.dto";
-import { CategoriService } from "./categorie.service";
+import { CategorieService } from "./categorie.service";
 
 
 
@@ -8,9 +8,14 @@ import { CategoriService } from "./categorie.service";
 @Controller("categori")
 
 
-export class CategoriController {
+export class CategorieController {
 
-    constructor(private readonly service: CategoriService){}
+    constructor(private readonly service: CategorieService){}
+
+    @Get()
+    async viewCategori(){
+        return await this.service.viewService()
+    }
 
     @Post()
     async createCategori (@Body() dto: categoriDto){

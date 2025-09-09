@@ -11,6 +11,7 @@ import { CommentDto} from "./pinsDtos/comments.dto";
 export class PinsService {
     
     
+    
     constructor(private readonly repository: PinsRepository){}
 
     
@@ -56,6 +57,10 @@ export class PinsService {
 
     async commentDeleteService(id: string) {
         return await this.repository.deleteComment(id)
+    }
+
+    async serviceSearch(query: string) {
+        return await this.repository.createSearch(query)
     }
 
 
