@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource } from "typeorm";
-import { Categori } from "./categorie.entity";
+import { Categorie } from "./categorie.entity";
 import { categoris } from "./seeder";
 
 
@@ -12,7 +12,7 @@ export class CategoriSeeder {
  
     async run(){
 
-        const repo = await this.dataSource.getRepository(Categori)
+        const repo = await this.dataSource.getRepository(Categorie)
 
         for(const data of categoris){
             
