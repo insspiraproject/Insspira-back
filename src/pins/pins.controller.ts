@@ -5,6 +5,7 @@ import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { CommentDto } from "./pinsDtos/comments.dto";
 
 
+
 @Controller("pin")
 
 
@@ -28,8 +29,8 @@ export class PinsController {
     }
 
     @Post()
-    async createPins(@Body() dtoPin: pinsDto ){
-        return await this.service.postPinsService(dtoPin)
+    async createPins(@Body() dtoPin: pinsDto , idCategori:string, idUser:string){
+        return await this.service.postPinsService(dtoPin, idCategori, idUser)
     }
 
     @Put("/:id")

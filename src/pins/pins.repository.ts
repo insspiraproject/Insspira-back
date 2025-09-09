@@ -2,13 +2,15 @@ import {  Repository } from "typeorm";
 import { Pin } from "./entitys/pins.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { pinsDto } from "./pinsDtos/pins.dto";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { Like } from "./entitys/likes.entity";
 import { Comment } from "./entitys/comments.entity";
 import { CommentDto } from "./pinsDtos/comments.dto";
 import { User } from "src/users/entities/user.entity";
 import { Categorie } from "src/categories/categorie.entity";
+import { Hashtag } from "./entitys/hashtag.entity";
+
 
 
 
@@ -31,7 +33,10 @@ export class PinsRepository {
         private readonly commentRepo: Repository<Comment>,
 
         @InjectRepository(User)
-        private readonly userRepo: Repository<User>
+        private readonly userRepo: Repository<User>,
+
+        @InjectRepository(Hashtag)
+        private readonly hashtagRepo: Repository<Hashtag>,
     ){}
 
 
@@ -45,17 +50,20 @@ export class PinsRepository {
     }
 
 
-    async createPins(dtoPin: pinsDto) {
+    async createPins(dtoPin: pinsDto, idCategori:string, idUser:string) {
 
-        const initialización = await this.categoriRepo.findOne({where: {id: dtoPin.categoryId}})
+        const initialización = await this.categoriRepo.findOne({where: {id: idCategori}})
         if(!initialización)throw new NotFoundException("Error al inicializar la categoria")
 
+        const users = await this.userRepo.findOne({where: {id: idUser}})     
+        if(!users)throw new NotFoundException("El usuario no existe.")
+
+        
 
         const create = await this.pinsRepo.create({
             ...dtoPin,
             category: initialización,
-            user: {id: dtoPin.userId} as any,
-            hashtags: dtoPin.hashtags.map(tagsId => ({id: tagsId}))
+            user: users,
             })
 
         
@@ -64,13 +72,13 @@ export class PinsRepository {
         return {
             id: create.id,
             category: {id: initialización.id},
-            user: {id: dtoPin.userId},
+            user: {id: users.id},
             image: create.image,   
             description: create.description,
-            hashtag: dtoPin.hashtags.map(id => ({id})),
             like: create.likesCount,
             comment: create.commentsCount,
-            view: create.views
+            view: create.views,
+            hashtag: create.hashtags
             }
         
     }
@@ -84,7 +92,7 @@ export class PinsRepository {
         const modifi =  this.pinsRepo.merge(
             pin, {    
                 ...dtoPin,
-               hashtags: dtoPin.hashtags.map(id => ({id})),
+            //    hashtags: dtoPin.hashtags.map(id => ({id})),
             })
 
         return this.pinsRepo.save(modifi)
@@ -181,7 +189,7 @@ export class PinsRepository {
         
         return this.pinsRepo
         .createQueryBuilder("p")
-        .leftJoinAndSelect("p.hashtag", "h")
+        .leftJoinAndSelect("p.hashtags", "h")
         .where("p.description ILIKE :q", {q: `%${query}%`})
         .orWhere("h.tag ILIKE :q", { q: `%${query}%` })
         .getMany()
