@@ -30,8 +30,8 @@ export class PinsService {
     }
 
 
-    async likeService(likeDto: CreateLikeDto, id: string) {
-        return await this.repository.createLike(likeDto,id)
+    async likeService(idPin:string, idUser: string) {
+        return await this.repository.createLike(idPin, idUser)
         
     }
 

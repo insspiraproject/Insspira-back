@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
 import { PinsService } from "./pins.service";
 import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { CommentDto } from "./pinsDtos/comments.dto";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("pin")
 
@@ -45,32 +46,46 @@ export class PinsController {
         return {message: "Post successfully deleted."}
     }
 
-    @Post("/:pinsId")
-    async createLikes(@Param("pinsId", new ParseUUIDPipe()) likeDto:CreateLikeDto, id:string){
-        await this.service.likeService(likeDto, id)
+    @UseGuards(AuthGuard("jwt"))
+    @Post("/like/:pinsId")
+    async createLikes(
+        @Param("pinsId", new ParseUUIDPipe()) idPin:string,
+        @Req() req
+        ){
+        const idUser = req.user.id 
+        await this.service.likeService(idPin, idUser)
         return{message: "Like added."} 
     }
 
-    @Delete("/:deleteLike")
+    @Delete("/like/:deleteLike")
     async deleteLikes(@Param("deleteLike", new ParseUUIDPipe())  id:string){
         await this.service.likeDeleteService(id)
         return {message:"Like removed."}
     }
 
-    @Post("/comments")
-    async createComments(@Body() userId: string, pinId:string, comment: CommentDto) {
+    @Post("/comments/:id")
+    async createComments(
+        @Param("id", new ParseUUIDPipe()) pinId:string,
+        @Body() comment: CommentDto,
+        @Req() req: any
+    ) {
+        const userId = "aa0ee65f-6be2-49c9-a3c0-cc9325dfb090"
         return await this.service.commentService(userId, pinId, comment)
     }
 
-    @Put("/modifiComments")
-    async modifiComments(@Body()  id:string, comment: CommentDto) {
+    @Put("/modifiComments/:id")
+    async modifiComments(
+        @Param("id", new ParseUUIDPipe()) id:string,
+        @Body()  comment: CommentDto
+    ){
         await this.service.commentModifieService(id, comment)
         return {message: "Your comment has been successfully modified."} 
     }
 
-    @Delete("/deleteComments")
-    async deleteComments(@Param() id: string) {
-        return await this.service.commentDeleteService(id)
+    @Delete("/deleteComments/:id")
+    async deleteComments(@Param("id", new ParseUUIDPipe()) id: string) {
+        await this.service.commentDeleteService(id)
+        return {message: "Comment successfully deleted."} 
     }
 
 
