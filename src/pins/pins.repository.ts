@@ -1,7 +1,7 @@
-import {  Repository } from "typeorm";
+import {  In, Repository } from "typeorm";
 import { Pin } from "./entitys/pins.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { pinsDto } from "./pinsDtos/pins.dto";
+import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { Like } from "./entitys/likes.entity";
@@ -84,18 +84,20 @@ export class PinsRepository {
     }
 
 
-    async modifiPins(dtoPin: pinsDto, id: string): Promise<Pin> {
-        const pin = await this.pinsRepo.findOne({where: {id: id}})
-
+    async modifiPins(dtoPin: updateDto, userId: string, hashtagId:string[]): Promise<Pin> {
+        const pin = await this.pinsRepo.findOne({where: {id: userId}})
         if(!pin) throw new NotFoundException("Error al modidificar una publicación.")
+
+        const hashtag = await this.hashtagRepo.findOne({where: {id: In(hashtagId)}})
+        if(!hashtag) throw new NotFoundException("No se encontro el Hashtag.")
 
         const modifi =  this.pinsRepo.merge(
             pin, {    
                 ...dtoPin,
-            //    hashtags: dtoPin.hashtags.map(id => ({id})),
+               hashtags: [hashtag]
             })
 
-        return this.pinsRepo.save(modifi)
+        return await this.pinsRepo.save(modifi)
     
     }
 

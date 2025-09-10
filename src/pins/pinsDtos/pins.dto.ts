@@ -1,3 +1,4 @@
+import { PartialType } from "@nestjs/mapped-types";
 import { ArrayNotEmpty, IsArray, IsString, IsUrl, IsUUID, Length } from "class-validator"
 
 
@@ -12,3 +13,4 @@ export class pinsDto {
 
 }
 
+export class updateDto extends  PartialType(pinsDto){}

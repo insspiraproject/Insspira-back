@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PinsRepository } from "./pins.repository";
-import { pinsDto } from "./pinsDtos/pins.dto";
+import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { CommentDto} from "./pinsDtos/comments.dto";
 
@@ -24,8 +24,8 @@ export class PinsService {
         return this.repository.pinsId(id)
     }
 
-    async putPinsService(dtoPin:pinsDto, id: string) {
-       return await this.repository.modifiPins(dtoPin, id)
+    async putPinsService(dtoPin:updateDto, userId: string, hashtagId:string[]) {
+       return await this.repository.modifiPins(dtoPin, userId, hashtagId)
     }
 
     async postPinsService(dtoPin: pinsDto, idCategori:string, idUser:string) {
