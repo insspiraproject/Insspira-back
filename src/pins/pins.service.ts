@@ -4,18 +4,11 @@ import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { CommentDto} from "./pinsDtos/comments.dto";
 
-
-
 @Injectable()
 
-
 export class PinsService {
-    
-    
-    
     constructor(private readonly repository: PinsRepository){}
 
-    
     async getPinsService() {
         return await this.repository.getPins()
     }
@@ -25,7 +18,7 @@ export class PinsService {
     }
 
     async putPinsService(dtoPin:updateDto, userId: string, hashtagId:string[]) {
-       return await this.repository.modifiPins(dtoPin, userId, hashtagId)
+        return await this.repository.modifiPins(dtoPin, userId, hashtagId)
     }
 
     async postPinsService(dtoPin: pinsDto, idCategori:string, idUser:string) {
@@ -63,6 +56,4 @@ export class PinsService {
     async serviceSearch(query: string) {
         return await this.repository.createSearch(query)
     }
-
-
 }

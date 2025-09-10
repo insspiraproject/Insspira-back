@@ -4,13 +4,9 @@ import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { CommentDto } from "./pinsDtos/comments.dto";
 
-
-
 @Controller("pin")
 
-
 export class PinsController {
-
     constructor (private readonly service: PinsService){}
 
     @Get()
@@ -40,25 +36,25 @@ export class PinsController {
         @Body()  dtoPin:updateDto,
             ){
         await this.service.putPinsService(dtoPin, userId, hashtagId)
-        return {message: "La publicación fue modificada con éxito."}
+        return {message: "The post was successfully modified."}
     }
 
     @Delete("/:id")
     async deletePins(@Param("id", new ParseUUIDPipe()) id:string){
         await this.service.deletePinsService(id)
-        return {message: "Publicación eliminada correctamente."}
+        return {message: "Post successfully deleted."}
     }
 
     @Post("/:pinsId")
     async createLikes(@Param("pinsId", new ParseUUIDPipe()) likeDto:CreateLikeDto, id:string){
         await this.service.likeService(likeDto, id)
-        return{message: "Like agregado."} 
+        return{message: "Like added."} 
     }
 
     @Delete("/:deleteLike")
     async deleteLikes(@Param("deleteLike", new ParseUUIDPipe())  id:string){
         await this.service.likeDeleteService(id)
-        return {message:"Se ha quitado el like de esta publicación."}
+        return {message:"Like removed."}
     }
 
     @Post("/comments")
@@ -69,7 +65,7 @@ export class PinsController {
     @Put("/modifiComments")
     async modifiComments(@Body()  id:string, comment: CommentDto) {
         await this.service.commentModifieService(id, comment)
-        return {message: "Tu comentario se modificó."} 
+        return {message: "Your comment has been successfully modified."} 
     }
 
     @Delete("/deleteComments")

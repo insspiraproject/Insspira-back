@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import axios from 'axios';
+import * as bcrypt from 'bcrypt';
+import { LoginUserDto } from 'src/users/dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -29,12 +31,12 @@ export class AuthService {
             user = await this.usersService.createUser({
                 username: name,
                 email,
-                birthdate: null,
+                birthdate: new Date('1900-01-01'), 
                 phone: null,
                 password: null,
                 isAdmin: false,
                 auth0Id: sub,
-            } as any);
+              } as any);
             }
             return user;
         }
@@ -69,5 +71,63 @@ export class AuthService {
         console.error('Error revoking token:', error.response?.data || error.message);
         throw new Error('The token could not be revoked');
         }
+    }
+
+    async register(createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
+        const { email, password, confirmPassword, username, name, phone, isAdmin } = createUserDto;
+    
+        if (!password || !confirmPassword) {
+            throw new BadRequestException('Password and confirmPassword are required for local registration');
+        }
+        if (password !== confirmPassword) {
+            throw new BadRequestException('Passwords do not match');
+        }
+    
+        const existingUser = await this.usersService.findByEmail(email);
+        if (existingUser) {
+            throw new BadRequestException('Email already exists');
+        }
+    
+        const hashedPassword = await bcrypt.hash(password, 10);
+    
+        const user = await this.usersService.createUser({
+            email,
+            username,
+            name,
+            phone,
+            password: hashedPassword,
+            isAdmin: isAdmin || false 
+        });
+    
+        const payload = { sub: user.id, email: user.email, name: user.name };
+        const accessToken = this.jwtService.sign(payload);
+    
+        return { accessToken };
+    }
+    
+    async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
+        const { email, password } = loginUserDto;
+    
+        if (!password) {
+            throw new BadRequestException('Password is required for local login');
+        }
+    
+        const user = await this.usersService.findByEmail(email);
+        if (!user) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+    
+        if (!user.password) {
+            throw new UnauthorizedException('This account uses Auth0 for authentication');
+        }
+    
+        if (!(await bcrypt.compare(password, user.password))) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+    
+        const payload = { sub: user.id, email: user.email, name: user.name };
+        const accessToken = this.jwtService.sign(payload);
+    
+        return { accessToken };
     }
 }

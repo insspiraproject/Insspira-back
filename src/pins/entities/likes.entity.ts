@@ -1,15 +1,11 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
 import { Pin } from "./pins.entity";
 import { User } from "src/users/entities/user.entity";
-
-
 
 @Entity({
     name: "likes"
 })
-
 export class Like {
-
     @PrimaryGeneratedColumn("uuid")
     id:string
 

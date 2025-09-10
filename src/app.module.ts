@@ -1,12 +1,13 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { CategorieModule } from './categories/categorie.module';
+import { CategoryModule } from "./categories/category.module";
 import { PinModule } from './pins/pins.module';
-
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { CategoriSeeder } from './categories/categorie.seeder';
+import { FilesModule } from './files/files.module';
+import { CategorySeeder } from './categories/category.seeder';
+import { AppController } from './auth/auth.controller';
 
 @Module({
   imports: [
@@ -28,18 +29,20 @@ import { CategoriSeeder } from './categories/categorie.seeder';
       })
     }),
     UsersModule,
-    CategorieModule, PinModule,
     AuthModule,
-   
+    FilesModule,
+    CategoryModule,
+    PinModule,
+    AuthModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
-
 })
+
 export class AppModule implements OnModuleInit{
   
-  constructor(private readonly categori: CategoriSeeder){}
+  constructor(private readonly category: CategorySeeder){}
   async onModuleInit() {
-   await this.categori.run()
+    await this.category.run()
   }
 }

@@ -1,13 +1,11 @@
-import { Pin } from "src/pins/entitys/pins.entity";
+import { Pin } from "../pins/entities/pins.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-
 
 @Entity({
     name: "categories"
 })
 
-export class Categorie {
-
+export class Category {
     @PrimaryGeneratedColumn("uuid")
     id:string
 
@@ -16,6 +14,5 @@ export class Categorie {
 
     @OneToMany(() => Pin, (pin)=> pin.category)
     pins: Pin[]
-
 }
 

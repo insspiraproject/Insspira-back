@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Comment } from "./comments.entity"
 import {Like} from "./likes.entity"
-import { Categorie } from "src/categories/categorie.entity"
+import { Category } from "../../categories/category.entity"
 import { User } from "src/users/entities/user.entity"
 import { Hashtag } from "./hashtag.entity"
 
@@ -10,7 +10,6 @@ import { Hashtag } from "./hashtag.entity"
 })
 
 export class Pin {
-
     @PrimaryGeneratedColumn("uuid")
     id:string
 
@@ -29,8 +28,8 @@ export class Pin {
     @Column({ default: 0 })
     views: number; 
 
-    @ManyToOne(()=> Categorie, (cat) => cat.pins)
-    category: Categorie
+    @ManyToOne(()=> Category, (cat) => cat.pins)
+    category: Category
 
     @ManyToOne(() => User, (user) => user.pins)
     @JoinColumn({ name: "userId" })

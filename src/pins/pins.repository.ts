@@ -1,27 +1,20 @@
+import { Pin } from "./entities/pins.entity";
 import {  In, Repository } from "typeorm";
-import { Pin } from "./entitys/pins.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { CreateLikeDto } from "./pinsDtos/like.dto";
-import { Like } from "./entitys/likes.entity";
-import { Comment } from "./entitys/comments.entity";
+import { Like } from "./entities/likes.entity";
+import { Comment } from "./entities/comments.entity";
 import { CommentDto } from "./pinsDtos/comments.dto";
 import { User } from "src/users/entities/user.entity";
-import { Categorie } from "src/categories/categorie.entity";
-import { Hashtag } from "./entitys/hashtag.entity";
-
-
-
-
+import { Hashtag } from "./entities/hashtag.entity";
+import { Category } from "../categories/category.entity";
 
 export class PinsRepository {
-    
-    
-
     constructor(
-        @InjectRepository(Categorie)
-        private readonly categoriRepo: Repository<Categorie>,
+        @InjectRepository(Category)
+        private readonly categoryRepo: Repository<Category>,
 
         @InjectRepository(Pin)
         private readonly pinsRepo: Repository<Pin>,
@@ -39,26 +32,23 @@ export class PinsRepository {
         private readonly hashtagRepo: Repository<Hashtag>,
     ){}
 
-
     async getPins(): Promise<Pin[]> {
         return await this.pinsRepo.find()
     }
 
     async pinsId(id: string): Promise<Pin | null>{
         return await this.pinsRepo.findOne({where: {id: id}})
-
     }
 
 
-    async createPins(dtoPin: pinsDto, idCategori:string, idUser:string) {
 
-        const initialización = await this.categoriRepo.findOne({where: {id: idCategori}})
+    async createPins(dtoPin: pinsDto, idCategory:string, idUser:string) {
+
+        const initialización = await this.categoryRepo.findOne({where: {id: idCategory}})
         if(!initialización)throw new NotFoundException("Error al inicializar la categoria")
 
         const users = await this.userRepo.findOne({where: {id: idUser}})     
         if(!users)throw new NotFoundException("El usuario no existe.")
-
-        
 
         const create = await this.pinsRepo.create({
             ...dtoPin,
@@ -66,7 +56,6 @@ export class PinsRepository {
             user: users,
             })
 
-        
         await this.pinsRepo.save(create)
 
         return {
@@ -80,78 +69,66 @@ export class PinsRepository {
             view: create.views,
             hashtag: create.hashtags
             }
-        
     }
-
 
     async modifiPins(dtoPin: updateDto, userId: string, hashtagId:string[]): Promise<Pin> {
         const pin = await this.pinsRepo.findOne({where: {id: userId}})
-        if(!pin) throw new NotFoundException("Error al modidificar una publicación.")
+        if(!pin) throw new NotFoundException("Error to modify the post.")
 
         const hashtag = await this.hashtagRepo.findOne({where: {id: In(hashtagId)}})
-        if(!hashtag) throw new NotFoundException("No se encontro el Hashtag.")
+        if(!hashtag) throw new NotFoundException("Hashtag not found.")
 
         const modifi =  this.pinsRepo.merge(
             pin, {    
                 ...dtoPin,
-               hashtags: [hashtag]
+                hashtags: [hashtag]
             })
 
         return await this.pinsRepo.save(modifi)
-    
     }
 
 
     async deletePins(id: string): Promise<Pin> {
         const pin = await this.pinsRepo.findOneBy({id: id})
 
-        if(!pin) throw new NotFoundException("Error al querer eliminar una publicación.")
+        if(!pin) throw new NotFoundException("Error to delete the post.")
 
         return await this.pinsRepo.remove(pin)   
     }
 
-
-
-    async createLike(likeDto: CreateLikeDto, id: string): Promise<Like | {
-        message: string;
-        }> {
+    async createLike(likeDto: CreateLikeDto, id: string): Promise<Like | { message: string;}> {
         const pin = await this.pinsRepo.findOne({where: { id: likeDto.pinId}})
-         if (!pin) throw new NotFoundException("Pin no encontrado");
+            if (!pin) throw new NotFoundException("Pin not found.");
 
         const existingLike = await this.likeRepo.findOne({
-        where: {pin: {id: likeDto.pinId}, user: {id: id}},
+            where: {pin: {id: likeDto.pinId}, user: {id: id}},
         });
-        if (existingLike) return{message:"Ya diste like a esta publicación."};
+        if (existingLike) return{message:"You have already liked this post."};
 
         const like = await this.likeRepo.create({pin, user: {id: id}}) 
+
         return await this.likeRepo.save(like);
-
     }
-
-
 
     async deleteLike(id: string): Promise<Like> {
         const remove = await this.likeRepo.findOne({where: {id: id}})
         
-        if(!remove) throw new NotFoundException("Esta publicación no fue encontrada.")
+        if(!remove) throw new NotFoundException("Post not found.")
 
         return await this.likeRepo.remove(remove)    
-    
     }
 
     async createComment(userId: string, pinId:string , comment: CommentDto): Promise<{
-    user: User;
-    post: Pin;
-    comment: string;
-    date: Date;
+        user: User;
+        post: Pin;
+        comment: string;
+        date: Date;
     }> {
-        
-        
         const pin = await this.pinsRepo.findOne({where: {id: pinId}})
-        if(!pin) throw new NotFoundException("La publicación no se encontro.")
+        if(!pin) throw new NotFoundException("Post not found.")
         
         const user = await this.userRepo.findOne({where: {id: userId}})
-        if(!user) throw new NotFoundException("La publicación no se encontro.")
+        if(!user) throw new NotFoundException("Post not found.")
         
             const commentCreate = this.commentRepo.create({
             pin,
@@ -168,21 +145,17 @@ export class PinsRepository {
             date: commentCreate.createdAt
         }}
 
-
     async modifieComment(id:string, comment: CommentDto): Promise<Comment> {
         const commentId = await this.commentRepo.findOne({where: {id: id}})
-        if(!commentId) throw new NotFoundException("No se encontro el comentario.")
-            
-            
+        if(!commentId) throw new NotFoundException("Comment not found.")
+
         const modifiComment = this.commentRepo.merge(commentId, comment)
         return await this.commentRepo.save(modifiComment)
-    
     }
-
 
     async deleteComment(id: string): Promise<Comment> {
         const commentId = await this.commentRepo.findOne({where: {id: id}}) 
-        if(!commentId) throw new NotFoundException("No se encontro el comentario.")
+        if(!commentId) throw new NotFoundException("Comment not found.")
 
         return await this.commentRepo.remove(commentId)
     }
@@ -196,6 +169,4 @@ export class PinsRepository {
         .orWhere("h.tag ILIKE :q", { q: `%${query}%` })
         .getMany()
     }
-
-
 }
