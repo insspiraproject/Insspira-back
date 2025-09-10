@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
 import { PinsService } from "./pins.service";
-import { pinsDto } from "./pinsDtos/pins.dto";
+import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { CommentDto } from "./pinsDtos/comments.dto";
 
@@ -34,8 +34,12 @@ export class PinsController {
     }
 
     @Put("/:id")
-    async modifiePins(@Param("id", new ParseUUIDPipe()) dtoPin:pinsDto, id: string){
-        await this.service.putPinsService(dtoPin, id)
+    async modifiePins(
+        @Param("id", new ParseUUIDPipe()) userId: string,
+        @Query("hashtags") hashtagId: string[], 
+        @Body()  dtoPin:updateDto,
+            ){
+        await this.service.putPinsService(dtoPin, userId, hashtagId)
         return {message: "La publicación fue modificada con éxito."}
     }
 
