@@ -14,4 +14,8 @@ export class CategoryRepository {
         const category = this.category.create({name: dto.name})
         return await this.category.save(category)
     }
+
+    async createView() {
+        return this.category.find()
+    }
 }

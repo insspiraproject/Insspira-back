@@ -9,4 +9,8 @@ export class CategoryService {
     async categoryService(dto: categoryDto) {
         return this.repo.createCategory(dto)
     }
+
+    async viewService() {
+        return await this.repo.createView()
+    }
 }
