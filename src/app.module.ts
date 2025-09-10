@@ -1,5 +1,5 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { CategoryModule } from './categories/category.module';
+import { CategoryModule } from "./categories/category.module";
 import { PinModule } from './pins/pins.module';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -23,7 +23,7 @@ import { AppController } from './auth/auth.controller';
         host: configService.get("DB_HOST"),
         port: configService.get("DB_PORT"),
         username: configService.get("DB_USERNAME"),
-        password: configService.get("DB_PASSWORD"),
+        password: configService.get("DB_PASSWORD") as string,
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true
       })

@@ -4,10 +4,12 @@ import { Like } from '../../pins/entities/likes.entity';
 import { Pin } from '../../pins/entities/pins.entity';
 import { v4 as uuid} from "uuid";
 
-@Entity()
+@Entity({
+    name: "users"
+})
 export class User {
     @PrimaryGeneratedColumn("uuid")
-    id: string = uuid();
+    id: string;
 
     @Column({ unique: true, nullable: true })
     auth0Id: string;

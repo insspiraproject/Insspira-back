@@ -7,11 +7,12 @@ import { PinsController } from './pins.controller';
 import { PinsService } from './pins.service';
 import { PinsRepository } from './pins.repository';
 import { User } from 'src/users/entities/user.entity';
-import { Category } from 'src/categories/category.entity';
-
+import { Category } from '../categories/category.entity';
+import { Hashtag } from './entities/hashtag.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, Like, Pin, User,Category])],
+  imports: [TypeOrmModule.forFeature([Comment, Like, Pin, User, Category, Hashtag])],
+
   controllers: [PinsController],
   providers: [PinsService, PinsRepository],
 })

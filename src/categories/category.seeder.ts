@@ -3,7 +3,6 @@ import { DataSource } from "typeorm";
 import { Category } from "./category.entity";
 import { categories } from "./seeder";
 
-
 @Injectable()
 
 export class CategorySeeder {
@@ -17,9 +16,6 @@ export class CategorySeeder {
                 await repo.save(repo.create(data))
             }
         }
-
         console.log("✅ Categories Seeded");
     }
-
-
 }

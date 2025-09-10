@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsEmail, IsString, IsDate, IsBoolean, IsOptional, MinLength, MaxLength, Matches } from 'class-validator';
 
 export class CreateUserDto {
@@ -31,7 +32,6 @@ export class CreateUserDto {
         message: 'The password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (!@#$%^&*).',
     })
     confirmPassword?: string;
-
 
     @IsBoolean()
     @IsOptional() 

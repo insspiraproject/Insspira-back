@@ -5,12 +5,11 @@ import { User } from "src/users/entities/user.entity";
 @Entity({
     name: "likes"
 })
-
 export class Like {
     @PrimaryGeneratedColumn("uuid")
     id:string
 
-    @ManyToOne(() => Pin, (pin) => pin.likes)
+    @ManyToOne(() => Pin, (pin) => pin.likes, {onDelete: "CASCADE"})
     pin: Pin;
 
     @ManyToOne(() => User, (user) => user.like)

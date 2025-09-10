@@ -1,14 +1,15 @@
-import {  Repository } from "typeorm";
 import { Pin } from "./entities/pins.entity";
+import {  In, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import { pinsDto } from "./pinsDtos/pins.dto";
-import { NotFoundException } from "@nestjs/common";
+import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { CreateLikeDto } from "./pinsDtos/like.dto";
 import { Like } from "./entities/likes.entity";
 import { Comment } from "./entities/comments.entity";
 import { CommentDto } from "./pinsDtos/comments.dto";
 import { User } from "src/users/entities/user.entity";
-import { Category } from "src/categories/category.entity";
+import { Hashtag } from "./entities/hashtag.entity";
+import { Category } from "../categories/category.entity";
 
 export class PinsRepository {
     constructor(
@@ -25,7 +26,10 @@ export class PinsRepository {
         private readonly commentRepo: Repository<Comment>,
 
         @InjectRepository(User)
-        private readonly userRepo: Repository<User>
+        private readonly userRepo: Repository<User>,
+
+        @InjectRepository(Hashtag)
+        private readonly hashtagRepo: Repository<Hashtag>,
     ){}
 
     async getPins(): Promise<Pin[]> {
@@ -36,38 +40,51 @@ export class PinsRepository {
         return await this.pinsRepo.findOne({where: {id: id}})
     }
 
-    async createPins(dtoPin: pinsDto) {
-        const initialization = await this.categoryRepo.findOne({where: {id: dtoPin.categoryId}})
-        if(!initialization)throw new NotFoundException("Error to initialize the category.")
+
+
+    async createPins(dtoPin: pinsDto, idCategory:string, idUser:string) {
+
+        const initialización = await this.categoryRepo.findOne({where: {id: idCategory}})
+        if(!initialización)throw new NotFoundException("Error al inicializar la categoria")
+
+        const users = await this.userRepo.findOne({where: {id: idUser}})     
+        if(!users)throw new NotFoundException("El usuario no existe.")
 
         const create = await this.pinsRepo.create({
             ...dtoPin,
-            category: initialization,
-            user: {id: dtoPin.userId} as any
+            category: initialización,
+            user: users,
             })
 
         await this.pinsRepo.save(create)
 
         return {
             id: create.id,
-            category: {id: initialization.id},
-            user: {id: dtoPin.userId},
+            category: {id: initialización.id},
+            user: {id: users.id},
             image: create.image,   
             description: create.description,
             like: create.likesCount,
             comment: create.commentsCount,
-            view: create.views
-            } 
+            view: create.views,
+            hashtag: create.hashtags
+            }
     }
 
-    async modifiPins(dtoPin: pinsDto, id: string): Promise<Pin> {
-        const pin = await this.pinsRepo.findOne({where: {id: id}})
-
+    async modifiPins(dtoPin: updateDto, userId: string, hashtagId:string[]): Promise<Pin> {
+        const pin = await this.pinsRepo.findOne({where: {id: userId}})
         if(!pin) throw new NotFoundException("Error to modify the post.")
 
-        const modify =  this.pinsRepo.merge(pin, dtoPin)
+        const hashtag = await this.hashtagRepo.findOne({where: {id: In(hashtagId)}})
+        if(!hashtag) throw new NotFoundException("Hashtag not found.")
 
-        return this.pinsRepo.save(modify)
+        const modifi =  this.pinsRepo.merge(
+            pin, {    
+                ...dtoPin,
+                hashtags: [hashtag]
+            })
+
+        return await this.pinsRepo.save(modifi)
     }
 
 
@@ -78,8 +95,6 @@ export class PinsRepository {
 
         return await this.pinsRepo.remove(pin)   
     }
-
-
 
     async createLike(likeDto: CreateLikeDto, id: string): Promise<Like | { message: string;}> {
         const pin = await this.pinsRepo.findOne({where: { id: likeDto.pinId}})
@@ -94,8 +109,6 @@ export class PinsRepository {
 
         return await this.likeRepo.save(like);
     }
-
-
 
     async deleteLike(id: string): Promise<Like> {
         const remove = await this.likeRepo.findOne({where: {id: id}})
@@ -147,5 +160,13 @@ export class PinsRepository {
         return await this.commentRepo.remove(commentId)
     }
 
-
+    async createSearch(query: string) {
+        
+        return this.pinsRepo
+        .createQueryBuilder("p")
+        .leftJoinAndSelect("p.hashtags", "h")
+        .where("p.description ILIKE :q", {q: `%${query}%`})
+        .orWhere("h.tag ILIKE :q", { q: `%${query}%` })
+        .getMany()
+    }
 }

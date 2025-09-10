@@ -1,21 +1,22 @@
 import { Injectable } from "@nestjs/common";
-import { categoryDto } from "./category.dto";
+import { CategoryDto } from "./category.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Category } from "./category.entity";
 import { Repository } from "typeorm";
+import { Category } from "./category.entity";
 
 @Injectable()
 
-export class CategoryRepository { 
+export class CategoryRepository {
     constructor(@InjectRepository(Category)
-    private readonly category: Repository<Category>) {}
-
-    async createCategory(dto: categoryDto) {
-        const category = this.category.create({name: dto.name})
-        return await this.category.save(category)
-    }
+    private readonly category: Repository<Category>   
+    ){}
 
     async createView() {
         return this.category.find()
+    }
+
+    async createCategory(dto: CategoryDto) {
+        const categori = this.category.create({name: dto.name})
+        return await this.category.save(categori)
     }
 }
