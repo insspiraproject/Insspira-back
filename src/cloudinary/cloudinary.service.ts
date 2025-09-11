@@ -19,4 +19,7 @@ export class CloudinaryService {
             folder
         };
     }
+    url(publicId: string, options: any = {}): string {
+        return cloudinary.url(publicId, options);
+    }
 }

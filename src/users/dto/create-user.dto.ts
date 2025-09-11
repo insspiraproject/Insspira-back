@@ -33,6 +33,10 @@ export class CreateUserDto {
     })
     confirmPassword?: string;
 
+    @IsString()
+    @IsOptional()
+    profilePicture?: string;
+
     @IsBoolean()
     @IsOptional() 
     isAdmin?: boolean;
