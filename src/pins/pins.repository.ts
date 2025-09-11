@@ -45,10 +45,10 @@ export class PinsRepository {
     async createPins(dtoPin: pinsDto, idCategory:string, idUser:string) {
 
         const initialización = await this.categoryRepo.findOne({where: {id: idCategory}})
-        if(!initialización)throw new NotFoundException("Error al inicializar la categoria")
+        if(!initialización)throw new NotFoundException("Error to inicialize the category.")
 
         const users = await this.userRepo.findOne({where: {id: idUser}})     
-        if(!users)throw new NotFoundException("El usuario no existe.")
+        if(!users)throw new NotFoundException("User not found.")
 
         const create = await this.pinsRepo.create({
             ...dtoPin,

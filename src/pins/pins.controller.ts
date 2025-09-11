@@ -72,6 +72,4 @@ export class PinsController {
     async deleteComments(@Param() id: string) {
         return await this.service.commentDeleteService(id)
     }
-
-
 }
