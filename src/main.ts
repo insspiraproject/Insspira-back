@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { auth } from "express-openid-connect";
+// import { auth } from "express-openid-connect";
 import cors from "cors"
 import { ValidationPipe } from '@nestjs/common';
 import { config } from './config/auth0.config';
@@ -18,7 +18,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
   app.useGlobalPipes(new ValidationPipe())
-  app.use(auth(config))
+  // app.use(auth(config))
   await app.listen(process.env.PORT ?? 3000);
 }
 

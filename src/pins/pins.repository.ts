@@ -45,10 +45,10 @@ export class PinsRepository {
     async createPins(dtoPin: pinsDto, idCategory:string, idUser:string) {
 
         const initialización = await this.categoryRepo.findOne({where: {id: idCategory}})
-        if(!initialización)throw new NotFoundException("Error to inicialize the category.")
+        if(!initialización)throw new NotFoundException("Error initializing category.")
 
         const users = await this.userRepo.findOne({where: {id: idUser}})     
-        if(!users)throw new NotFoundException("User not found.")
+        if(!users)throw new NotFoundException("User does not exist.")
 
         const create = await this.pinsRepo.create({
             ...dtoPin,
@@ -96,34 +96,37 @@ export class PinsRepository {
         return await this.pinsRepo.remove(pin)   
     }
 
-    async createLike(likeDto: CreateLikeDto, id: string): Promise<Like | { message: string;}> {
-        const pin = await this.pinsRepo.findOne({where: { id: likeDto.pinId}})
+    async createLike(idPin:string, idUser: string): Promise<Like | { message: string;}> {
+        const pin = await this.pinsRepo.findOne({where: { id: idPin}})
             if (!pin) throw new NotFoundException("Pin not found.");
 
         const existingLike = await this.likeRepo.findOne({
-            where: {pin: {id: likeDto.pinId}, user: {id: id}},
+            where: {pin: {id: idPin}, user: {id: idUser}},
         });
         if (existingLike) return{message:"You have already liked this post."};
+        
+        const like = await this.likeRepo.create({pin, user: {id: idUser}}) 
+        await this.likeRepo.save(like);
+        
+        await this.pinsRepo.increment({id: idPin}, "likesCount", 1)
+        
+        return like;
 
-        const like = await this.likeRepo.create({pin, user: {id: id}}) 
-
-        return await this.likeRepo.save(like);
     }
 
     async deleteLike(id: string): Promise<Like> {
-        const remove = await this.likeRepo.findOne({where: {id: id}})
+        const remove = await this.likeRepo.findOne({where: {
+            id: id,},
+        relations:["pin"]
+        })
         
         if(!remove) throw new NotFoundException("Post not found.")
-
-        return await this.likeRepo.remove(remove)    
+        
+        await this.pinsRepo.decrement({id: remove.pin.id}, "likesCount", 1)
+        return await this.likeRepo.remove(remove)
     }
 
-    async createComment(userId: string, pinId:string , comment: CommentDto): Promise<{
-        user: User;
-        post: Pin;
-        comment: string;
-        date: Date;
-    }> {
+    async createComment(userId: string, pinId:string , comment: CommentDto) {
         const pin = await this.pinsRepo.findOne({where: {id: pinId}})
         if(!pin) throw new NotFoundException("Post not found.")
         
@@ -135,15 +138,17 @@ export class PinsRepository {
             user,
             text: comment.text,
         })
-
         await this.commentRepo.save(commentCreate)
 
+        await this.pinsRepo.increment({id: pin.id}, "commentsCount", 1)
+
         return {
-            user: commentCreate.user,
-            post: commentCreate.pin,
+            user: commentCreate.user.id,
+            pin: commentCreate.pin,
             comment: commentCreate.text,
             date: commentCreate.createdAt
-        }}
+        }
+    }
 
     async modifieComment(id:string, comment: CommentDto): Promise<Comment> {
         const commentId = await this.commentRepo.findOne({where: {id: id}})
