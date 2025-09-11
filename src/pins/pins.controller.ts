@@ -136,7 +136,6 @@ export class PinsController {
         return {message: "Comment successfully deleted."} 
     }
 
-
     // Views
 
     // @UseGuards(AuthGuard("jwt"))
