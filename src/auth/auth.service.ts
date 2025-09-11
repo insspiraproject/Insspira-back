@@ -31,7 +31,6 @@ export class AuthService {
             user = await this.usersService.createUser({
                 username: name,
                 email,
-                birthdate: new Date('1900-01-01'), 
                 phone: null,
                 password: null,
                 isAdmin: false,

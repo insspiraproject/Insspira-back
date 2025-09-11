@@ -87,6 +87,4 @@ export class PinsController {
         await this.service.commentDeleteService(id)
         return {message: "Comment successfully deleted."} 
     }
-
-
 }
