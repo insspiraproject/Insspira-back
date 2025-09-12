@@ -5,7 +5,7 @@ dotenvConfig({ path: '.env.development' });
 export const config = {
   authRequired: false,
   auth0Logout: true,
-  secret: process.env.AUTH0_CLIENT_SECRET,
+  secret: process.env.AUTH0_SECRET,
   baseURL: 'http://localhost:3000',
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_BASE_URL,
@@ -13,6 +13,7 @@ export const config = {
   authorizationParams: {
     response_type: 'code',
     scope: 'openid profile email offline_access',
+    audience: process.env.AUTH0_AUDIENCE,
   },
   routes: {
     callback: '/auth/callback',

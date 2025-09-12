@@ -1,16 +1,24 @@
-import { Comment } from 'src/pins/entitys/comments.entity';
-import { Like } from 'src/pins/entitys/likes.entity';
-import { Pin } from 'src/pins/entitys/pins.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Comment } from '../../pins/entities/comments.entity';
+import { Like } from '../../pins/entities/likes.entity';
+import { Pin } from '../../pins/entities/pins.entity';
 import { v4 as uuid} from "uuid";
+import { View } from 'src/pins/entities/view.entity';
+import { Save } from 'src/pins/entities/save.entity';
 
-@Entity()
+
+@Entity({
+    name: "users"
+})
 export class User {
     @PrimaryGeneratedColumn("uuid")
-    id: string = uuid();
+    id: string;
 
     @Column({ unique: true, nullable: true })
     auth0Id: string;
+
+    @Column({length: 50, nullable: true})
+    name: string;
 
     @Column({length: 50})
     username: string;
@@ -21,11 +29,11 @@ export class User {
     @Column({type:"bigint", nullable: true})
     phone: string;
 
-    @Column()
-    birthdate: Date;
-
     @Column({ nullable: true }) 
     password: string;
+
+    @Column({ nullable: true }) 
+    confirmPassword: string;
 
     @Column({ default: false }) 
     isAdmin: boolean;
@@ -39,5 +47,10 @@ export class User {
     @OneToMany(()=>Comment, (comment)=>comment.user)
     comment: Comment[];
 
+    @OneToMany(() => View, (view) => view.user)
+    views: View[];
+
+    @OneToMany(() => Save, (save) => save.user)
+    saves: Save[];
 
 }

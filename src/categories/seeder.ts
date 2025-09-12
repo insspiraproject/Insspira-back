@@ -1,4 +1,4 @@
-export const categoris = [
+export const categories = [
 
     {name: "Digital Art"},
     {name: "Photography"},
