@@ -33,7 +33,7 @@ import { AppController } from './auth/auth.controller';
     FilesModule,
     CategoryModule,
     PinModule,
-    AuthModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [],
