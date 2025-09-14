@@ -35,16 +35,15 @@ export class PinsController {
 
     // Create pin (auth required)
 
-    // @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard("jwt"))
     @Post()
     @HttpCode(HttpStatus.CREATED)
     async createPins(
         @Body() dtoPin: pinsDto, 
         @Req() req: any 
     ){
-        const idUser = "7f7ea51a-927b-431a-89d1-c15fd3c19ddb"
+        const idUser = req.user.id
         return await this.service.postPinsService(dtoPin, idUser)
-         
     }
 
     // Update pin (auth required) - hashtags via query (array)

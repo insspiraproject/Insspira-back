@@ -5,9 +5,19 @@ import cors from "cors"
 import { ValidationPipe } from '@nestjs/common';
 import { config } from './config/auth0.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(bodyParser.json({
+    verify: (req: any, res, buf) => {
+      if (buf && buf.length) {
+        req.rawBody = buf.toString();
+      }
+    }
+  }));
+  
   app.use(cors())
 
   const swaggerConfig = new DocumentBuilder()

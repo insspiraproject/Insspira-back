@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { CategorySeeder } from './categories/category.seeder';
 import { AppController } from './auth/auth.controller';
+import { MercadoPagoModule } from './mercadopago/mercadopago.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { AppController } from './auth/auth.controller';
     FilesModule,
     CategoryModule,
     PinModule,
-    AuthModule
+    AuthModule,
+    MercadoPagoModule
   ],
   controllers: [AppController],
   providers: [],

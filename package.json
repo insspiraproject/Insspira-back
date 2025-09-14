@@ -21,6 +21,7 @@
     "healthcheck": "npm ls --depth=0 && npx depcheck && npm audit"
   },
   "dependencies": {
+    "@mercadopago/sdk-js": "^0.0.3",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -41,6 +42,7 @@
     "express-openid-connect": "^2.19.2",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
+    "mercadopago": "^2.9.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",
