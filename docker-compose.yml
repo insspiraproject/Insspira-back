@@ -14,7 +14,7 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: agustincito100
+      POSTGRES_PASSWORD: 
       POSTGRES_DB: insspira
     ports:
       - "5432:5432" 
