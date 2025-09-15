@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-// import { JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import axios from 'axios';
 import * as bcrypt from 'bcrypt';
@@ -10,7 +10,7 @@ import { LoginUserDto } from 'src/users/dto/login-user.dto';
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
-        // private readonly jwtService: JwtService,
+         private readonly jwtService: JwtService,
     ) {}
 
     async validateUser(payload: any) {
@@ -99,15 +99,10 @@ export class AuthService {
             isAdmin: isAdmin || false 
         });
     
-        // const payload = { sub: user.id, email: user.email, name: user.name };
-        // const accessToken = this.jwtService.sign(payload);
-    
-        return {
-            id: user.id,
-            user: user.email,
-            password: user.password,
-            post: user.pinsCount
-        }
+        const payload = { sub: user.id, email: user.email, name: user.name };
+        const accessToken = this.jwtService.sign(payload);
+        return {accessToken}
+
     }
     
     async login(loginUserDto: LoginUserDto) {
@@ -130,13 +125,10 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
     
-        // const payload = { sub: user.id, email: user.email, name: user.name };
-        // const accessToken = this.jwtService.sign(payload);
+        const payload = { sub: user.id, email: user.email, name: user.name };
+        const accessToken = this.jwtService.sign(payload);
     
-        return {
-            id: user.id,
-            email: user.email,
-            password: user.password
-        };
+        return {accessToken}
+    
     }
 }

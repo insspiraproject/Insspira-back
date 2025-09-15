@@ -35,7 +35,7 @@ export class PinsController {
 
     // Create pin (auth required)
     //* Ok
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post()
     @HttpCode(HttpStatus.CREATED)
     async createPins(
