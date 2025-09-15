@@ -49,7 +49,7 @@ export class PinsController {
 
     // Update pin (auth required) - hashtags via query (array)
     //* Ok
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Put("/:id")
     async modifiePins(
         @Param("id", new ParseUUIDPipe()) pinId: string,
@@ -64,7 +64,7 @@ export class PinsController {
 
     // Delete pin (auth required)
     //* Ok
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Delete("/:id")
     async deletePins(
         @Param("id", new ParseUUIDPipe()) id:string,
@@ -78,7 +78,7 @@ export class PinsController {
 
     // Create Like ) 
     //*OK
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post("/like/:id")
     async createLikes(
         @Param("id", new ParseUUIDPipe()) idPin:string,
@@ -90,7 +90,7 @@ export class PinsController {
     }
 
     //*OK
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Delete("/like/:deleteLike")
     async deleteLikes(
         @Param("deleteLike", new ParseUUIDPipe())  id:string,
@@ -103,7 +103,7 @@ export class PinsController {
 
     // Comments
     //* Ok
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post("/comments/:id")
     async createComments(
         @Param("id", new ParseUUIDPipe()) pinId:string,
@@ -115,7 +115,7 @@ export class PinsController {
     }
 
     //* Ok
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Put("/modifiComments/:id")
     async modifiComments(
         @Param("id", new ParseUUIDPipe()) id:string,
@@ -128,7 +128,7 @@ export class PinsController {
     }
 
     //* Ok
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Delete("/deleteComments/:id")
     async deleteComments(
         @Param("id", new ParseUUIDPipe()) id: string,
@@ -141,7 +141,7 @@ export class PinsController {
 
     // Views
     //* Ok
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post("/view/:id")
     async createView(
         @Param("id", new ParseUUIDPipe()) idPins: string,
@@ -162,7 +162,7 @@ export class PinsController {
     }
 
     //* Ok
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post("/createSave/:id")
     async savePins(
         @Param("id", new ParseUUIDPipe()) idPins: string,
@@ -173,7 +173,7 @@ export class PinsController {
     }
 
     //* Ok
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Delete("/saveDelete/:id")
     async deleteSavePins( @Param("id", new ParseUUIDPipe()) id: string, @Req() req){
         const idUser = req.user.sub
