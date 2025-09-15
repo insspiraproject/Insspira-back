@@ -10,15 +10,17 @@ import { PassportModule } from '@nestjs/passport';
     imports: [
         UsersModule,
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        JwtModule.registerAsync({
-        useFactory: () => ({
-            secret: process.env.JWT_SECRET || 'your_jwt_secret',
-            signOptions: { expiresIn: '60m' },
-        }),
-        }),
+        
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy],
     exports: [AuthService],
 })
 export class AuthModule {}
+
+// JwtModule.registerAsync({
+        // useFactory: () => ({
+        //     secret: process.env.JWT_SECRET || 'your_jwt_secret',
+        //     signOptions: { expiresIn: '60m' },
+        // }),
+        // }),

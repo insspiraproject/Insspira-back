@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne} from 'typeorm';
 import { Comment } from '../../pins/entities/comments.entity';
 import { Like } from '../../pins/entities/likes.entity';
 import { Pin } from '../../pins/entities/pins.entity';
@@ -38,6 +38,9 @@ export class User {
     @Column({ default: false }) 
     isAdmin: boolean;
 
+    @Column({default: 0})
+    pinsCount: number
+
     @OneToMany(()=> Pin, (pin)=> pin.user)
     pins: Pin[];
 
@@ -52,5 +55,10 @@ export class User {
 
     @OneToMany(() => Save, (save) => save.user)
     saves: Save[];
+
+
+
+
+    
 
 }

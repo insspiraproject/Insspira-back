@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { CategorySeeder } from './categories/category.seeder';
 import { AppController } from './auth/auth.controller';
+import { PlanModule } from './plans/plan.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AppController } from './auth/auth.controller';
     CategoryModule,
     PinModule,
     AuthModule,
+    PlanModule
   ],
   controllers: [AppController],
   providers: [],
