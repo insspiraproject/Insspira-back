@@ -1,4 +1,4 @@
-import { Controller,Post, Body } from '@nestjs/common';
+import { Controller,Post, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { SendEmailDto } from './dto/sendEmail.dto';
 
@@ -29,6 +29,10 @@ async notificationMail(@Body() body: SendEmailDto) {
     '✨ Bienvenido a Insspira ✨',
     message
   );
+
+  if (!result.success) {
+    throw new HttpException('Error enviando el correo', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
   return result;
 }

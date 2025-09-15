@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class NotificationsService {
   private transporter;
+  private logger = new Logger(NotificationsService.name);
 
   constructor() {
     this.transporter = nodemailer.createTransport({
@@ -20,14 +21,17 @@ export class NotificationsService {
   async sendEmail(to: string, subject: string, message: string) {
     try {
       const info = await this.transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: `"Insspira" <${process.env.EMAIL_USER}>`,
         to,
         subject,
         text: message,
       });
+
+      this.logger.log(`Correo enviado: ${info.messageId} a ${to}`);
       return { success: true };
     } catch (error) {
-      return { success: false };
+      this.logger.error(`Error enviando correo a ${to}: ${error.message}`, error.stack);
+      return { success: false, error: error.message };
     }
   }
 }
