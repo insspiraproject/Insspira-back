@@ -1,41 +1,38 @@
-import { Controller,Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+// notifications/notifications.controller.ts
+import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { SendEmailDto } from './dto/sendEmail.dto';
+import { CreateNotificationDto } from './dto/createNotification.dto';
 
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post()
-async notificationMail(@Body() body: SendEmailDto) {
-  const { email, name } = body;
+  async notificationMail(@Body() body: SendEmailDto) {
+    const result = await this.notificationsService.sendWelcome(body);
 
-  const message = `
-      Hola ${name} 👋
+    if (!result.success) {
+      throw new HttpException(
+        'Error enviando el correo de bienvenida',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
-      ¡Bienvenido a Insspira! 🎨✨
-
-        Somos una comunidad enfocada en la creatividad visual y las redes sociales con un fin recreativo.  
-        Aquí podrás descubrir, guardar y compartir inspiración visual de todo tipo.  
-
-        Además, ofrecemos un modelo de suscripción premium con beneficios exclusivos para potenciar tu experiencia. 🚀
-
-      Gracias por unirte,  
-      Al equipo de Insspira 💙
-                  `;
-
-  const result = await this.notificationsService.sendEmail(
-    email,
-    '✨ Bienvenido a Insspira ✨',
-    message
-  );
-
-  if (!result.success) {
-    throw new HttpException('Error enviando el correo', HttpStatus.INTERNAL_SERVER_ERROR);
+    return { success: true, message: 'Correo de bienvenida enviado' };
   }
 
-  return result;
-}
+  @Post('activity')
+  async sendActivityNotification(@Body() body: CreateNotificationDto) {
+    const result = await this.notificationsService.sendActivity(body);
 
+    if (!result.success) {
+      throw new HttpException(
+        `Error enviando la notificación: ${result.error}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
+    return { success: true, message: 'Notificación enviada' };
+  }
 }
