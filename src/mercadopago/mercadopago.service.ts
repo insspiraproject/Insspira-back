@@ -1,84 +1,30 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { MercadoPagoConfig, Preference, Payment, Transfer } from 'mercadopago';
-import * as crypto from 'crypto';
+import { Injectable, Inject } from '@nestjs/common';
 
 @Injectable()
 export class MercadoPagoService {
-    private readonly logger = new Logger(MercadoPagoService.name);
-    private webhookSecret: string;
-    private client: MercadoPagoConfig;
+    constructor(@Inject('MERCADOPAGO_CLIENT') private readonly mp: any) {}
 
-    constructor(private config: ConfigService) {
-        const accessToken = this.config.get<string>('MP_ACCESS_TOKEN') || '';
-        this.webhookSecret = this.config.get<string>('MP_WEBHOOK_SECRET') || '';
-        this.client = new MercadoPagoConfig({ accessToken });
-        this.logger.log('MercadoPago configured');
-    }
-
-    async createPreference(items: any[], payer?: any, external_reference?: string) {
-        const appUrl = this.config.get<string>('APP_URL') || 'http://localhost:3000';
-        const preference = {
-        items,
-        payer,
-        external_reference,
-        back_urls: {
-            success: `${appUrl}/api/payments/feedback?status=success`,
-            pending: `${appUrl}/api/payments/feedback?status=pending`,
-            failure: `${appUrl}/api/payments/feedback?status=failure`,
+    async createSubscription(plan: 'monthly' | 'annual', email: string) {
+        const subscriptionData = {
+        reason: plan === 'monthly' ? 'Suscripción Mensual' : 'Suscripción Anual',
+        auto_recurring: {
+            frequency: 1,
+            frequency_type: plan === 'monthly' ? 'months' : 'years',
+            transaction_amount: plan === 'monthly' ? 10 : 100, // 💲 precios
+            currency_id: 'ARS',
+            start_date: new Date().toISOString(),
+            end_date: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
         },
-        notification_url: `${appUrl}/api/payments/webhook`,
+        back_url: 'https://tu-frontend.com/success',
+        payer_email: email,
         };
 
-        const prefClient = new Preference(this.client);
-        const response = await prefClient.create({ body: preference });
-        return response;
-    }
-
-    async getPayment(paymentId: string) {
-        const paymentClient = new Payment(this.client);
-        const response = await paymentClient.get({ id: paymentId });
-        return response;
-    }
-
-    verifyXSignature(xSignature: string | undefined, xRequestId: string | undefined, dataId: string | undefined) {
-        if (!xSignature || !xRequestId || !dataId || !this.webhookSecret) return false;
-
-        const parts = xSignature.split(',');
-        let ts = '';
-        let v1 = '';
-        for (const part of parts) {
-        const [k, v] = part.split('=').map(s => s.trim());
-        if (k === 'ts') ts = v;
-        if (k === 'v1') v1 = v;
-        }
-        if (!ts || !v1) return false;
-
-        const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
-        const digest = crypto.createHmac('sha256', this.webhookSecret).update(manifest).digest('hex');
-
         try {
-        return crypto.timingSafeEqual(Buffer.from(digest), Buffer.from(v1));
-        } catch (e) {
-        return false;
+        const result = await this.mp.preapproval.create(subscriptionData);
+        return result.response;
+        } catch (err) {
+        console.error('Error creando suscripción:', err);
+        throw err;
         }
     }
-
-    async createTransfer(amount: number, receiverEmail: string, description?: string) {
-        try {
-            const transferData = {
-                amount,
-                receiver_email: receiverEmail,
-                description: description || 'Transferencia de prueba',
-            };
-        
-            const transferClient = new Transfer(this.client);
-            const response = await transferClient.create({ body: transferData });
-            this.logger.log('Transfer created', JSON.stringify(response));
-            return response;
-            } catch (error) {
-            this.logger.error('Error creating transfer', JSON.stringify(error.response || error));
-            throw error;
-            }
-        }
 }

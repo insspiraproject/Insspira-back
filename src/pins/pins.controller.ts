@@ -4,22 +4,20 @@ import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { CommentDto } from "./pinsDtos/comments.dto";
 import { AuthGuard } from "@nestjs/passport";
 
-
 @Controller("pins")
 
 export class PinsController {
     constructor (private readonly service: PinsService){}
 
-
     // Public search
-
+    //* Ok
     @Get("/search")
     async searchPins(@Query("q") query: string){
         return await this.service.serviceSearch(query)
     }
 
     // Public list / get
-
+    //* Ok
     @Get()
     async getAllPins(
         @Query("page") page: number = 1, 
@@ -34,21 +32,21 @@ export class PinsController {
     }
 
     // Create pin (auth required)
-
-    @UseGuards(AuthGuard("jwt"))
+    //* Ok
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post()
     @HttpCode(HttpStatus.CREATED)
     async createPins(
         @Body() dtoPin: pinsDto, 
         @Req() req: any 
     ){
-        const idUser = req.user.id
+        const idUser = req.user.sub
         return await this.service.postPinsService(dtoPin, idUser)
     }
 
     // Update pin (auth required) - hashtags via query (array)
-
-    // @UseGuards(AuthGuard("jwt"))
+    //* Ok
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Put("/:id")
     async modifiePins(
         @Param("id", new ParseUUIDPipe()) pinId: string,
@@ -56,124 +54,126 @@ export class PinsController {
         @Body()  dtoPin:updateDto,
         @Req() req: any
             ){
-            const userId = "7f7ea51a-927b-431a-89d1-c15fd3c19ddb"  
+            const userId = req.user.sub
         await this.service.putPinsService(userId, dtoPin, pinId, hashtags)
         return {message: "The post was successfully modified."}
     }
 
     // Delete pin (auth required)
-
-    // @UseGuards(AuthGuard("jwt"))
+    //* Ok
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Delete("/:id")
     async deletePins(
         @Param("id", new ParseUUIDPipe()) id:string,
-        @Req() req
+        @Req() req: any
     ){
-        const userId = "7f7ea51a-927b-431a-89d1-c15fd3c19ddb"
+        const userId = req.user.sub
         await this.service.deletePinsService(id, userId)
         return {message: "Post successfully deleted."}
     }
 
 
-    // Create Like PINS  (POST, PUT, DELETE) 
-
-    // @UseGuards(AuthGuard("jwt"))
-    @Post("/like/:pinsId")
+    // Create Like ) 
+    //*OK
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+    @Post("/like/:id")
     async createLikes(
-        @Param("pinsId", new ParseUUIDPipe()) idPin:string,
-        @Req() req
+        @Param("id", new ParseUUIDPipe()) idPin:string,
+        @Req() req: any
         ){
-        const idUser = "7f7ea51a-927b-431a-89d1-c15fd3c19ddb"
+        const idUser = req.user.sub
         await this.service.likeService(idPin, idUser)
         return{message: "Like added."} 
     }
 
-    // @UseGuards(AuthGuard("jwt"))
+    //*OK
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Delete("/like/:deleteLike")
     async deleteLikes(
         @Param("deleteLike", new ParseUUIDPipe())  id:string,
-        @Req() req
+        @Req() req: any
     ){
-        const userId =  "7f7ea51a-927b-431a-89d1-c15fd3c19ddb"
+        const userId = req.user.sub
         await this.service.likeDeleteService(id, userId)
         return {message:"Like removed."}
     }
 
     // Comments
-
-    // @UseGuards(AuthGuard("jwt"))
+    //* Ok
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post("/comments/:id")
     async createComments(
         @Param("id", new ParseUUIDPipe()) pinId:string,
         @Body() comment: CommentDto,
         @Req() req: any
     ) {
-        const userId = "b6a5b521-4dce-4b3d-a8af-21e1525a0adb"
+        const userId = req.user.sub
         return await this.service.commentService(userId, pinId, comment)
     }
 
-    // @UseGuards(AuthGuard("jwt"))
+    //* Ok
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Put("/modifiComments/:id")
     async modifiComments(
         @Param("id", new ParseUUIDPipe()) id:string,
         @Body()  comment: CommentDto,
         @Req() req: any
     ){
-        const userId = "b6a5b521-4dce-4b3d-a8af-21e1525a0adb"
+        const userId = req.user.sub
         await this.service.commentModifieService(id, comment,  userId)
         return {message: "Your comment has been successfully modified."} 
     }
 
-    // @UseGuards(AuthGuard("jwt"))
+    //* Ok
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Delete("/deleteComments/:id")
     async deleteComments(
         @Param("id", new ParseUUIDPipe()) id: string,
         @Req() req: any
     ) {
-        const userId = "b6a5b521-4dce-4b3d-a8af-21e1525a0adb"
+        const userId = req.user.sub
         await this.service.commentDeleteService(id, userId)
         return {message: "Comment successfully deleted."} 
     }
 
     // Views
-
-    // @UseGuards(AuthGuard("jwt"))
+    //* Ok
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post("/view/:id")
     async createView(
         @Param("id", new ParseUUIDPipe()) idPins: string,
-        @Req() req
+        @Req() req: any
     ){
-        const idUser = "0f997ab9-7ce9-4420-965f-0b5203f6e8e4"
+        const idUser = req.user.sub
         return this.service.viewService(idUser, idPins)
     }
     
     // Saves (user's saved pins)
-
-    // @UseGuards(AuthGuard("jwt"))
-    @Get("save/:id")
+     //* Ok
+    @Get("/save/:id")
     async getSavePins(
-        @Param('id', new ParseUUIDPipe()) idUser:string,
-        @Req() req: any
+        @Param("id", new ParseUUIDPipe()) idUser: string
     ){
-        // const idUser = "7f7ea51a-927b-431a-89d1-c15fd3c19ddb"
-     
-        return await this.service.getSaveService(idUser)
+        return await this.service.getSaveService( idUser)
+       
     }
 
-    // @UseGuards(AuthGuard("jwt"))
+    //* Ok
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post("/createSave/:id")
     async savePins(
         @Param("id", new ParseUUIDPipe()) idPins: string,
         @Req() req
     ){
-        const idUser = "7f7ea51a-927b-431a-89d1-c15fd3c19ddb"
+        const idUser = req.user.sub
         return await this.service.saveService(idPins, idUser)
     }
 
-    // @UseGuards(AuthGuard("jwt"))
+    //* Ok
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Delete("/saveDelete/:id")
     async deleteSavePins( @Param("id", new ParseUUIDPipe()) id: string, @Req() req){
-        const idUser = "7f7ea51a-927b-431a-89d1-c15fd3c19ddb"
+        const idUser = req.user.sub
         await this.service.deleteSave(id, idUser)
         return {message: "This item was removed successfully."}
     }

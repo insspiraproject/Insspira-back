@@ -10,7 +10,7 @@ import { LoginUserDto } from 'src/users/dto/login-user.dto';
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
-        private readonly jwtService: JwtService,
+         private readonly jwtService: JwtService,
     ) {}
 
     async validateUser(payload: any) {
@@ -72,7 +72,8 @@ export class AuthService {
         }
     }
 
-    async register(createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
+
+    async register(createUserDto: CreateUserDto){
         const { email, password, confirmPassword, username, name, phone, isAdmin } = createUserDto;
     
         if (!password || !confirmPassword) {
@@ -100,11 +101,11 @@ export class AuthService {
     
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
-    
-        return { accessToken };
+        return {accessToken}
+
     }
     
-    async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
+    async login(loginUserDto: LoginUserDto) {
         const { email, password } = loginUserDto;
     
         if (!password) {
@@ -127,6 +128,7 @@ export class AuthService {
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
     
-        return { accessToken };
+        return {accessToken}
+    
     }
 }
