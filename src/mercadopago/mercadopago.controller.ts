@@ -29,7 +29,7 @@ export class MercadoPagoController {
 
     @Post('webhook')
     async webhook(@Req() req: Request, @Res() res: Response) {
-        // tomar id desde query o body:
+        
         const dataId = (req.query.id as string) || (req.query['data.id'] as string) || (req.body && req.body.data && req.body.data.id);
         const xSignature = req.headers['x-signature'] as string | undefined;
         const xRequestId = req.headers['x-request-id'] as string | undefined;
@@ -56,5 +56,20 @@ export class MercadoPagoController {
     @Get('feedback')
     feedback(@Req() req: Request) {
         return { query: req.query };
+    }
+
+    @Post('transfer')
+    async createTransfer(@Body() body: { amount: number; receiverEmail: string; description?: string }, @Res() res: Response) {
+        try {
+        const { amount, receiverEmail, description } = body;
+        if (!amount || !receiverEmail) {
+            return res.status(400).json({ message: 'amount and receiverEmail are required' });
+        }
+        const transfer = await this.mpService.createTransfer(amount, receiverEmail, description);
+        return res.json(transfer);
+        } catch (err) {
+        this.logger.error('Error creating transfer', err);
+        return res.status(500).json({ message: 'error creating transfer', error: err.message });
+        }
     }
 }

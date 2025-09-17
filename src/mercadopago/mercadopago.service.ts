@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment, Transfer } from 'mercadopago';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class MercadoPagoService {
     }
 
     async createPreference(items: any[], payer?: any, external_reference?: string) {
-        const appUrl = this.config.get<string>('APP_URL') || 'http://localhost:3000'; // Valor por defecto
+        const appUrl = this.config.get<string>('APP_URL') || 'http://localhost:3000';
         const preference = {
         items,
         payer,
@@ -63,4 +63,22 @@ export class MercadoPagoService {
         return false;
         }
     }
+
+    async createTransfer(amount: number, receiverEmail: string, description?: string) {
+        try {
+            const transferData = {
+                amount,
+                receiver_email: receiverEmail,
+                description: description || 'Transferencia de prueba',
+            };
+        
+            const transferClient = new Transfer(this.client);
+            const response = await transferClient.create({ body: transferData });
+            this.logger.log('Transfer created', JSON.stringify(response));
+            return response;
+            } catch (error) {
+            this.logger.error('Error creating transfer', JSON.stringify(error.response || error));
+            throw error;
+            }
+        }
 }
