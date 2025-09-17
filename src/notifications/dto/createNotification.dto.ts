@@ -1,15 +1,20 @@
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
-export class CreateNotificationDto {
+export class LikeNotificationDto {
   @IsEmail()
   recipientEmail: string;
 
   @IsNotEmpty()
-  type: 'like' | 'comment';
+  photoTitle: string;
+}
+
+export class CommentNotificationDto {
+  @IsEmail()
+  recipientEmail: string;
 
   @IsNotEmpty()
   photoTitle: string;
 
-  @IsOptional()
-  comment?: string;
+  @IsNotEmpty()
+  comment: string;
 }

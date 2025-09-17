@@ -1,8 +1,7 @@
-// notifications/notifications.controller.ts
 import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { SendEmailDto } from './dto/sendEmail.dto';
-import { CreateNotificationDto } from './dto/createNotification.dto';
+import { LikeNotificationDto, CommentNotificationDto } from './dto/createNotification.dto';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -22,17 +21,25 @@ export class NotificationsController {
     return { success: true, message: 'Correo de bienvenida enviado' };
   }
 
-  @Post('activity')
-  async sendActivityNotification(@Body() body: CreateNotificationDto) {
-    const result = await this.notificationsService.sendActivity(body);
+  @Post('like')
+  async sendLikeNotification(@Body() body: LikeNotificationDto) {
+    const result = await this.notificationsService.sendLike(body);
 
     if (!result.success) {
-      throw new HttpException(
-        `Error enviando la notificación: ${result.error}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Error enviando correo de like', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    return { success: true, message: 'Notificación enviada' };
+    return { success: true, message: 'Correo de like enviado' };
+  }
+
+  @Post('comment')
+  async sendCommentNotification(@Body() body: CommentNotificationDto) {
+    const result = await this.notificationsService.sendComment(body);
+
+    if (!result.success) {
+      throw new HttpException('Error enviando correo de comentario', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return { success: true, message: 'Correo de comentario enviado' };
   }
 }

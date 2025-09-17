@@ -1,8 +1,8 @@
 // notifications/notifications.service.ts
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { CreateNotificationDto } from './dto/createNotification.dto';
 import { SendEmailDto } from './dto/sendEmail.dto';
+import { LikeNotificationDto, CommentNotificationDto } from './dto/createNotification.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -41,23 +41,18 @@ export class NotificationsService {
     };
   }
 
-  
-  private buildActivityMessage(dto: CreateNotificationDto) {
-    const { type, photoTitle, comment } = dto;
+  private buildLikeMessage(photoTitle: string) {
+    return {
+      subject: `🎉 Tu foto "${photoTitle}" recibió un like!`,
+      message: `¡Alguien le dio like a tu foto "${photoTitle}" en Insspira! 💙`,
+    };
+  }
 
-    if (type === 'like') {
-      return {
-        subject: `🎉 Tu foto "${photoTitle}" recibió un like!`,
-        message: `¡Alguien le dio like a tu foto "${photoTitle}" en Insspira! 💙`,
-      };
-    } else if (type === 'comment') {
-      return {
-        subject: `💬 Nuevo comentario en tu foto "${photoTitle}"`,
-        message: `Alguien comentó en tu foto "${photoTitle}":\n\n"${comment}"`,
-      };
-    } else {
-      throw new BadRequestException('Tipo de notificación inválido');
-    }
+  private buildCommentMessage(photoTitle: string, comment: string) {
+    return {
+      subject: `💬 Nuevo comentario en tu foto "${photoTitle}"`,
+      message: `Alguien comentó en tu foto "${photoTitle}":\n\n"${comment}"`,
+    };
   }
 
   public async sendEmail(to: string, subject: string, message: string) {
@@ -82,8 +77,13 @@ export class NotificationsService {
     return this.sendEmail(dto.email, subject, message);
   }
 
-  async sendActivity(dto: CreateNotificationDto) {
-    const { subject, message } = this.buildActivityMessage(dto);
+  async sendLike(dto: LikeNotificationDto) {
+    const { subject, message } = this.buildLikeMessage(dto.photoTitle);
+    return this.sendEmail(dto.recipientEmail, subject, message);
+  }
+
+  async sendComment(dto: CommentNotificationDto) {
+    const { subject, message } = this.buildCommentMessage(dto.photoTitle, dto.comment);
     return this.sendEmail(dto.recipientEmail, subject, message);
   }
 }
