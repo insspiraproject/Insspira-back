@@ -117,16 +117,41 @@ import { Repository } from 'typeorm';
       }
     }
   
-    @Delete(':id')
+    @Delete('cancel/:userId')
     @HttpCode(HttpStatus.OK)
-    async cancelSubscription(@Param('id') id: string) {
+    async cancelUserPayment(@Param('userId') userId: string) {
       try {
-        const result = await this.mpService.cancelSubscription(id);
-        return result;
-      } catch (error: any) {
+        // Buscar pago activo
+        const activePayment = await this.paymentRepository
+          .createQueryBuilder('payment')
+          .where('payment.userId = :userId AND payment.status = :status', {
+            userId,
+            status: 'active'
+          })
+          .orderBy('payment.createdAt', 'DESC')
+          .getOne();
+
+        if (!activePayment) {
+          return {
+            success: false,
+            message: 'No se encontró pago activo',
+          };
+        }
+
+        // Marcar como cancelado
+        activePayment.status = 'cancelled';
+        await this.paymentRepository.save(activePayment);
+
+        return {
+          success: true,
+          message: 'Pago cancelado. Acceso hasta el final del período.',
+          endsAt: activePayment.endsAt,
+        };
+      } catch (error) {
+        console.error('Error cancelando:', error);
         return {
           success: false,
-          message: error.message,
+          message: 'Error al cancelar',
         };
       }
     }
