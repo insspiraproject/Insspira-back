@@ -1,7 +1,6 @@
-version: '3.8'
 services:
   api:
-    image: insspira/api:latest
+    build: .
     ports:
       - "3000:3000"
     env_file:
@@ -10,6 +9,7 @@ services:
       - db
     networks:
       - insspira-network
+
   db:
     image: postgres:latest
     environment:
@@ -22,8 +22,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - insspira-network
+
 networks:
   insspira-network:
     driver: bridge
+
 volumes:
   postgres_data:
