@@ -13,8 +13,11 @@ import {
     Res,
     Req
   } from '@nestjs/common';
-  import type { Response, Request } from 'express';  // ✅ CAMBIO AQUÍ: import type
+  import type { Response, Request } from 'express';
   import { MercadoPagoService } from './mercadopago.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Payment } from '../payments/payment.entity';
+import { Repository } from 'typeorm';
   
   class CreateSubscriptionDto {
     email: string;
@@ -24,7 +27,11 @@ import {
   @Controller('subscriptions')
   @UsePipes(new ValidationPipe({ transform: true }))
   export class MercadoPagoController {
-    constructor(private readonly mpService: MercadoPagoService) {}
+    constructor(
+      private readonly mpService: MercadoPagoService,
+      @InjectRepository(Payment)
+      private paymentRepository: Repository<Payment>
+    ) {}
   
     @Post('monthly')
     @HttpCode(HttpStatus.CREATED)
@@ -110,8 +117,6 @@ import {
       }
     }
   
-    
-  
     @Delete(':id')
     @HttpCode(HttpStatus.OK)
     async cancelSubscription(@Param('id') id: string) {
@@ -126,11 +131,33 @@ import {
       }
     }
   
-    // ✅ ENDPOINTS DE CALLBACK - CORREGIDOS
     @Get('success')
-    success(@Req() req: Request, @Res() res: Response) {
+    async success(@Req() req: Request, @Res() res: Response) {
       const { preference_id, payment_id, external_reference } = req.query as any;
       
+      if (external_reference && payment_id) {
+        try {
+          const [_, userId, plan] = external_reference.split('_');
+          const now = new Date();
+          const endsAt = plan === 'monthly' ? 
+            new Date(now.setMonth(now.getMonth() + 1)) : 
+            new Date(now.setFullYear(now.getFullYear() + 1));
+          
+          await this.paymentRepository.save({
+            userId,
+            paymentId: payment_id,
+            plan,
+            status: 'active',
+            startsAt: new Date(),
+            endsAt,
+          });
+          
+          console.log(`✅ Payment creado: ${userId} - ${plan}`);
+        } catch (error) {
+          console.error('❌ Error guardando payment:', error);
+        }
+      }
+
       console.log('✅ Pago exitoso:', {
         preference_id,
         payment_id,

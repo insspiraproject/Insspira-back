@@ -12,6 +12,7 @@ import { MercadoPagoModule } from './mercadopago/mercadopago.module';
 import { PlanModule } from './plans/plan.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MercadoPagoController } from './mercadopago/mercadopago.controller';
+import { Payment } from './payments/payment.entity';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { MercadoPagoController } from './mercadopago/mercadopago.controller';
         port: configService.get("DB_PORT"),
         username: configService.get("DB_USERNAME"),
         password: configService.get("DB_PASSWORD") as string,
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: [__dirname + '/**/*.entity{.ts,.js}', Payment],
         synchronize: true
       })
     }),
