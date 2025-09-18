@@ -33,6 +33,7 @@ import { Payment } from './payments/payment.entity';
         synchronize: true
       })
     }),
+    TypeOrmModule.forFeature([Payment]),
     UsersModule,
     AuthModule,
     FilesModule,
