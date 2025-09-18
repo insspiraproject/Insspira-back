@@ -13,7 +13,11 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Insspira API')
-    .setDescription('API documentation for Insspira application')
+    .setDescription(
+      'Documentación de la API de Insspira: una aplicación para compartir, descubrir y organizar imágenes de manera social. ' +
+      'Los usuarios pueden subir imágenes, crear colecciones, interactuar con contenido mediante “me gusta” y explorar imágenes de otros usuarios. ' +
+      'Incluye autenticación, gestión de usuarios y herramientas para filtrar y buscar contenido de forma eficiente.'
+    )
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);

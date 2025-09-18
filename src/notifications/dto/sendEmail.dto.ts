@@ -8,7 +8,7 @@ export class SendEmailDto {
   email: string;
 
   @IsNotEmpty()
-  @ApiProperty({ description: 'Nombre completo del usuario' })
+  @ApiProperty({ example: 'Nombre completo del usuario' })
   name: string;
      
 }
