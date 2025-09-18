@@ -21,7 +21,6 @@ export class MercadoPagoService {
     this.client = mercadopago;
   }
 
-  // ✅ MÉTODO 1: Crear preferencia (para checkout inicial)
   async createPreference(plan: 'monthly' | 'annual', email: string, userId?: string): Promise<any> {
     const preferenceData: any = {
       items: [{
@@ -70,7 +69,6 @@ export class MercadoPagoService {
     }
   }
 
-  // ✅ MÉTODO 2: Obtener preferencia por ID
   async getPreference(preferenceId: string): Promise<any> {
     try {
       this.logger.log(`Obteniendo preferencia ${preferenceId}`);
@@ -87,7 +85,6 @@ export class MercadoPagoService {
     }
   }
 
-  // ✅ MÉTODO 3: Obtener pago por ID
   async getPayment(paymentId: string): Promise<any> {
     try {
       this.logger.log(`Obteniendo pago ${paymentId}`);
@@ -104,7 +101,6 @@ export class MercadoPagoService {
     }
   }
 
-  // ✅ MÉTODO 4: Crear suscripción directa (opcional)
   async createSubscription(plan: 'monthly' | 'annual', email: string, userId?: string): Promise<any> {
     const subscriptionData: any = {
       reason: plan === 'monthly' ? 'Suscripción Mensual' : 'Suscripción Anual',
@@ -142,7 +138,6 @@ export class MercadoPagoService {
     }
   }
 
-  // ✅ MÉTODO 5: Obtener suscripción por ID
   async getSubscription(subscriptionId: string): Promise<any> {
     try {
       this.logger.log(`Obteniendo suscripción ${subscriptionId}`);
@@ -159,7 +154,6 @@ export class MercadoPagoService {
     }
   }
 
-  // ✅ MÉTODO 6: Cancelar suscripción
   async cancelSubscription(subscriptionId: string): Promise<any> {
     try {
       this.logger.log(`Cancelando suscripción ${subscriptionId}`);
@@ -177,7 +171,6 @@ export class MercadoPagoService {
     }
   }
 
-  // ✅ MÉTODO 8: Obtener todas las suscripciones (opcional)
   async getAllSubscriptions(): Promise<any> {
     try {
       this.logger.log('Obteniendo todas las suscripciones');
