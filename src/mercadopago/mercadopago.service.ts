@@ -14,7 +14,6 @@ export class MercadoPagoService {
       throw new Error('MP_ACCESS_TOKEN no está configurado');
     }
 
-    // Configuración para v1.x que funciona perfectamente
     mercadopago.configure({
       access_token: accessToken
     });
