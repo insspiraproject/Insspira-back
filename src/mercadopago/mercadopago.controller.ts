@@ -110,18 +110,7 @@ import {
       }
     }
   
-    @Get(':id')
-    async getSubscription(@Param('id') id: string) {
-      try {
-        const result = await this.mpService.getSubscription(id);
-        return result;
-      } catch (error: any) {
-        return {
-          success: false,
-          message: error.message,
-        };
-      }
-    }
+    
   
     @Delete(':id')
     @HttpCode(HttpStatus.OK)
@@ -194,6 +183,19 @@ import {
           </body>
         </html>
       `);
+    }
+
+    @Get(':id')
+    async getSubscription(@Param('id') id: string) {
+      try {
+        const result = await this.mpService.getSubscription(id);
+        return result;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
     }
   
     @Get('failure')

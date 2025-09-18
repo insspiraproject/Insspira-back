@@ -181,9 +181,19 @@ export class MercadoPagoService {
   // ✅ MÉTODO 7: Verificar webhook
   verifyWebhook(payload: any, signature: string): boolean {
     try {
-      const secret = this.configService.get<string>('MP_WEBHOOK_SECRET') || 'mercadopago123';
-      const isVerified = this.client.webhook.verify(payload, signature, secret);
-      return isVerified;
+      const secret = this.configService.get<string>('MP_WEBHOOK_SECRET');
+      if (!secret) return false;
+      
+      // Para SDK v1.x, verificación manual simple
+      const expectedSignature = require('crypto')
+        .createHmac('sha256', secret)
+        .update(JSON.stringify(payload))
+        .digest('hex');
+      
+      const isValid = signature === expectedSignature;
+      this.logger.log(`Webhook verification: ${isValid ? '✅ PASS' : '❌ FAIL'}`);
+      
+      return isValid;
     } catch (error) {
       this.logger.error('Error verificando webhook:', error);
       return false;
