@@ -121,7 +121,6 @@ import { Repository } from 'typeorm';
     @HttpCode(HttpStatus.OK)
     async cancelUserPayment(@Param('userId') userId: string) {
       try {
-        // Buscar pago activo
         const activePayment = await this.paymentRepository
           .createQueryBuilder('payment')
           .where('payment.userId = :userId AND payment.status = :status', {
@@ -138,7 +137,6 @@ import { Repository } from 'typeorm';
           };
         }
 
-        // Marcar como cancelado
         activePayment.status = 'cancelled';
         await this.paymentRepository.save(activePayment);
 
@@ -152,6 +150,41 @@ import { Repository } from 'typeorm';
         return {
           success: false,
           message: 'Error al cancelar',
+        };
+      }
+    }
+
+    @Get('status/:userId')
+    @HttpCode(HttpStatus.OK)
+    async getPaymentStatus(@Param('userId') userId: string) {
+      try {
+        const payments = await this.paymentRepository
+          .createQueryBuilder('payment')
+          .where('payment.userId = :userId', { userId })
+          .orderBy('payment.createdAt', 'DESC')
+          .getOne();
+
+        if (!payments) {
+          return {
+            success: true,
+            hasActivePayment: false,
+          };
+        }
+
+        const hasActive = payments.status === 'active' && new Date() <= payments.endsAt;
+        
+        return {
+          success: true,
+          hasActivePayment: hasActive,
+          plan: payments.plan,
+          status: payments.status,
+          endsAt: payments.endsAt,
+        };
+      } catch (error) {
+        console.error('Error obteniendo estado:', error);
+        return {
+          success: false,
+          message: 'Error al obtener estado',
         };
       }
     }
