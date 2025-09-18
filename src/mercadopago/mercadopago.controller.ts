@@ -138,10 +138,13 @@ import { Repository } from 'typeorm';
       if (external_reference && payment_id) {
         try {
           const [_, userId, plan] = external_reference.split('_');
-          const now = new Date();
-          const endsAt = plan === 'monthly' ? 
-            new Date(now.setMonth(now.getMonth() + 1)) : 
-            new Date(now.setFullYear(now.getFullYear() + 1));
+          const startsAt = new Date();
+          const endsAt = new Date(startsAt);
+          if (plan === 'monthly') {
+            endsAt.setMonth(endsAt.getMonth() + 1);
+          } else {
+            endsAt.setFullYear(endsAt.getFullYear() + 1);
+          }
           
           await this.paymentRepository.save({
             userId,
