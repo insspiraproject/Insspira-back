@@ -75,48 +75,6 @@ import { Repository } from 'typeorm';
       }
     }
   
-    @Post('webhook')
-    @HttpCode(HttpStatus.OK)
-    async handleWebhook(
-      @Body() body: any,
-      @Headers('x-signature') signature: string
-    ) {
-      try {
-        const isVerified = this.mpService.verifyWebhook(body, signature);
-        
-        if (!isVerified) {
-          return {
-            success: false,
-            message: 'Webhook no verificado',
-          };
-        }
-  
-        if (body.type === 'payment') {
-          const paymentId = body.data.id;
-          const payment = await this.mpService.getPayment(paymentId);
-          
-          console.log('💳 Pago recibido:', payment.data);
-          
-          return {
-            success: true,
-            message: 'Webhook procesado correctamente',
-            paymentId: paymentId,
-          };
-        }
-  
-        return {
-          success: true,
-          message: 'Webhook recibido',
-        };
-      } catch (error: any) {
-        console.error('Error procesando webhook:', error);
-        return {
-          success: false,
-          message: 'Error procesando webhook',
-        };
-      }
-    }
-  
     @Delete('cancel/:userId')
     @HttpCode(HttpStatus.OK)
     async cancelUserPayment(@Param('userId') userId: string) {

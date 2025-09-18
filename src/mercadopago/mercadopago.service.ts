@@ -177,32 +177,6 @@ export class MercadoPagoService {
     }
   }
 
-  // ✅ MÉTODO 7: Verificar webhook
-  verifyWebhook(payload: any, signature: string): boolean {
-    try {
-      const secret = this.configService.get<string>('MP_WEBHOOK_SECRET');
-      if (!secret) {
-        this.logger.warn('No hay secret para verificar webhook');
-        return true; // Temporal
-      }
-      
-      // Verificación correcta para v1.x
-      const receivedSig = signature.replace('sha256=', '');
-      const expectedSignature = require('crypto')
-        .createHmac('sha256', secret)
-        .update(JSON.stringify(payload.body || payload), 'base64') // ← Cambiar aquí
-        .digest('base64');
-      
-      const isValid = receivedSig === expectedSignature;
-      this.logger.log(`Webhook verification: ${isValid ? '✅ PASS' : '❌ FAIL'}`);
-      
-      return isValid;
-    } catch (error) {
-      this.logger.error('Error verificando webhook:', error);
-      return true; // Temporal: aceptar siempre en desarrollo
-    }
-  }
-
   // ✅ MÉTODO 8: Obtener todas las suscripciones (opcional)
   async getAllSubscriptions(): Promise<any> {
     try {
