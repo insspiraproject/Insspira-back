@@ -6,9 +6,16 @@ import { ValidationPipe } from '@nestjs/common';
 import { config } from './config/auth0.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cors())
+  
+  app.enableCors({
+    origin: 'http://localhost:3001',
+    credentials: true, 
+  })
+  app.useGlobalPipes(new ValidationPipe())
+  app.use(auth(config))
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Insspira API')
@@ -17,8 +24,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
-  app.useGlobalPipes(new ValidationPipe())
-  app.use(auth(config))
   await app.listen(process.env.PORT ?? 3000);
 }
 

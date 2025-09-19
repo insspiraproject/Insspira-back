@@ -22,9 +22,9 @@ export class AuthController {
     }
 
     @Post('logout')
-    logout(@Req() req: any) {
-        req.logout(); 
-        return { message: 'Logout successful' };
+    logout(@Req() res: any) {
+      
+        return  res.oidc.logout({ returnTo: 'http://localhost:3000' }); 
     }
 
     @Post('register')
@@ -36,12 +36,17 @@ export class AuthController {
     async login(@Body() loginUserDto: LoginUserDto) {
         return this.authService.login(loginUserDto);
     }
+
+    
+
+
 }
 
 @Controller()
 export class AppController {
     @Get()
     redirectToHome(@Res() res) {
-        return res.redirect('/home');
+
+        return res.redirect('http://localhost:3001/home');
     }
 }
