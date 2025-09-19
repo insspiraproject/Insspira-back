@@ -36,6 +36,9 @@ export class User {
     @Column({ nullable: true }) 
     confirmPassword: string;
 
+    @Column({ nullable: true })
+    profilePicture: string;
+
     @Column({ default: false }) 
     isAdmin: boolean;
 

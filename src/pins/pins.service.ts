@@ -6,16 +6,12 @@ import { CommentDto} from "./pinsDtos/comments.dto";
 @Injectable()
 
 export class PinsService {
-    
-    
-    
     constructor(private readonly repository: PinsRepository){}
 
     // Query 
     async serviceSearch(query: string) {
         return await this.repository.createSearch(query)
     }
-
 
     // PINS 
     async getPinsService(page: number, limit: number) {
@@ -37,7 +33,6 @@ export class PinsService {
     async deletePinsService(id: string, userId: string) {
         return await this.repository.deletePins(id, userId)
     }
-
 
     // Like PINS
 
@@ -77,7 +72,6 @@ export class PinsService {
     async getSaveService(idUser:string) {
         return this.repository.createGetSave( idUser)
     }
-   
 
     async saveService(idPins: string, idUser: string) {
         return await this.repository.createSave(idPins, idUser)

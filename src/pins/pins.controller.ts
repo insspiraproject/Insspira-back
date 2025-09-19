@@ -10,7 +10,6 @@ import { ApiTags, ApiBody, ApiOperation, ApiParam, ApiQuery } from "@nestjs/swag
 export class PinsController {
     constructor(private readonly service: PinsService){}
 
-
     // Public search
     //* Ok
     @Get("/search")

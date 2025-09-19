@@ -14,8 +14,6 @@ import { Save } from "./entities/save.entity";
 
 export class PinsRepository {
     
-    
-    
     constructor(
         @InjectRepository(Category)
         private readonly categoryRepo: Repository<Category>,
@@ -125,7 +123,7 @@ export class PinsRepository {
         const pin = await this.pinsRepo.findOne({where: {id: pinsId}, relations: ["hashtags"]})
         if(!pin) throw new NotFoundException("Post not found.")
 
-         const updatedHashtags: Hashtag[] = []
+        const updatedHashtags: Hashtag[] = []
             for (const h of hashtags) {
             const hashtag = await this.hashtagRepo.findOne({ where: { id: h.id } })
             if (!hashtag) throw new NotFoundException(`Hashtag with id not found.`)
@@ -313,7 +311,7 @@ export class PinsRepository {
         });
         if (existing) throw new BadRequestException("This post is already saved.");
 
-  
+
         const save = this.saveRepo.create({
             user: {id: user.id},
             pin,
@@ -325,7 +323,7 @@ export class PinsRepository {
 
     async createDeleteSave(id: string, idUser: string) {
 
-         const user = await this.userRepo.findOne({ where: { id: idUser } });
+        const user = await this.userRepo.findOne({ where: { id: idUser } });
         if (!user) throw new NotFoundException("User not found.");
 
         const deleteSave = await this.saveRepo.findOne({where: {id: id}, relations: ["user"]})
