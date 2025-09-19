@@ -1,0 +1,40 @@
+import { Plan } from "src/plans/plan.entity";
+import { SubStatus } from "src/status.enum";
+import { User } from "src/users/entities/user.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+
+
+
+@Entity({
+    name: "subs"
+})
+
+
+
+export class Sub {
+
+    @PrimaryGeneratedColumn("uuid")
+    id: string
+
+
+    @OneToOne(() => User, (user)=> user.sub)
+    @JoinColumn({ name: "user_id" })
+    user: User
+
+    @ManyToOne(() => Plan, (plan)=> plan.subs)
+    @JoinColumn({ name: "plan_id" })
+    plan: Plan
+
+    @Column({
+    type: "enum",
+    enum: SubStatus,
+    default: SubStatus.PENDING,
+    })
+    status: SubStatus;
+
+    @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+    start_date: Date;
+
+    @Column({ type: "timestamp", nullable: true })
+    end_date: Date;
+}

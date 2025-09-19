@@ -44,6 +44,10 @@ export class AuthController {
     async login(@Body() loginUserDto: LoginUserDto) {
         return this.authService.login(loginUserDto);
     }
+
+    
+
+
 }
 
 @Controller()
@@ -51,6 +55,7 @@ export class AppController {
     @Get()
     @ApiOperation({ summary: 'Redirige a la página de inicio' })
     redirectToHome(@Res() res) {
-        return res.redirect('/home');
+
+        return res.redirect('http://localhost:3001/home');
     }
 }

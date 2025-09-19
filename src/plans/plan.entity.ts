@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Sub } from "src/subscriptions/subscription.entity";
+import { User } from "src/users/entities/user.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity({
@@ -24,5 +26,9 @@ export class Plan {
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @OneToMany(()=> Sub, (sub)=> sub.plan)
+    subs: Sub[]
+
 
 }
