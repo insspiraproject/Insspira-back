@@ -16,9 +16,9 @@ export class Comment {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => Pin, (pin) => pin.comment, {onDelete: "CASCADE"})
+  @ManyToOne(() => Pin, (pin) => pin.comments, {onDelete: "CASCADE"})
   pin: Pin;
 
-  @ManyToOne(() => User, (user) => user.comment)
+  @ManyToOne(() => User, (user) => user.comments)
   user: User;
 }

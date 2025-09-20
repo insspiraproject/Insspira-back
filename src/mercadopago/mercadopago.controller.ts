@@ -116,27 +116,45 @@ import { Repository } from 'typeorm';
     @HttpCode(HttpStatus.OK)
     async getPaymentStatus(@Param('userId') userId: string) {
       try {
-        const payments = await this.paymentRepository
+        const payment = await this.paymentRepository
           .createQueryBuilder('payment')
           .where('payment.userId = :userId', { userId })
           .orderBy('payment.createdAt', 'DESC')
           .getOne();
 
-        if (!payments) {
+        if (!payment) {
           return {
             success: true,
             hasActivePayment: false,
+            plan: 'free',
+            usdPrice: 0,
+            benefits: {
+              name: 'Free Plan',
+              features: ['10 pins/mes', 'Búsquedas básicas']
+            }
           };
         }
 
-        const hasActive = payments.status === 'active' && new Date() <= payments.endsAt;
+        const hasActive = payment.status === 'active' && new Date() <= payment.endsAt;
+        const usdPrice = payment.plan === 'monthly' ? 10 : 100;
         
         return {
           success: true,
           hasActivePayment: hasActive,
-          plan: payments.plan,
-          status: payments.status,
-          endsAt: payments.endsAt,
+          plan: hasActive ? payment.plan : 'free',
+          usdPrice: hasActive ? usdPrice : 0,
+          arsPaid: payment.amount,
+          status: payment.status,
+          endsAt: payment.endsAt,
+          benefits: hasActive ? {
+            name: `${payment.plan} Premium`,
+            features: payment.plan === 'monthly' 
+              ? ['Pines ilimitados', 'Sin publicidad'] 
+              : ['Todo monthly + 20% descuento']
+          } : {
+            name: 'Free Plan',
+            features: ['10 pins/mes', 'Búsquedas básicas']
+          }
         };
       } catch (error) {
         console.error('Error obteniendo estado:', error);
@@ -154,6 +172,10 @@ import { Repository } from 'typeorm';
       if (external_reference && payment_id) {
         try {
           const [_, userId, plan] = external_reference.split('_');
+          const usdPrice = plan === 'monthly' ? 10.00 : 100.00;
+          const arsRate = await this.mpService.getDolarBlueRate();
+          const arsAmount = usdPrice * arsRate;
+
           const startsAt = new Date();
           const endsAt = new Date(startsAt);
           if (plan === 'monthly') {
@@ -169,6 +191,7 @@ import { Repository } from 'typeorm';
             status: 'active',
             startsAt: new Date(),
             endsAt,
+            amount: arsAmount
           });
           
           console.log(`✅ Payment creado: ${userId} - ${plan}`);
@@ -229,19 +252,6 @@ import { Repository } from 'typeorm';
           </body>
         </html>
       `);
-    }
-
-    @Get(':id')
-    async getSubscription(@Param('id') id: string) {
-      try {
-        const result = await this.mpService.getSubscription(id);
-        return result;
-      } catch (error: any) {
-        return {
-          success: false,
-          message: error.message,
-        };
-      }
     }
   
     @Get('failure')
@@ -354,5 +364,85 @@ import { Repository } from 'typeorm';
           </body>
         </html>
       `);
+    }
+
+    @Get('payment/:paymentId')
+    async getPaymentDetails(@Param('paymentId') paymentId: string) {
+      try {
+        const result = await this.mpService.getPaymentDetails(paymentId);
+        return result;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.message
+        };
+      }
+    }
+
+    @Get('history/:userId')
+    @HttpCode(HttpStatus.OK)
+    async getPaymentHistory(@Param('userId') userId: string) {
+      try {
+        const payments = await this.paymentRepository.find({
+          where: { userId },
+          order: { createdAt: 'DESC' }
+        });
+
+        if (payments.length === 0) {
+          return { 
+            success: true, 
+            history: [],
+            totalPayments: 0,
+            totalSpentUSD: 0,
+            totalSpentARS: 0
+          };
+        }
+
+        const history = payments.map(payment => {
+          const usdPrice = payment.plan === 'monthly' ? 10 : 100;
+          
+          const statusLabel = payment.status === 'active' ? 'paid' : 
+                            (payment.status === 'cancelled' ? 'cancelled' : 'expired');
+
+          return {
+            id: payment.id,
+            paymentId: payment.paymentId,
+            date: payment.createdAt,
+            plan: payment.plan,
+            description: `${payment.plan === 'monthly' ? 'Mensual' : 'Anual'} Premium (${usdPrice} USD)`,
+            status: statusLabel,
+            statusLabel: statusLabel === 'paid' ? 'Pagado' : 
+                        (statusLabel === 'cancelled' ? 'Cancelado' : 'Expirado'),
+            usdPrice,
+            arsPrice: payment.amount,
+            startsAt: payment.startsAt,
+            endsAt: payment.endsAt,
+            isActive: payment.status === 'active' && new Date() <= payment.endsAt
+          };
+        });
+
+        // Calcula totales
+        const totalPayments = history.length;
+        const totalSpentUSD = history.reduce((sum, payment) => sum + payment.usdPrice, 0);
+        const totalSpentARS = payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
+
+        return { 
+          success: true, 
+          history,
+          stats: {
+            totalPayments,
+            totalSpentUSD,
+            totalSpentARS,
+            activeSubscriptions: history.filter(p => p.isActive).length
+          }
+        };
+
+      } catch (error) {
+        console.error('Error obteniendo historial de pagos:', error);
+        return { 
+          success: false, 
+          message: 'Error al obtener historial de pagos' 
+        };
+      }
     }
   }

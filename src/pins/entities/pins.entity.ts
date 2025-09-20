@@ -44,7 +44,7 @@ export class Pin {
     likes: Like[];
 
     @OneToMany(() => Comment, (comment) => comment.pin)
-    comment: Comment[];
+    comments: Comment[];
 
     @ManyToMany(() => Hashtag, (hashtag) => hashtag.pins, { cascade: true })
     @JoinTable()

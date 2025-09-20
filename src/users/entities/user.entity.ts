@@ -38,6 +38,9 @@ export class User {
     @Column({ nullable: true })
     profilePicture: string;
 
+    @Column({ nullable: true, length: 150 })
+    biography: string;
+
     @Column({ default: false }) 
     isAdmin: boolean;
 
@@ -51,17 +54,11 @@ export class User {
     like: Like[];
 
     @OneToMany(()=>Comment, (comment)=>comment.user)
-    comment: Comment[];
+    comments: Comment[];
 
     @OneToMany(() => View, (view) => view.user)
     views: View[];
 
     @OneToMany(() => Save, (save) => save.user)
     saves: Save[];
-
-
-
-
-    
-
 }

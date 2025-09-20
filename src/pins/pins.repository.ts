@@ -334,6 +334,56 @@ export class PinsRepository {
         await this.saveRepo.remove(deleteSave)    
     }
 
+    async getPinsByUser(userId: string, page: number = 1, limit: number = 20): Promise<Pin[]> {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new NotFoundException("User not found.");
+    
+        // QueryBuilder para obtener pins del usuario con todas las relaciones
+        const query = this.pinsRepo
+            .createQueryBuilder('pin')
+            .leftJoinAndSelect('pin.user', 'user')
+            .leftJoinAndSelect('pin.category', 'category')
+            .leftJoinAndSelect('pin.hashtags', 'hashtags')
+            .leftJoin('pin.likes', 'likes')
+            .leftJoin('pin.comments', 'comments')
+            .where('pin.userId = :userId', { userId })
+            .orderBy('pin.createdAt', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
+    
+        const pins = await query.getMany();
+        
+        return pins;
+    }
+    
+    // Obtener todos los pins que un usuario ha dado like
+    async getLikedPins(userId: string, page: number = 1, limit: number = 20): Promise<Pin[]> {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new NotFoundException("User not found.");
+    
+        // QueryBuilder completo para obtener likes con todas las relaciones del pin
+        const query = this.pinsRepo
+            .createQueryBuilder('pin')
+            .leftJoinAndSelect('pin.user', 'user')
+            .leftJoinAndSelect('pin.category', 'category')
+            .leftJoinAndSelect('pin.hashtags', 'hashtags')
+            .leftJoin('pin.likes', 'likes')
+            .leftJoin('pin.comments', 'comments')
+            .innerJoin('likes', 'userLikes', 'userLikes.pinId = pin.id AND userLikes.userId = :userId', { userId })
+            .where('userLikes.userId = :userId', { userId })
+            .orderBy('pin.createdAt', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
+    
+        const pins = await query.getMany();
+        
+        return pins;
+    }
 
-
+    async getUserPinsCount(userId: string): Promise<number> {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new NotFoundException("User not found.");
+        
+        return user.pinsCount;
+    }
 }

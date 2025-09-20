@@ -17,5 +17,6 @@ import { Save } from './entities/save.entity';
 
   controllers: [PinsController],
   providers: [PinsService, PinsRepository],
+  exports: [PinsService, PinsRepository],
 })
 export class PinModule {}

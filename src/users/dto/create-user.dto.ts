@@ -37,6 +37,11 @@ export class CreateUserDto {
     @IsOptional()
     profilePicture?: string;
 
+    @IsString()
+    @IsOptional()
+    @MaxLength(150, { message: 'Biography must not exceed 150 characters' })
+    biography?: string;
+
     @IsBoolean()
     @IsOptional() 
     isAdmin?: boolean;

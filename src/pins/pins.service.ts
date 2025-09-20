@@ -81,4 +81,17 @@ export class PinsService {
         return await this.repository.createDeleteSave(id, idUser)
     }
 
+    async getPinsByUserService(userId: string, page?: number, limit?: number): Promise<any> {
+        return await this.repository.getPinsByUser(userId, page || 1, limit || 20);
+    }
+    
+    // Obtener pins que un usuario ha dado like
+    async getLikedPinsService(userId: string, page?: number, limit?: number): Promise<any> {
+        return await this.repository.getLikedPins(userId, page || 1, limit || 20);
+    }
+
+    async getUserPinsCountService(userId: string): Promise<number> {
+        return await this.repository.getUserPinsCount(userId);
+    }
+
 }

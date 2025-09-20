@@ -1,11 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-const mercadopago = require('mercadopago'); // Usamos require para v1.x
+const mercadopago = require('mercadopago');
+import axios from "axios";
 
 @Injectable()
 export class MercadoPagoService {
   private readonly logger = new Logger(MercadoPagoService.name);
   private readonly client: any;
+
+  private readonly usdPrices = {
+    monthly: 10.00,
+    annual: 100.00
+  };
 
   constructor(private readonly configService: ConfigService) {
     const accessToken = this.configService.get<string>('MP_ACCESS_TOKEN');
@@ -21,11 +27,28 @@ export class MercadoPagoService {
     this.client = mercadopago;
   }
 
+  async getDolarBlueRate(): Promise<number> {
+    try {
+      const response = await axios.get('https://dolarapi.com/v1/dolares/blue');
+      const rate = response.data.venta;
+      this.logger.log(`Tasa dólar blue actual: ${rate} ARS/USD`);
+      return rate;
+    } catch (error) {
+      this.logger.warn('Error obteniendo dólar blue, usando fallback: 1000');
+      return 1000;
+    }
+  }
+
   async createPreference(plan: 'monthly' | 'annual', email: string, userId?: string): Promise<any> {
+    const usdPrice = this.usdPrices[plan];
+    
+    const arsRate = await this.getDolarBlueRate();
+    const arsPrice = usdPrice * arsRate;
+
     const preferenceData: any = {
       items: [{
-        title: plan === 'monthly' ? 'Suscripción Mensual' : 'Suscripción Anual',
-        unit_price: plan === 'monthly' ? 10 : 100,
+        title: `${plan === 'monthly' ? 'Suscripción Mensual' : 'Suscripción Anual'} (${usdPrice} USD)`,
+        unit_price: arsPrice,
         quantity: 1,
         currency_id: 'ARS',
       }],
@@ -50,17 +73,17 @@ export class MercadoPagoService {
     }
 
     try {
-      this.logger.log(`Creando preferencia ${plan} para ${email}`);
+      this.logger.log(`Creando preferencia ${plan}: ${usdPrice} USD * ${arsRate} = ${arsPrice} ARS`);
       
       const result = await this.client.preferences.create(preferenceData);
 
-      this.logger.log(`Preferencia creada: ${result.body.id}`);
-      
       return {
         success: true,
         id: result.body.id,
         init_point: result.body.init_point,
-        status: result.body.status,
+        usdPrice,
+        arsPrice,
+        arsRate,
         ...result.body,
       };
     } catch (error: any) {
@@ -85,7 +108,7 @@ export class MercadoPagoService {
     }
   }
 
-  async getPayment(paymentId: string): Promise<any> {
+  async getPaymentDetails(paymentId: string): Promise<any> {
     try {
       this.logger.log(`Obteniendo pago ${paymentId}`);
       
@@ -135,22 +158,6 @@ export class MercadoPagoService {
     } catch (error: any) {
       this.logger.error('Error creando suscripción:', error);
       throw new Error(`Error creando suscripción: ${error.message}`);
-    }
-  }
-
-  async getSubscription(subscriptionId: string): Promise<any> {
-    try {
-      this.logger.log(`Obteniendo suscripción ${subscriptionId}`);
-      
-      const result = await this.client.subscription.findById(subscriptionId);
-      
-      return {
-        success: true,
-        data: result.body,
-      };
-    } catch (error: any) {
-      this.logger.error('Error obteniendo suscripción:', error);
-      throw new Error(`Error obteniendo suscripción: ${error.message}`);
     }
   }
 

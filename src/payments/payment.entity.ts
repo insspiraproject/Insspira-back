@@ -23,6 +23,9 @@ export class Payment {
     @Column()
     endsAt: Date;
 
+    @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+    amount: number;
+
     @CreateDateColumn()
     createdAt: Date;
 }
