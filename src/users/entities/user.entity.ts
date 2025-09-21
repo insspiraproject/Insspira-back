@@ -1,64 +1,74 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne} from 'typeorm';
+// src/users/entities/user.entity.ts
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 import { Comment } from '../../pins/entities/comments.entity';
 import { Like } from '../../pins/entities/likes.entity';
 import { Pin } from '../../pins/entities/pins.entity';
-import { v4 as uuid} from "uuid";
 import { View } from 'src/pins/entities/view.entity';
 import { Save } from 'src/pins/entities/save.entity';
 
-
-@Entity({
-    name: "users"
-})
+@Entity({ name: 'users' })
 export class User {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+  @ApiProperty()
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column({ unique: true, nullable: true })
-    auth0Id: string;
+  @ApiProperty({ required: false })
+  @Column({ unique: true, nullable: true })
+  auth0Id: string;
 
-    @Column({length: 50, nullable: true})
-    name: string;
+  @ApiProperty({ required: false, maxLength: 50 })
+  @Column({ length: 50, nullable: true })
+  name: string;
 
-    @Column({length: 50})
-    username: string;
+  @ApiProperty({ maxLength: 50 })
+  @Column({ length: 50 })
+  username: string;
 
-    @Column({ length:50, unique: true })
-    email: string;
+  @ApiProperty({ example: 'john@insspira.com' })
+  @Column({ length: 50, unique: true })
+  email: string;
 
-    @Column({type:"bigint", nullable: true})
-    phone: string;
+  @ApiProperty({ required: false })
+  @Column({ type: 'bigint', nullable: true })
+  phone: string;
 
-    @Column({ nullable: true }) 
-    password: string;
+  @ApiProperty({ required: false })
+  @Column({ nullable: true })
+  password: string;
 
-    @Column({ nullable: true }) 
-    confirmPassword: string;
+  @ApiProperty({ required: false })
+  @Column({ nullable: true })
+  confirmPassword: string;
 
-    @Column({ nullable: true })
-    profilePicture: string;
+  @ApiProperty({ required: false })
+  @Column({ nullable: true })
+  profilePicture: string;
 
-    @Column({ nullable: true, length: 150 })
-    biography: string;
+  @ApiProperty({ required: false, maxLength: 150 })
+  @Column({ nullable: true, length: 150 })
+  biography: string;
 
-    @Column({ default: false }) 
-    isAdmin: boolean;
+  @ApiProperty({ example: false })
+  @Column({ default: false })
+  isAdmin: boolean;
 
-    @Column({default: 0})
-    pinsCount: number
+  @ApiProperty({ example: 0 })
+  @Column({ default: 0 })
+  pinsCount: number;
 
-    @OneToMany(()=> Pin, (pin)=> pin.user)
-    pins: Pin[];
+  @OneToMany(() => Pin, (pin) => pin.user)
+  pins: Pin[];
 
-    @OneToMany(()=> Like, (like)=>like.user)
-    like: Like[];
+  @OneToMany(() => Like, (like) => like.user)
+  like: Like[];
 
-    @OneToMany(()=>Comment, (comment)=>comment.user)
-    comments: Comment[];
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 
-    @OneToMany(() => View, (view) => view.user)
-    views: View[];
+  @OneToMany(() => View, (view) => view.user)
+  views: View[];
 
-    @OneToMany(() => Save, (save) => save.user)
-    saves: Save[];
+  @OneToMany(() => Save, (save) => save.user)
+  saves: Save[];
 }

@@ -1,3 +1,4 @@
+// src/pins/entities/comments.entity.ts
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
 import { Pin } from "./pins.entity";
 import { User } from "../../users/entities/user.entity";

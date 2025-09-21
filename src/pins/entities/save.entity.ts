@@ -1,3 +1,4 @@
+// src/pins/entities/save.entity.ts
 import { User } from "src/users/entities/user.entity";
 import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from "typeorm";
 import { Pin } from "./pins.entity";

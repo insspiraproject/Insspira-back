@@ -1,3 +1,4 @@
+// src/pins/pins.service.ts
 import { Injectable } from "@nestjs/common";
 import { PinsRepository } from "./pins.repository";
 import { pinsDto, updateDto } from "./pinsDtos/pins.dto";

@@ -1,3 +1,4 @@
+// src/pins/pins.repository.ts
 import { Pin } from "./entities/pins.entity";
 import {  In, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";

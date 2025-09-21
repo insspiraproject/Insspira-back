@@ -1,48 +1,54 @@
-import { Type } from 'class-transformer';
-import { IsEmail, IsString, IsDate, IsBoolean, IsOptional, MinLength, MaxLength, Matches } from 'class-validator';
+// src/users/dto/create-user.dto.ts
+import { IsEmail, IsString, IsBoolean, IsOptional, MinLength, MaxLength, Matches } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserDto {
-    @IsString()
-    name: string;
+  @ApiProperty({ example: 'John Doe' })
+  @IsString()
+  name: string;
 
-    @IsString()
-    username: string;
+  @ApiProperty({ example: 'johndoe' })
+  @IsString()
+  username: string;
 
-    @IsEmail()
-    email: string;
+  @ApiProperty({ example: 'john@insspira.com' })
+  @IsEmail()
+  email: string;
 
-    @IsString()
-    @IsOptional()
-    phone?: string;
+  @ApiPropertyOptional({ example: '+573001112233' })
+  @IsString()
+  @IsOptional()
+  phone?: string;
 
-    @IsString()
-    @IsOptional() 
-    @MinLength(8, { message: 'Password must be at least 8 characters long' })
-    @MaxLength(100, { message: 'Password must not exceed 100 characters' })
-    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/, {
-        message: 'The password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (!@#$%^&*).',
-    })
-    password?: string;
+  @ApiPropertyOptional({ minLength: 8 })
+  @IsString()
+  @IsOptional()
+  @MinLength(8)
+  @MaxLength(100)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/)
+  password?: string;
 
-    @IsString()
-    @IsOptional() 
-    @MinLength(8, { message: 'Password must be at least 8 characters long' })
-    @MaxLength(100, { message: 'Password must not exceed 100 characters' })
-    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/, {
-        message: 'The password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (!@#$%^&*).',
-    })
-    confirmPassword?: string;
+  @ApiPropertyOptional({ minLength: 8 })
+  @IsString()
+  @IsOptional()
+  @MinLength(8)
+  @MaxLength(100)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/)
+  confirmPassword?: string;
 
-    @IsString()
-    @IsOptional()
-    profilePicture?: string;
+  @ApiPropertyOptional({ example: 'https://res.cloudinary.com/.../avatar.jpg' })
+  @IsString()
+  @IsOptional()
+  profilePicture?: string;
 
-    @IsString()
-    @IsOptional()
-    @MaxLength(150, { message: 'Biography must not exceed 150 characters' })
-    biography?: string;
+  @ApiPropertyOptional({ maxLength: 150 })
+  @IsString()
+  @IsOptional()
+  @MaxLength(150)
+  biography?: string;
 
-    @IsBoolean()
-    @IsOptional() 
-    isAdmin?: boolean;
+  @ApiPropertyOptional({ example: false })
+  @IsBoolean()
+  @IsOptional()
+  isAdmin?: boolean;
 }
