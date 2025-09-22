@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: INSSPIRA-BACK
+    env: node
+    plan: free
+    region: oregon
+
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm run start"
+
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        sync: false 
+      - key: JWT_SECRET
+        sync: false
