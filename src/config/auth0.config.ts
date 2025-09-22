@@ -2,11 +2,15 @@ import { config as dotenvConfig } from 'dotenv';
 
 dotenvConfig({ path: '.env.development' });
 
+const backendBaseURL = process.env.NODE_ENV === 'production' 
+  ? 'https://api-latest-ejkf.onrender.com'
+  : 'http://localhost:3001';
+
 export const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET,
-  baseURL: 'http://localhost:3001',
+  baseURL: backendBaseURL,
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_BASE_URL,
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
@@ -18,6 +22,10 @@ export const config = {
   routes: {
     callback: '/auth/callback',
     login: '/login',
-    postLogoutRedirect: 'http://localhost:3001',
+    postLogoutRedirect: backendBaseURL,
   },
 };
+
+console.log('🔍 EOIDC Backend Config:');
+console.log('🌐 Backend URL:', backendBaseURL);
+console.log('🔗 Callback URL:', `${backendBaseURL}/auth/callback`);

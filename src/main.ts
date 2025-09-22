@@ -16,20 +16,15 @@ async function bootstrap() {
     },
   }));
 
-  // ❌ Quita: app.use(cors());
-  // ✅ Deja SOLO enableCors, antes de middlewares de auth
   app.enableCors({
     origin: [
-      'http://localhost:3000', // Next dev (ajusta si usas otro puerto)
+      'http://localhost:3000',
       'http://localhost:3001',
-      // Agrega aquí tus dominios de prod/preview:
-      // 'https://tu-dominio.com',
-      // 'https://tu-preview.vercel.app',
+      'https://api-latest-ejkf.onrender.com'
     ],
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    // exposedHeaders: ['Content-Range'], // solo si necesitas leer headers personalizados
   });
 
   app.useGlobalPipes(new ValidationPipe());
@@ -44,14 +39,9 @@ async function bootstrap() {
         name: req.oidc.user?.name,
       });
       
-      // Opcional: Sincronizar con tu DB
-      if (req.oidc.user) {
-        console.log('💾 Usuario sincronizado con DB');
-        // Aquí podrías llamar a tu AuthService.validateUser si querés
-      }
-      
-      // 🚀 REDIRIGIR AL DASHBOARD
-      return res.redirect('http://localhost:3001/dashboard');
+      const frontendUrl = 'http://localhost:3001/dashboard';
+      console.log('✅ REDIRIGIENDO AL FRONTEND LOCAL:', frontendUrl);
+      return res.redirect(frontendUrl);
     },
   }));
 
