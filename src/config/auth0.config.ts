@@ -6,7 +6,7 @@ export const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET,
-  baseURL: 'http://localhost:3000',
+  baseURL: 'http://localhost:3001',
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_BASE_URL,
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
@@ -18,6 +18,6 @@ export const config = {
   routes: {
     callback: '/auth/callback',
     login: '/login',
-    postLogoutRedirect: 'http://localhost:3000',
+    postLogoutRedirect: 'http://localhost:3001',
   },
 };

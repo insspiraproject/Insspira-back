@@ -5,13 +5,39 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import axios from 'axios';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { JwtStrategy } from './jwt.strategy';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
-         private readonly jwtService: JwtService,
+        private readonly jwtService: JwtService,
     ) {}
+
+    async validateAuth0Token(token: string) {
+        // 🔧 VERSIÓN MÁS SIMPLE: Solo decodificar y validar estructura
+        try {
+            const decoded = this.jwtService.decode(token);
+            
+            if (!decoded || !decoded.sub || !decoded.email) {
+                throw new Error('Invalid token structure');
+            }
+            
+            // Verificar issuer y audience manualmente (opcional)
+            if (decoded.iss !== `${process.env.AUTH0_BASE_URL}/`) {
+                throw new Error('Invalid token issuer');
+            }
+            
+            if (decoded.aud !== process.env.AUTH0_AUDIENCE) {
+                throw new Error('Invalid token audience');
+            }
+            
+            return decoded as any;
+        } catch (error) {
+            console.error('Auth0 token validation failed:', error);
+            throw error;
+        }
+    }
 
     async validateUser(payload: any) {
         const sub = payload.sub;               

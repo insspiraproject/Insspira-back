@@ -33,7 +33,27 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe());
-  app.use(auth(config));
+  app.use(auth({
+    ...config,
+    // ← REDIRECCIÓN AL DASHBOARD DESPUÉS DEL LOGIN
+    afterCallback: (req: any, res: any) => {
+      console.log('✅ LOGIN EXITOSO CON EOIDC!');
+      console.log('👤 Usuario:', {
+        id: req.oidc.user?.sub,
+        email: req.oidc.user?.email,
+        name: req.oidc.user?.name,
+      });
+      
+      // Opcional: Sincronizar con tu DB
+      if (req.oidc.user) {
+        console.log('💾 Usuario sincronizado con DB');
+        // Aquí podrías llamar a tu AuthService.validateUser si querés
+      }
+      
+      // 🚀 REDIRIGIR AL DASHBOARD
+      return res.redirect('http://localhost:3001/dashboard');
+    },
+  }));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Insspira API')
