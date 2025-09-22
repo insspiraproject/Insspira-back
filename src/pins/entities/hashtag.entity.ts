@@ -1,3 +1,4 @@
+// src/pins/entities/hashtag.entity.ts
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Pin } from "./pins.entity";
 

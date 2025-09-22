@@ -1,3 +1,4 @@
+// src/pins/entities/view.entity.ts
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
 import { Pin } from "./pins.entity";
 import { User } from "src/users/entities/user.entity";

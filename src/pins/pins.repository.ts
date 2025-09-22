@@ -1,3 +1,4 @@
+// src/pins/pins.repository.ts
 import { Pin } from "./entities/pins.entity";
 import {  In, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -13,8 +14,6 @@ import { View } from "./entities/view.entity";
 import { Save } from "./entities/save.entity";
 
 export class PinsRepository {
-    
-    
     
     constructor(
         @InjectRepository(Category)
@@ -64,8 +63,22 @@ export class PinsRepository {
         })
     }
 
-    async pinsId(id: string): Promise<Pin | null>{
-        return await this.pinsRepo.findOne({where: {id: id}})
+    async pinsId(id: string){
+        const pin = await this.pinsRepo.findOne({
+            where: {id: id},
+            relations:["user"]
+        })
+        return {
+            id: pin?.user.id,
+            name: pin?.user.username,
+            pin: pin?.id,
+            image: pin?.image,
+            description: pin?.description,
+            likes:pin?.likesCount,
+            comment: pin?.commentsCount,
+            views: pin?.viewsCount,
+            created: pin?.createdAt
+        }
     }
 
     async createPins(dtoPin: pinsDto, idUser:string) {
@@ -82,12 +95,17 @@ export class PinsRepository {
             user: users,
             })
 
+        await this.userRepo.increment({id: users.id}, "pinsCount", 1)
+
         await this.pinsRepo.save(create)
 
         return {
             id: create.id,
             category: {id: initialización.id},
-            user: {id: users.id},
+            user: {
+                id: users.id,
+                post: users.pinsCount
+            },
             image: create.image,   
             description: create.description,
             like: create.likesCount,
@@ -101,12 +119,12 @@ export class PinsRepository {
     async modifiPins(userId: string, dtoPin: updateDto, pinsId: string, hashtags: { id: string; tag: string }[]) {
         
         const user = await this.userRepo.findOne({where: {id: userId}})
-        if(!user) throw new NotFoundException("Error to modify the post.")
+        if(!user) throw new NotFoundException("User not found.")
 
         const pin = await this.pinsRepo.findOne({where: {id: pinsId}, relations: ["hashtags"]})
-        if(!pin) throw new NotFoundException("Error to modify the post.")
+        if(!pin) throw new NotFoundException("Post not found.")
 
-         const updatedHashtags: Hashtag[] = []
+        const updatedHashtags: Hashtag[] = []
             for (const h of hashtags) {
             const hashtag = await this.hashtagRepo.findOne({ where: { id: h.id } })
             if (!hashtag) throw new NotFoundException(`Hashtag with id not found.`)
@@ -125,50 +143,70 @@ export class PinsRepository {
     }
 
     async deletePins(id: string, userId: string): Promise<Pin> {
-            
+        
+        const user = await this.userRepo.findOne({where: {id: userId}})
+        if(!user) throw new NotFoundException("User not found.")
+
+
         const pin = await this.pinsRepo.findOne({where: {id: id}, relations: ["user"]})
         if(!pin) throw new NotFoundException("Error to delete the post.")
 
         
-        if(pin.user.id !== userId) throw new ForbiddenException("You are not allowed to delete this post.")
+        if(pin.user.id !== user.id) throw new ForbiddenException("You are not allowed to delete this post.")
+
+        await this.userRepo.decrement({id: user.id}, "pinsCount", 1)
 
         return await this.pinsRepo.remove(pin)   
     }
 
     // Create Like PINS Repository
 
-    async createLike(idPin:string, idUser: string): Promise<Like | { message: string;}> {
+    async createLike(idPin:string, idUser: string) {
+
+        const user = await this.userRepo.findOne({where: {id: idUser}})
+        if(!user) throw new NotFoundException("User not found.")
+
         const pin = await this.pinsRepo.findOne({where: { id: idPin}})
             if (!pin) throw new NotFoundException("Pin not found.");
 
         const existingLike = await this.likeRepo.findOne({
-            where: {pin: {id: idPin}, user: {id: idUser}},
+            where: {pin: {id: pin.id}, user: {id: user.id}},
         });
         if (existingLike) return{message:"You have already liked this post."};
         
-        const like = await this.likeRepo.create({pin, user: {id: idUser}}) 
-        await this.likeRepo.save(like);
+        const like = await this.likeRepo.create({pin, user: {id: user.id}}) 
+
         
-        await this.pinsRepo.increment({id: idPin}, "likesCount", 1)
+        await this.pinsRepo.increment({id: pin.id}, "likesCount", 1);
+        await this.likeRepo.save(like)
         
         return like;
 
     }
 
     async deleteLike(id: string, userId:string): Promise<Like> {
+
+        const user = await this.userRepo.findOne({where: {id: userId}})
+        if(!user) throw new NotFoundException("User not found.")
         
+        const pin = await this.pinsRepo.findOne({where: { id: id}})
+        if (!pin) throw new NotFoundException("Pin not found.");
         
-        const remove = await this.likeRepo.findOne({where: {
-            id: id,},
+        const remove = await this.likeRepo.findOne({
+        where: {
+            pin: {id: pin.id},
+            user: {id: user.id}
+        },
         relations:["pin", "user"]
         })
         
         if(!remove) throw new NotFoundException("Post not found.")
 
-        if(remove.user.id !== userId) throw new ForbiddenException("You are not allowed to delete this like.")
+        if(remove.user.id !== user.id) throw new ForbiddenException("You are not allowed to delete this like.")
 
         
         await this.pinsRepo.decrement({id: remove.pin.id}, "likesCount", 1)
+
         return await this.likeRepo.remove(remove)
     }
 
@@ -179,7 +217,7 @@ export class PinsRepository {
         if(!pin) throw new NotFoundException("Post not found.")
         
         const user = await this.userRepo.findOne({where: {id: userId}})
-        if(!user) throw new NotFoundException("Post not found.")
+        if(!user) throw new NotFoundException("User not found.")
         
             const commentCreate = this.commentRepo.create({
             pin,
@@ -199,19 +237,26 @@ export class PinsRepository {
     }
 
     async modifieComment(id: string, comment: CommentDto, userId: string): Promise<Comment> {
+        const user = await this.userRepo.findOne({where: {id: userId}})
+        if(!user) throw new NotFoundException("User not found.")
+
         const commentId = await this.commentRepo.findOne({where: {id: id}, relations: ["user"]})
         if(!commentId) throw new NotFoundException("Comment not found.")
-        if(commentId.user.id !== userId) throw new ForbiddenException("You are not allowed to modifie this comment.")  
+        if(commentId.user.id !== user.id) throw new ForbiddenException("You are not allowed to modifie this comment.")  
 
         const modifiComment = this.commentRepo.merge(commentId, comment)
         return await this.commentRepo.save(modifiComment)
     }
 
     async deleteComment(id: string, userId: string): Promise<Comment> {
-        const commentId = await this.commentRepo.findOne({where: {id: id}, relations:["user"]}) 
-        if(!commentId) throw new NotFoundException("Comment not found.")
-        if(commentId.user.id !== userId) throw new ForbiddenException("You are not allowed to delete this comment.")
+        const user = await this.userRepo.findOne({where: {id: userId}})
+        if(!user) throw new NotFoundException("User not found.")
 
+        const commentId = await this.commentRepo.findOne({where: {id: id}, relations:["user", "pin"]}) 
+        if(!commentId) throw new NotFoundException("Comment not found.")
+        if(commentId.user.id !== user.id) throw new ForbiddenException("You are not allowed to delete this comment.")
+
+        await this.pinsRepo.decrement({id: commentId.pin.id}, "commentsCount", 1)    
         return await this.commentRepo.remove(commentId)
     }
 
@@ -228,7 +273,7 @@ export class PinsRepository {
             user: {id: user.id},
             pin: {id: pin.id}
         })
-
+    
         await this.pinsRepo.increment({id: pin.id}, "viewsCount", 1)
         await this.viewRepo.save(viewCreate)
 
@@ -237,22 +282,20 @@ export class PinsRepository {
 
     // Create Save PINS Repository
 
-    async createGetSave(idUser:string) {
+    async createGetSave( idUser:string) {
         const user = await this.userRepo.findOne({ where: { id: idUser } });
         if (!user) throw new NotFoundException("User not found.");
 
         
 
         const save = await this.saveRepo.find({
-            where: {
-                user: {id: user.id}},
-                relations: ["pin"]
+            where: {user: {id: user.id}},
+            relations: ["pin"]
         })
 
-       const pins = await save.map(e=> e.pin)
+       const pins = save.map(e=> e.pin)
 
        return pins
-
     }
 
     async createSave(idPin: string, idUser: string ) {
@@ -269,7 +312,7 @@ export class PinsRepository {
         });
         if (existing) throw new BadRequestException("This post is already saved.");
 
-  
+
         const save = this.saveRepo.create({
             user: {id: user.id},
             pin,
@@ -280,14 +323,68 @@ export class PinsRepository {
 
 
     async createDeleteSave(id: string, idUser: string) {
+
+        const user = await this.userRepo.findOne({ where: { id: idUser } });
+        if (!user) throw new NotFoundException("User not found.");
+
         const deleteSave = await this.saveRepo.findOne({where: {id: id}, relations: ["user"]})
         if(!deleteSave) throw new NotFoundException("Item not found.")
 
-        if(deleteSave.user.id !== idUser)throw new ForbiddenException("You are not allowed to delete this comment.")
+        if(deleteSave.user.id !== user.id)throw new ForbiddenException("You are not allowed to delete this comment.")
 
         await this.saveRepo.remove(deleteSave)    
     }
 
+    async getPinsByUser(userId: string, page: number = 1, limit: number = 20): Promise<Pin[]> {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new NotFoundException("User not found.");
+    
+        // QueryBuilder para obtener pins del usuario con todas las relaciones
+        const query = this.pinsRepo
+            .createQueryBuilder('pin')
+            .leftJoinAndSelect('pin.user', 'user')
+            .leftJoinAndSelect('pin.category', 'category')
+            .leftJoinAndSelect('pin.hashtags', 'hashtags')
+            .leftJoin('pin.likes', 'likes')
+            .leftJoin('pin.comments', 'comments')
+            .where('pin.userId = :userId', { userId })
+            .orderBy('pin.createdAt', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
+    
+        const pins = await query.getMany();
+        
+        return pins;
+    }
+    
+    // Obtener todos los pins que un usuario ha dado like
+    async getLikedPins(userId: string, page: number = 1, limit: number = 20): Promise<Pin[]> {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new NotFoundException("User not found.");
+    
+        // QueryBuilder completo para obtener likes con todas las relaciones del pin
+        const query = this.pinsRepo
+            .createQueryBuilder('pin')
+            .leftJoinAndSelect('pin.user', 'user')
+            .leftJoinAndSelect('pin.category', 'category')
+            .leftJoinAndSelect('pin.hashtags', 'hashtags')
+            .leftJoin('pin.likes', 'likes')
+            .leftJoin('pin.comments', 'comments')
+            .innerJoin('likes', 'userLikes', 'userLikes.pinId = pin.id AND userLikes.userId = :userId', { userId })
+            .where('userLikes.userId = :userId', { userId })
+            .orderBy('pin.createdAt', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit);
+    
+        const pins = await query.getMany();
+        
+        return pins;
+    }
 
-
+    async getUserPinsCount(userId: string): Promise<number> {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new NotFoundException("User not found.");
+        
+        return user.pinsCount;
+    }
 }
