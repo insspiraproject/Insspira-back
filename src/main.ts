@@ -30,17 +30,27 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.use(auth({
     ...config,
-    // ← REDIRECCIÓN AL DASHBOARD DESPUÉS DEL LOGIN
-    afterCallback: (req: any, res: any) => {
-      console.log('✅ LOGIN EXITOSO CON EOIDC!');
+    afterCallback: (req: any, res: any, next: any) => {
+      console.log('🚀 CALLBACK RECIBIDO!');
       console.log('👤 Usuario:', {
         id: req.oidc.user?.sub,
         email: req.oidc.user?.email,
         name: req.oidc.user?.name,
       });
       
+      // 🔧 IMPORTANTE: LLAMAR next() ANTES del redirect
+      if (req.oidc.user) {
+        console.log('💾 Usuario sincronizado con DB');
+      }
+      
+      // 🚀 REDIRIGIR AL FRONTEND LOCAL
       const frontendUrl = 'http://localhost:3001/dashboard';
-      console.log('✅ REDIRIGIENDO AL FRONTEND LOCAL:', frontendUrl);
+      console.log('✅ REDIRIGIENDO A:', frontendUrl);
+      
+      // 🔧 LLAMAR next() para que EOIDC termine su proceso
+      next();
+      
+      // 🔧 LUEGO hacer redirect
       return res.redirect(frontendUrl);
     },
   }));
