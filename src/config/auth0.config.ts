@@ -6,17 +6,21 @@ const backendBaseURL = process.env.NODE_ENV === 'production'
   ? 'https://api-latest-ejkf.onrender.com'
   : 'http://localhost:3001';
 
+  const frontendRedirect = process.env.NODE_ENV === 'production' 
+  ? 'http://localhost:3001/dashboard'  // ← Cambiar por tu frontend deploy cuando lo tengas
+  : 'http://localhost:3001/dashboard';
+
 export const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET,
-  baseURL: backendBaseURL,
+  baseURL: frontendRedirect,
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_BASE_URL,
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
   authorizationParams: {
     response_type: 'code',
-    scope: 'openid profile email offline_access',
+    scope: 'openid profile email',
     audience: process.env.AUTH0_AUDIENCE,
   },
   routes: {
