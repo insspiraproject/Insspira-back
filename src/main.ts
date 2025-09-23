@@ -30,7 +30,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.use(auth({
     ...config,
-    afterCallback: (req: any, res: any, next: any) => {
+    afterCallback: (req: any, res: any) => {
       console.log('🚀 CALLBACK RECIBIDO!');
       console.log('👤 Usuario:', {
         id: req.oidc.user?.sub,
@@ -46,9 +46,6 @@ async function bootstrap() {
       // 🚀 REDIRIGIR AL FRONTEND LOCAL
       const frontendUrl = 'http://localhost:3001/dashboard';
       console.log('✅ REDIRIGIENDO A:', frontendUrl);
-      
-      // 🔧 LLAMAR next() para que EOIDC termine su proceso
-      next();
       
       // 🔧 LUEGO hacer redirect
       return res.redirect(frontendUrl);
