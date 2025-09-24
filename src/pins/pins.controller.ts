@@ -7,7 +7,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Pin } from './entities/pins.entity';
 
-@ApiTags('pins')
+@ApiTags('Pins')
 @Controller('pins')
 export class PinsController {
   constructor(private readonly service: PinsService) {}
