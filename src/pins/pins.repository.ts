@@ -12,6 +12,7 @@ import { Hashtag } from "./entities/hashtag.entity";
 import { Category } from "../categories/category.entity";
 import { View } from "./entities/view.entity";
 import { Save } from "./entities/save.entity";
+import { NotificationsService } from "src/notifications/notifications.service";
 
 export class PinsRepository {
     
@@ -38,7 +39,9 @@ export class PinsRepository {
         private readonly viewRepo: Repository<View>,
 
         @InjectRepository(Save)
-        private readonly saveRepo: Repository<Save>
+        private readonly saveRepo: Repository<Save>,
+
+        private readonly notificationsService: NotificationsService
     ){}
 
     // Create Query PINS Repository
@@ -166,19 +169,30 @@ export class PinsRepository {
         const user = await this.userRepo.findOne({where: {id: idUser}})
         if(!user) throw new NotFoundException("User not found.")
 
-        const pin = await this.pinsRepo.findOne({where: { id: idPin}})
+        const pin = await this.pinsRepo.findOne({where: { id: idPin},
+        relations: ['user'],
+        });
             if (!pin) throw new NotFoundException("Pin not found.");
 
         const existingLike = await this.likeRepo.findOne({
             where: {pin: {id: pin.id}, user: {id: user.id}},
         });
-        if (existingLike) return{message:"You have already liked this post."};
+        if (existingLike) {
+            return{message:"You have already liked this post."};
+        }
         
         const like = await this.likeRepo.create({pin, user: {id: user.id}}) 
 
         
         await this.pinsRepo.increment({id: pin.id}, "likesCount", 1);
-        await this.likeRepo.save(like)
+        await this.likeRepo.save(like);
+
+       
+        await this.notificationsService.sendActivity({
+            recipientEmail: pin.user.email,
+            type: 'like',
+            photoTitle: pin.description
+        });
         
         return like;
 
