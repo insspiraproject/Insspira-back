@@ -37,8 +37,14 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  console.log('🔍 Iniciando EOIDC...');
+  console.log('🔍 Iniciando Auth0...');
   console.log('📍 baseURL (redirect):', config.baseURL);
+  console.log('🔍 Configuración de Auth0:', JSON.stringify({
+    clientID: config.clientID,
+    issuerBaseURL: config.issuerBaseURL,
+    audience: config.authorizationParams.audience,
+    scope: config.authorizationParams.scope,
+  }, null, 2));
   
   app.use(auth({
     ...config,
@@ -53,7 +59,8 @@ async function bootstrap() {
     },
     afterCallback: async (req: Request, res: Response): Promise<any> => {
       console.log('🚀 CALLBACK RECIBIDO!');
-      console.log('👤 OIDC User:', JSON.stringify(req.oidc?.user, null, 2));
+      console.log('👤 OIDC User completo:', JSON.stringify(req.oidc?.user, null, 2));
+      console.log('🔑 OIDC Access Token:', req.oidc?.accessToken?.access_token);
 
       if (!req.oidc?.user?.sub) {
         console.error('No se encontraron datos del usuario en req.oidc.user');
@@ -71,11 +78,14 @@ async function bootstrap() {
       const token = Buffer.from(JSON.stringify(tokenPayload)).toString('base64');
 
       console.log('🔑 Token generado:', token.substring(0, 20) + '...');
+      console.log('🔑 Payload del token:', tokenPayload);
 
       // Redirigir al frontend
       const frontendUrl = process.env.NODE_ENV === 'production'
         ? 'https://tu-frontend-deploy.com/home' // Cambia esto cuando tengas el deploy
         : 'http://localhost:3001/home';
+
+        console.log('✅ REDIRIGIENDO A:', `${frontendUrl}?token=${token}`);
       res.redirect(`${frontendUrl}?token=${token}`);
       return {};
     },
