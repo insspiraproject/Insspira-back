@@ -8,33 +8,14 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Get('callback')
-        async callback(@Req() req: any, @Res() res: any) {
-        // El middleware express-openid-connect ya maneja el callback
-        // Este endpoint puede ser eliminado si no se necesita lógica adicional
-        // Si lo mantienes, asegúrate de no duplicar redirecciones
-        const authHeader = req.headers.authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            const token = authHeader.substring(7);
-            try {
-            const payload = await this.authService.validateAuth0Token(token);
-            const user = await this.authService.validateUser(payload);
-
-            if (user && user.id && user.email) {
-                req.session = { userId: user.id, email: user.email };
-                return res.redirect('http://localhost:3001/home'); // Redirige al frontend
-            } else {
-                console.error('User validation failed');
-                return res.redirect('http://localhost:3001/login?error=user_validation');
-            }
-            } catch (error) {
-            console.error('Token validation failed:', error);
-            return res.redirect('http://localhost:3001/login?error=invalid_token');
-            }
+    async callback(@Req() req: any, @Res() res: any) {
+        // El middleware de express-openid-connect maneja el callback
+        // No es necesario duplicar lógica aquí
+        if (!req.oidc?.user) {
+        return res.redirect('http://localhost:3001/login?error=no_user_data');
         }
-
-        // Si no hay token, redirigir al login
-        return res.redirect('http://localhost:3001/login');
-        }
+        return; // El middleware ya maneja la redirección
+    }
 
     @Get('me')
     async me(@Req() req: any) { 
@@ -81,5 +62,13 @@ export class AppController {
     @Get()
     redirectToHome(@Res() res) {
         return res.redirect('/home');
+    }
+
+    @Get('home')
+    getHome(@Req() req: any, @Res() res: any) {
+        if (!req.oidc?.user) {
+        return res.redirect('http://localhost:3001/login?error=not_authenticated');
+        }
+        return res.json({ message: 'Welcome to the API', user: req.oidc.user });
     }
 }

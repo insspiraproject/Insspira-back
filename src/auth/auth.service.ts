@@ -5,7 +5,6 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import axios from 'axios';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
-import { JwtStrategy } from './jwt.strategy';
 
 @Injectable()
 export class AuthService {

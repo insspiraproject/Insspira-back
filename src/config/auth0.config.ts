@@ -20,7 +20,7 @@ export const config = {
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
   authorizationParams: {
     response_type: 'code',
-    scope: 'openid profile email',
+    scope: 'openid profile email offline_access',
     audience: process.env.AUTH0_AUDIENCE,
   },
   routes: {
@@ -30,6 +30,7 @@ export const config = {
   },
 };
 
-console.log('🔍 EOIDC Backend Config:');
+console.log('🔍 Auth0 Config:');
 console.log('🌐 Backend URL:', backendBaseURL);
 console.log('🔗 Callback URL:', `${backendBaseURL}/auth/callback`);
+console.log('🔗 Post Logout Redirect:', frontendRedirect);

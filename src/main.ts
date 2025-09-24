@@ -18,11 +18,18 @@ async function bootstrap() {
   }));
 
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'https://api-latest-ejkf.onrender.com'
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:3001',
+        'https://api-latest-ejkf.onrender.com',
+        // Agrega tu URL de frontend en producción aquí cuando la tengas
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -35,33 +42,42 @@ async function bootstrap() {
   
   app.use(auth({
     ...config,
-    afterCallback: async (req: Request, res: Response, session: any): Promise<any> => {
+    session: {
+      rolling: true,
+      rollingDuration: 24 * 60 * 60, // 24 horas
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'Lax',
+      },
+    },
+    afterCallback: async (req: Request, res: Response): Promise<any> => {
       console.log('🚀 CALLBACK RECIBIDO!');
-      console.log('👤 Usuario:', {
-        id: req.oidc?.user?.sub,
-        email: req.oidc?.user?.email,
-        name: req.oidc?.user?.name,
-      });
+      console.log('👤 OIDC User:', JSON.stringify(req.oidc?.user, null, 2));
+
+      if (!req.oidc?.user?.sub) {
+        console.error('No se encontraron datos del usuario en req.oidc.user');
+        res.redirect('http://localhost:3001/login?error=no_user_data');
+        return {};
+      }
 
       // Generar token
-      const token = req.oidc?.accessToken?.access_token || Buffer.from(JSON.stringify({
-        id: req.oidc?.user?.sub || 'unknown',
-        email: req.oidc?.user?.email || 'unknown',
-        name: req.oidc?.user?.name || 'User',
+      const tokenPayload = {
+        id: req.oidc.user.sub,
+        email: req.oidc.user.email || 'unknown',
+        name: req.oidc.user.name || 'User',
         iat: Math.floor(Date.now() / 1000),
-      })).toString('base64');
+      };
+      const token = Buffer.from(JSON.stringify(tokenPayload)).toString('base64');
 
       console.log('🔑 Token generado:', token.substring(0, 20) + '...');
 
       // Redirigir al frontend
-      const frontendUrl = `${process.env.NODE_ENV === 'production' ? 'https://tu-frontend.com' : 'http://localhost:3001'}/home?token=${token}`;
-      console.log('✅ REDIRIGIENDO A:', frontendUrl);
-
-      // Realizar la redirección
-      res.redirect(frontendUrl);
-
-      // Retornar la sesión (puede ser un objeto vacío o la sesión modificada)
-      return session || {};
+      const frontendUrl = process.env.NODE_ENV === 'production'
+        ? 'https://tu-frontend-deploy.com/home' // Cambia esto cuando tengas el deploy
+        : 'http://localhost:3001/home';
+      res.redirect(`${frontendUrl}?token=${token}`);
+      return {};
     },
   }));
 

@@ -6,7 +6,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { LocalJwtStrategy } from './local-jwt.strategy';
-import session from 'express-session';
 
 @Module({
     imports: [
@@ -23,21 +22,5 @@ import session from 'express-session';
     providers: [AuthService, JwtStrategy, LocalJwtStrategy ],
     exports: [AuthService],
 })
-export class AuthModule implements NestModule { // ← IMPORTANTE: implements NestModule
-    configure(consumer: MiddlewareConsumer) {
-        consumer
-            .apply(
-                session({
-                    secret: process.env.SESSION_SECRET || 'your_session_secret',
-                    resave: false,
-                    saveUninitialized: false,
-                    cookie: { 
-                        secure: false, // true en producción con HTTPS
-                        maxAge: 24 * 60 * 60 * 1000 // 24 horas
-                    },
-                }),
-            )
-            .forRoutes('*');
-    }
-}
+export class AuthModule {}
 
