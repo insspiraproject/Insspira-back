@@ -7,8 +7,8 @@ const backendBaseURL = process.env.NODE_ENV === 'production'
   : 'http://localhost:3001';
 
   const frontendRedirect = process.env.NODE_ENV === 'production' 
-  ? 'http://localhost:3001/dashboard'  // ← Cambiar por tu frontend deploy cuando lo tengas
-  : 'http://localhost:3001/dashboard';
+  ? 'https://api-latest-ejkf.onrender.com/home'  // ← Cambiar por tu frontend deploy cuando lo tengas
+  : 'http://localhost:3001/home';
 
 export const config = {
   authRequired: false,

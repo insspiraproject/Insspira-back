@@ -34,6 +34,30 @@ async function bootstrap() {
   
   app.use(auth({
     ...config,
+    afterCallback: (req: any, res: any) => {
+      console.log('🚀 CALLBACK RECIBIDO!');
+      console.log('👤 Usuario:', {
+        id: req.oidc.user?.sub,
+        email: req.oidc.user?.email,
+        name: req.oidc.user?.name,
+      });
+  
+      // Generar token simple (o usar el de Auth0)
+      const token = req.oidc?.accessToken?.access_token || Buffer.from(JSON.stringify({
+        id: req.oidc.user?.sub || 'unknown',
+        email: req.oidc.user?.email || 'unknown',
+        name: req.oidc.user?.name || 'User',
+        iat: Math.floor(Date.now() / 1000),
+      })).toString('base64');
+  
+      console.log('🔑 Token generado:', token.substring(0, 20) + '...');
+  
+      // Redirigir a /home en el frontend CON el token
+      const frontendUrl = `http://localhost:3001/home?token=${token}`;
+      console.log('✅ REDIRIGIENDO A:', frontendUrl);
+  
+      return res.redirect(frontendUrl);
+    },
   }));
 
   const swaggerConfig = new DocumentBuilder()

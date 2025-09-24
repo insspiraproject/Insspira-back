@@ -20,7 +20,7 @@ export class AuthController {
                 
                 if (user && user.id && user.email) {
                     req.session = { userId: user.id, email: user.email };
-                    return res.redirect('http://localhost:3001/dashboard');
+                    return res.redirect('http://localhost:3001/home');
                 } else {
                     console.error('User validation failed');
                     return res.redirect('http://localhost:3001/login?error=user_validation');
