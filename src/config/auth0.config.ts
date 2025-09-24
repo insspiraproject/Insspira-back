@@ -4,17 +4,17 @@ dotenvConfig({ path: '.env.development' });
 
 const backendBaseURL = process.env.NODE_ENV === 'production' 
   ? 'https://api-latest-ejkf.onrender.com'
-  : 'http://localhost:3001';
+  : 'http://localhost:3000';
 
   const frontendRedirect = process.env.NODE_ENV === 'production' 
-  ? 'https://api-latest-ejkf.onrender.com/home'  // ← Cambiar por tu frontend deploy cuando lo tengas
+  ? 'http://localhost:3001/home'  // ← Cambiar por tu frontend deploy cuando lo tengas
   : 'http://localhost:3001/home';
 
 export const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET,
-  baseURL: frontendRedirect,
+  baseURL: backendBaseURL,
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_BASE_URL,
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
@@ -26,7 +26,7 @@ export const config = {
   routes: {
     callback: '/auth/callback',
     login: '/login',
-    postLogoutRedirect: backendBaseURL,
+    postLogoutRedirect: frontendRedirect,
   },
 };
 

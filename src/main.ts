@@ -52,8 +52,8 @@ async function bootstrap() {
   
       console.log('🔑 Token generado:', token.substring(0, 20) + '...');
   
-      // Redirigir a /home en el frontend CON el token
-      const frontendUrl = `http://localhost:3001/home?token=${token}`;
+      // Redirigir al FRONTEND /home con el token
+      const frontendUrl = `${process.env.NODE_ENV === 'production' ? 'http://localhost:3001' : 'http://localhost:3001'}/home?token=${token}`;
       console.log('✅ REDIRIGIENDO A:', frontendUrl);
   
       return res.redirect(frontendUrl);
