@@ -8,35 +8,33 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Get('callback')
-    async callback(@Req() req: any, @Res() res: any) {
-        // El frontend ya maneja el token, solo validar usuario
+        async callback(@Req() req: any, @Res() res: any) {
+        // El middleware express-openid-connect ya maneja el callback
+        // Este endpoint puede ser eliminado si no se necesita lógica adicional
+        // Si lo mantienes, asegúrate de no duplicar redirecciones
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith('Bearer ')) {
             const token = authHeader.substring(7);
             try {
-                // Tu JwtStrategy ya valida el token
-                const payload = await this.authService.validateAuth0Token(token);
-                const user = await this.authService.validateUser(payload);
-                
-                if (user && user.id && user.email) {
-                    req.session = { userId: user.id, email: user.email };
-                    return res.redirect('http://localhost:3001/home');
-                } else {
-                    console.error('User validation failed');
-                    return res.redirect('http://localhost:3001/login?error=user_validation');
-                }
-                
-                // REDIRIGIR AL DASHBOARD
-                return res.redirect('http://localhost:3001/dashboard');
+            const payload = await this.authService.validateAuth0Token(token);
+            const user = await this.authService.validateUser(payload);
+
+            if (user && user.id && user.email) {
+                req.session = { userId: user.id, email: user.email };
+                return res.redirect('http://localhost:3001/home'); // Redirige al frontend
+            } else {
+                console.error('User validation failed');
+                return res.redirect('http://localhost:3001/login?error=user_validation');
+            }
             } catch (error) {
-                console.error('Token validation failed:', error);
-                return res.redirect('http://localhost:3001/login?error=invalid_token');
+            console.error('Token validation failed:', error);
+            return res.redirect('http://localhost:3001/login?error=invalid_token');
             }
         }
-        
+
         // Si no hay token, redirigir al login
         return res.redirect('http://localhost:3001/login');
-    }
+        }
 
     @Get('me')
     async me(@Req() req: any) { 

@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { config } from './config/auth0.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
+import { Request, Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,29 +35,33 @@ async function bootstrap() {
   
   app.use(auth({
     ...config,
-    afterCallback: (req: any, res: any) => {
+    afterCallback: async (req: Request, res: Response, session: any): Promise<any> => {
       console.log('🚀 CALLBACK RECIBIDO!');
       console.log('👤 Usuario:', {
-        id: req.oidc.user?.sub,
-        email: req.oidc.user?.email,
-        name: req.oidc.user?.name,
+        id: req.oidc?.user?.sub,
+        email: req.oidc?.user?.email,
+        name: req.oidc?.user?.name,
       });
-  
-      // Generar token simple (o usar el de Auth0)
+
+      // Generar token
       const token = req.oidc?.accessToken?.access_token || Buffer.from(JSON.stringify({
-        id: req.oidc.user?.sub || 'unknown',
-        email: req.oidc.user?.email || 'unknown',
-        name: req.oidc.user?.name || 'User',
+        id: req.oidc?.user?.sub || 'unknown',
+        email: req.oidc?.user?.email || 'unknown',
+        name: req.oidc?.user?.name || 'User',
         iat: Math.floor(Date.now() / 1000),
       })).toString('base64');
-  
+
       console.log('🔑 Token generado:', token.substring(0, 20) + '...');
-  
-      // Redirigir al FRONTEND /home con el token
-      const frontendUrl = `${process.env.NODE_ENV === 'production' ? 'http://localhost:3001' : 'http://localhost:3001'}/home?token=${token}`;
+
+      // Redirigir al frontend
+      const frontendUrl = `${process.env.NODE_ENV === 'production' ? 'https://tu-frontend.com' : 'http://localhost:3001'}/home?token=${token}`;
       console.log('✅ REDIRIGIENDO A:', frontendUrl);
-  
-      return res.redirect(frontendUrl);
+
+      // Realizar la redirección
+      res.redirect(frontendUrl);
+
+      // Retornar la sesión (puede ser un objeto vacío o la sesión modificada)
+      return session || {};
     },
   }));
 
