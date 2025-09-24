@@ -13,6 +13,6 @@ export class LocalJwtStrategy extends PassportStrategy(Strategy, 'local-jwt') {
   }
 
  async validate(payload: any) {
-  return { id: payload.sub, email: payload.email };
+  return { sub: payload.sub, email: payload.email };
 }
 }

@@ -1,16 +1,17 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Plan } from "src/plans/plan.entity";
 import { User } from "src/users/entities/user.entity";
 import { Repository } from "typeorm";
 import { Sub } from "./subscription.entity";
 import { SubStatus } from "src/status.enum";
-import { CreateSubsDto } from "./subscription.dto";
+
 
 
 @Injectable()
 
 export class SubscriptionService {
+   
 
     constructor (
         @InjectRepository(User)
@@ -21,31 +22,57 @@ export class SubscriptionService {
         private readonly subRepo: Repository<Sub>
     ){}
 
-    async create(dto: CreateSubsDto, userId: string) {
+    async create(planId: string, userId: string) {
         
         const user = await this.userRepo.findOne({where: {id: userId}})
         if(!user) throw new NotFoundException("User not found")
 
             
-        const plan = await this.planRepo.findOne({where: {id: dto.plan_id}})
+        const plan = await this.planRepo.findOne({where: {id: planId}})
         if(!plan) throw new NotFoundException("Plan not found")
             
         const existing = await this.subRepo.findOne({
             where:{
                 user: {id: user.id},
                 plan: {id: plan.id}, 
-                status: SubStatus.ACTIVE
+                status: SubStatus.ENABLED,
             }
         })    
-        if(existing) throw new NotFoundException("User already subscribed to this plan.")
+        if(existing) throw new ConflictException("User already subscribed to this plan.")
         
         const subs = this.subRepo.create({
             user,
             plan,
-            status: SubStatus.ACTIVE
+            status: SubStatus.ENABLED
         })    
 
         return await this.subRepo.save(subs)
+    }
+
+
+    async view(userId: string, planId:string) {
+         const user = await this.userRepo.findOne({where: {id: userId}})
+        if(!user) throw new NotFoundException("User not found")
+
+        const plan = await this.planRepo.findOne({where: {id: planId}})
+        if(!plan) throw new NotFoundException("Plan not found")
+
+        const subscription = await this.subRepo.findOne({
+            where: {
+                user: user,
+                plan: plan
+            },
+            relations: ["user", "plan"]
+           }) 
+         if (!subscription) throw new NotFoundException("Subscription not found")   
+
+           return {
+            user: subscription?.user.username,
+            plan: subscription?.plan.name,
+            status: subscription?.status,
+            init: subscription?.start_date
+           }
+
     }
 
 

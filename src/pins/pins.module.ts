@@ -11,11 +11,13 @@ import { Category } from '../categories/category.entity';
 import { Hashtag } from './entities/hashtag.entity';
 import { View } from './entities/view.entity';
 import { Save } from './entities/save.entity';
+import { Sub } from 'src/subscriptions/subscription.entity';
+
+import { PinsGuardPage } from 'src/common/guards/guard.pin';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, Like, Pin, User, Category, Hashtag, View, Save])],
-
+  imports: [TypeOrmModule.forFeature([Comment, Like, Pin, User, Category, Hashtag, View, Save, Sub])],
   controllers: [PinsController],
-  providers: [PinsService, PinsRepository],
+  providers: [PinsService, PinsRepository, PinsGuardPage],
 })
 export class PinModule {}

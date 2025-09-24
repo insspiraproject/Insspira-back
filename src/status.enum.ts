@@ -1,6 +1,7 @@
 export enum SubStatus {
-  PENDING = "pending",
+  INACTIVE = "inactive",
+  ENABLED = "enable",
   ACTIVE = "active",
-  CANCELED = "canceled",
-  EXPIRED = "expired",
+  CANCELLED = "cancelled",
+  EXPIRED = "expired"
 }

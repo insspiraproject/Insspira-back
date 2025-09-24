@@ -3,13 +3,14 @@ import { PinsService } from "./pins.service";
 import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { CommentDto } from "./pinsDtos/comments.dto";
 import { AuthGuard } from "@nestjs/passport";
-
+import { PinsGuardPage } from "src/common/guards/guard.pin";
+import { CheckLimit } from "src/common/decorators/decorator.pin";
+import { ActionType } from "src/pins.enum";
 
 @Controller("pins")
 
 export class PinsController {
     constructor (private readonly service: PinsService){}
-
 
     // Public search
     //* Ok
@@ -35,7 +36,8 @@ export class PinsController {
 
     // Create pin (auth required)
     //* Ok
-    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+    @CheckLimit(ActionType.POST)
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
     @Post()
     @HttpCode(HttpStatus.CREATED)
     async createPins(
@@ -43,8 +45,8 @@ export class PinsController {
         @Req() req: any 
     ){
         const idUser = req.user.sub
+        console.log("User:", idUser)
         return await this.service.postPinsService(dtoPin, idUser)
-         
     }
 
     // Update pin (auth required) - hashtags via query (array)
@@ -76,9 +78,9 @@ export class PinsController {
     }
 
 
-    // Create Like ) 
+    // Create Like  
     //*OK
-    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
     @Post("/like/:id")
     async createLikes(
         @Param("id", new ParseUUIDPipe()) idPin:string,
@@ -103,7 +105,7 @@ export class PinsController {
 
     // Comments
     //* Ok
-    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
     @Post("/comments/:id")
     async createComments(
         @Param("id", new ParseUUIDPipe()) pinId:string,
@@ -162,7 +164,7 @@ export class PinsController {
     }
 
     //* Ok
-    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
     @Post("/createSave/:id")
     async savePins(
         @Param("id", new ParseUUIDPipe()) idPins: string,

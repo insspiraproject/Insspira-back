@@ -17,7 +17,7 @@ export class Sub {
     id: string
 
 
-    @OneToOne(() => User, (user)=> user.sub)
+    @OneToOne(() => User, (user)=> user.subFree)
     @JoinColumn({ name: "user_id" })
     user: User
 
@@ -28,9 +28,24 @@ export class Sub {
     @Column({
     type: "enum",
     enum: SubStatus,
-    default: SubStatus.PENDING,
+    default: SubStatus.INACTIVE,
     })
     status: SubStatus;
+
+    @Column({ default: 0 })
+    dailyPosts: number;
+
+    @Column({ default: 0 })
+    dailyLikes: number;
+
+    @Column({ default: 0 })
+    dailySaves: number;
+
+    @Column({ default: 0 })
+    dailyComments: number;
+
+    @Column({ type: 'timestamp', default: ()=> 'CURRENT_TIMESTAMP'})
+    lastReset: Date;
 
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     start_date: Date;

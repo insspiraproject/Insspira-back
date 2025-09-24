@@ -7,8 +7,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { CategorySeeder } from './categories/category.seeder';
-import { AppController } from './auth/auth.controller';
+import { AppController, AuthController } from './auth/auth.controller';
+import { MercadoPagoModule } from './mercadopago/mercadopago.module';
 import { PlanModule } from './plans/plan.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { MercadoPagoController } from './mercadopago/mercadopago.controller';
+import { Payment } from './payments/payment.entity';
+import { SubscriptionModule } from './subscriptions/subscription.module';
+import { ReportModule } from './reports/report.module';
 
 @Module({
   imports: [
@@ -25,24 +31,28 @@ import { PlanModule } from './plans/plan.module';
         port: configService.get("DB_PORT"),
         username: configService.get("DB_USERNAME"),
         password: configService.get("DB_PASSWORD") as string,
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: [__dirname + '/**/*.entity{.ts,.js}', Payment],
         synchronize: true
       })
     }),
+    TypeOrmModule.forFeature([Payment]),
     UsersModule,
     AuthModule,
     FilesModule,
     CategoryModule,
     PinModule,
-    AuthModule,
-    PlanModule
+    MercadoPagoModule,
+    PlanModule,
+    NotificationsModule,
+    SubscriptionModule,
+    ReportModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, AuthController, MercadoPagoController],
   providers: [],
 })
 
 export class AppModule implements OnModuleInit{
-  
+
   constructor(private readonly category: CategorySeeder){}
   async onModuleInit() {
     await this.category.run()

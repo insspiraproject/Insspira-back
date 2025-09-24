@@ -1,12 +1,10 @@
-import { Controller, Param, ParseUUIDPipe, Post, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, ParseUUIDPipe, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { SubscriptionService } from "./subscription.service";
-import { CreateUserDto } from "src/users/dto/create-user.dto";
-import { CreateSubsDto } from "./subscription.dto";
 import { AuthGuard } from "@nestjs/passport";
 
 
 
-@Controller("subscriptions")
+@Controller("subs")
 
 export class SubscriptionController {
 
@@ -15,14 +13,23 @@ export class SubscriptionController {
     @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post(":id")
     async createSubscription(
-        @Param("id", new ParseUUIDPipe()) dto: CreateSubsDto, 
+        @Param("id", new ParseUUIDPipe()) planId: string, 
         @Req() req: any
     ){
-        const userId = req.user.sub
 
-        return await this.service.create(dto, userId)
+        const userId = req.user.sub
+        return await this.service.create(planId, userId)
     }
 
+    // @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+    @Get("/free")
+    async viewSubscription(
+        @Query("userId", new ParseUUIDPipe()) userId: string,
+        @Query("planId", new ParseUUIDPipe()) planId: string
+    ){
+
+        return await this.service.view(userId, planId)
+    }
   
 
 

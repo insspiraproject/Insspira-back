@@ -6,6 +6,8 @@ import { View } from 'src/pins/entities/view.entity';
 import { Save } from 'src/pins/entities/save.entity';
 import { Sub } from 'src/subscriptions/subscription.entity';
 import { Plan } from 'src/plans/plan.entity';
+import { Payment } from 'src/payments/payment.entity';
+import { Report } from 'src/reports/report.entity';
 
 
 @Entity({
@@ -36,6 +38,9 @@ export class User {
     @Column({ nullable: true }) 
     confirmPassword: string;
 
+    @Column({ nullable: true })
+    profilePicture: string;
+
     @Column({ default: false }) 
     isAdmin: boolean;
 
@@ -59,6 +64,13 @@ export class User {
 
     @OneToOne(()=> Sub, (sub)=> sub.user)
     @JoinColumn()
-    sub: Sub
+    subFree: Sub
+
+    @OneToOne(()=> Payment, (pay)=> pay.user)
+    @JoinColumn()
+    subPage: Sub
+
+    @OneToMany(()=> Report, (re)=> re.user)
+    reports: Report[]
 
 }

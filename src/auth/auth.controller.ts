@@ -9,7 +9,7 @@ export class AuthController {
 
     @Get('me')
     async me(@Req() req: any) { 
-        const oidcUser = req.oidc?.user;
+        const oidcUser = req.oidc.user;
         if (!oidcUser) return { message: 'No logged in' };
 
         const user = await this.authService.validateUser({
@@ -24,7 +24,7 @@ export class AuthController {
     @Post('logout')
     logout(@Req() res: any) {
       
-        return  res.oidc.logout({ returnTo: 'http://localhost:3000' }); 
+         return  res.logout({ returnTo: 'http://localhost:3000' }); 
     }
 
     @Post('register')

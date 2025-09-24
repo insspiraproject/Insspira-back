@@ -31,4 +31,12 @@ export class UsersController {
   removeUser(@Param('id') id: string) {
     return this.usersService.removeUser(id);
   }
+
+  @Patch(':id/profile-picture')
+  async uploadProfilePicture(
+    @Param('id') id: string,
+    @Body() body: { publicId: string }, 
+  ) {
+    return this.usersService.uploadProfilePicture(id, body.publicId);
+  }
 }
