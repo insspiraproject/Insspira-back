@@ -24,10 +24,11 @@ async function bootstrap() {
     origin: (origin, callback) => {
       const allowedOrigins = [
         'http://localhost:3001', // Dev
-        'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
+        'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app', // Prod Vercel
         'https://api-latest-ejkf.onrender.com', // Backend mismo
       ];
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
+        console.log(`CORS allowed for origin: ${origin}`);
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -66,7 +67,7 @@ async function bootstrap() {
 
       if (!req.oidc?.user?.sub) {
         console.error('No user data');
-        res.redirect(`https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/login?error=no_user_data`);
+        res.redirect(`https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/login?error=no_user_data`);
         return {};
       }
 
