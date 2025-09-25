@@ -41,7 +41,7 @@ export class AuthController {
         
         const logoutUrl = `${process.env.AUTH0_BASE_URL}/v2/logout?` +
             `client_id=${process.env.AUTH0_CLIENT_ID}&` +
-            `returnTo=http://localhost:3001`;
+            `returnTo=https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/`;
             
         return res.redirect(logoutUrl);
     }

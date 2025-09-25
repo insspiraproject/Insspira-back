@@ -7,7 +7,7 @@ const backendBaseURL = process.env.NODE_ENV === 'production'
   : 'http://localhost:3000';
 
   const frontendRedirect = process.env.NODE_ENV === 'production' 
-  ? 'http://localhost:3001/home'  // ← Cambiar por tu frontend deploy cuando lo tengas
+  ? 'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/'
   : 'http://localhost:3001/home';
 
 export const config = {

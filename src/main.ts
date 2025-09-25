@@ -7,9 +7,12 @@ import { config } from './config/auth0.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import { Request, Response } from 'express';
+import { AuthService } from './auth/auth.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const authService = app.get(AuthService);
 
   app.use(bodyParser.json({
     verify: (req: any, _res, buf) => {
@@ -20,9 +23,9 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigins = [
-        'http://localhost:3001',
-        'https://api-latest-ejkf.onrender.com',
-        // Agrega tu URL de frontend en producción aquí cuando la tengas
+        'http://localhost:3001', // Dev
+        'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/', // Prod Vercel
+        'https://api-latest-ejkf.onrender.com', // Backend mismo
       ];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
@@ -30,7 +33,7 @@ async function bootstrap() {
         callback(new Error('Not allowed by CORS'));
       }
     },
-    credentials: true,
+    credentials: true, // Importante para cookies/sessions
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
@@ -50,43 +53,33 @@ async function bootstrap() {
     ...config,
     session: {
       rolling: true,
-      rollingDuration: 24 * 60 * 60, // 24 horas
+      rollingDuration: 24 * 60 * 60,
       cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production', // HTTPS en prod
         httpOnly: true,
-        sameSite: 'Lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // None para cross-site en prod
       },
     },
     afterCallback: async (req: Request, res: Response): Promise<any> => {
       console.log('🚀 CALLBACK RECIBIDO!');
-      console.log('👤 OIDC User completo:', JSON.stringify(req.oidc?.user, null, 2));
-      console.log('🔑 OIDC Access Token:', req.oidc?.accessToken?.access_token);
+      console.log('👤 OIDC User:', JSON.stringify(req.oidc?.user, null, 2));
 
       if (!req.oidc?.user?.sub) {
-        console.error('No se encontraron datos del usuario en req.oidc.user');
-        res.redirect('http://localhost:3001/login?error=no_user_data');
+        console.error('No user data');
+        res.redirect(`https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/login?error=no_user_data`);
         return {};
       }
 
-      // Generar token
-      const tokenPayload = {
+      // Inyecta JwtService si no lo tienes accesible (mejor mover esta lógica a AuthService)
+      const token = await authService.generateToken({
         id: req.oidc.user.sub,
         email: req.oidc.user.email || 'unknown',
         name: req.oidc.user.name || 'User',
-        iat: Math.floor(Date.now() / 1000),
-      };
-      const token = Buffer.from(JSON.stringify(tokenPayload)).toString('base64');
+      });
 
-      console.log('🔑 Token generado:', token.substring(0, 20) + '...');
-      console.log('🔑 Payload del token:', tokenPayload);
-
-      // Redirigir al frontend
-      const frontendUrl = process.env.NODE_ENV === 'production'
-        ? 'https://tu-frontend-deploy.com/home' // Cambia esto cuando tengas el deploy
-        : 'http://localhost:3001/home';
-
-        console.log('✅ REDIRIGIENDO A:', `${frontendUrl}?token=${token}`);
-      res.redirect(`${frontendUrl}?token=${token}`);
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+      console.log('✅ REDIRIGIENDO A:', `${frontendUrl}/home?token=${token}`);
+      res.redirect(`${frontendUrl}/home?token=${token}`);
       return {};
     },
   }));

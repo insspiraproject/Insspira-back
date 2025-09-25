@@ -6,6 +6,15 @@ import axios from 'axios';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 
+interface JwtPayload {
+    sub: string;
+    email?: string;
+    name?: string;
+    iss: string;
+    aud: string | string[];
+    [key: string]: any;
+}
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -13,29 +22,44 @@ export class AuthService {
         private readonly jwtService: JwtService,
     ) {}
 
-    async validateAuth0Token(token: string) {
-        // 🔧 VERSIÓN MÁS SIMPLE: Solo decodificar y validar estructura
+    async validateAuth0Token(token: string): Promise<JwtPayload> {
         try {
-            const decoded = this.jwtService.decode(token);
+            const decoded = await this.jwtService.verifyAsync<JwtPayload>(token, {
+                secret: process.env.JWT_SECRET, // O usa jwks-rsa si prefieres
+            });
             
-            if (!decoded || !decoded.sub || !decoded.email) {
+            if (!decoded.sub || !decoded.email) {
                 throw new Error('Invalid token structure');
             }
             
-            // Verificar issuer y audience manualmente (opcional)
             if (decoded.iss !== `${process.env.AUTH0_BASE_URL}/`) {
                 throw new Error('Invalid token issuer');
             }
             
-            if (decoded.aud !== process.env.AUTH0_AUDIENCE) {
+            if (!Array.isArray(decoded.aud) && decoded.aud !== process.env.AUTH0_AUDIENCE) {
+                throw new Error('Invalid token audience');
+            }
+
+            const audience = process.env.AUTH0_AUDIENCE || 'https://insspira-api';
+            if (Array.isArray(decoded.aud) && !decoded.aud.includes(audience)) {
                 throw new Error('Invalid token audience');
             }
             
-            return decoded as any;
-        } catch (error) {
+            return decoded;
+            } catch (error) {
             console.error('Auth0 token validation failed:', error);
-            throw error;
+            throw new UnauthorizedException('Invalid token');
+            }
         }
+
+    async generateToken(payload: { id: string; email: string; name: string }): Promise<string> {
+        const tokenPayload = {
+            id: payload.id,
+            email: payload.email,
+            name: payload.name,
+            iat: Math.floor(Date.now() / 1000),
+        };
+        return this.jwtService.sign(tokenPayload, { expiresIn: '60m' });
     }
 
     async validateUser(payload: any) {
