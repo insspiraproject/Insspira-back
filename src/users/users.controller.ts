@@ -8,7 +8,7 @@ import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/
 import { User } from './entities/user.entity';
 import { Pin } from 'src/pins/entities/pins.entity';
 
-@ApiTags('users')
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(
