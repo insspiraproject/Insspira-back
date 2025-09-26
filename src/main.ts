@@ -63,7 +63,9 @@ async function bootstrap() {
     },
     afterCallback: async (req: Request, res: Response): Promise<any> => {
       console.log('🚀 CALLBACK RECIBIDO!');
+      console.log('👤 OIDC Complete:', JSON.stringify(req.oidc, null, 2));
       console.log('👤 OIDC User:', JSON.stringify(req.oidc?.user, null, 2));
+      console.log('🔑 OIDC Access Token:', req.oidc?.accessToken?.access_token);
 
       if (!req.oidc?.user?.sub) {
         console.error('No user data');
