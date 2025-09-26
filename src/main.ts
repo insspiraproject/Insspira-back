@@ -67,9 +67,15 @@ async function bootstrap() {
       console.log('👤 OIDC User:', JSON.stringify(req.oidc?.user, null, 2));
       console.log('🔑 OIDC Access Token:', req.oidc?.accessToken?.access_token);
 
-      if (!req.oidc?.user?.sub) {
-        console.error('No user data');
-        res.redirect(`https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/login?error=no_user_data`);
+      if (!req.oidc) {
+        console.error('No OIDC data received');
+        res.status(400).json({ error: 'no_oidc_data' });
+        return {};
+      }
+
+      if (!req.oidc.user || !req.oidc.user.sub) {
+        console.error('No user or sub in OIDC:', JSON.stringify(req.oidc.user, null, 2));
+        res.status(400).json({ error: 'no_user_sub' });
         return {};
       }
 
