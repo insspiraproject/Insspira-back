@@ -52,7 +52,7 @@ async function bootstrap() {
   
   app.use(auth({
     ...config,
-    attemptSilentLogin: false,
+    clientAuthMethod: 'client_secret_post',
     session: {
       rolling: true,
       rollingDuration: 24 * 60 * 60,

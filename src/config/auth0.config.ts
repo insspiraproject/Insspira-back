@@ -7,7 +7,7 @@ const backendBaseURL = process.env.NODE_ENV === 'production'
   : 'http://localhost:3000';
 
   const frontendRedirect = process.env.NODE_ENV === 'production' 
-  ? 'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/'
+  ? 'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app'
   : 'http://localhost:3001/home';
 
 export const config = {
@@ -20,7 +20,7 @@ export const config = {
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
   authorizationParams: {
     response_type: 'code',
-    scope: 'openid profile email offline_access',
+    scope: 'openid profile email',
     //audience: process.env.AUTH0_AUDIENCE,
   },
   routes: {
