@@ -12,13 +12,9 @@ import { Category } from '../categories/category.entity';
 import { Hashtag } from './entities/hashtag.entity';
 import { View } from './entities/view.entity';
 import { Save } from './entities/save.entity';
-import { NotificationsModule } from 'src/notifications/notifications.module';
-
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, Like, Pin, User, Category, Hashtag, View, Save]),
-  NotificationsModule
-],
+  imports: [TypeOrmModule.forFeature([Comment, Like, Pin, User, Category, Hashtag, View, Save])],
 
   controllers: [PinsController],
   providers: [PinsService, PinsRepository],

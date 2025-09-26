@@ -33,7 +33,7 @@
     "@paypal/checkout-server-sdk": "^1.0.3",
     "auth0": "^4.29.0",
     "axios": "^1.12.2",
-    "bcryptjs": "^3.0.2",
+    "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "cloudinary": "^2.7.0",
