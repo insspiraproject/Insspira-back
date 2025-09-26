@@ -46,7 +46,7 @@ async function bootstrap() {
   console.log('🔍 Configuración de Auth0:', JSON.stringify({
     clientID: config.clientID,
     issuerBaseURL: config.issuerBaseURL,
-    audience: config.authorizationParams.audience,
+    //audience: config.authorizationParams.audience,
     scope: config.authorizationParams.scope,
   }, null, 2));
   
@@ -70,14 +70,12 @@ async function bootstrap() {
 
       if (!req.oidc) {
         console.error('No OIDC data received');
-        res.status(400).json({ error: 'no_oidc_data' });
-        return {};
+        throw new Error('no_oidc_data');
       }
-
+    
       if (!req.oidc.user || !req.oidc.user.sub) {
         console.error('No user or sub in OIDC:', JSON.stringify(req.oidc.user, null, 2));
-        res.status(400).json({ error: 'no_user_sub' });
-        return {};
+        throw new Error('no_user_sub');
       }
 
       // Inyecta JwtService si no lo tienes accesible (mejor mover esta lógica a AuthService)

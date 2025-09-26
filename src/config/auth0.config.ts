@@ -21,7 +21,7 @@ export const config = {
   authorizationParams: {
     response_type: 'code',
     scope: 'openid profile email offline_access',
-    audience: process.env.AUTH0_AUDIENCE,
+    //audience: process.env.AUTH0_AUDIENCE,
   },
   routes: {
     callback: '/auth/callback',
