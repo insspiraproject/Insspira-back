@@ -11,6 +11,8 @@ import { ReportStatus } from "src/report.enum";
 @Injectable()
 
 export class ReportService {
+   
+    
     
 
     constructor(
@@ -20,6 +22,12 @@ export class ReportService {
         private readonly user: Repository<User>,
 
     ){}
+
+
+    async view() {
+        return await this.report.find()
+    }
+
 
     async create(dto: CreateReportDto, userId: string) {
           const user = await this.user.findOne({where: {id: userId}})
@@ -45,15 +53,24 @@ export class ReportService {
             name: report.user.name,
             email: report.user.email,
             report: report.type,
-            reportedUser: report,
             target: report.targetType,
             targetId: report.targetId,
             reason: report.reason,
             date: report.createdAt
-        }
-        
+        }}
 
 
+
+    async delete(userId: string, id: string) {
+      const user = await this.user.findOne({where: {id: userId, isAdmin: true}, })
+        if(!user) throw new NotFoundException("Admin user not found.")
+
+      const exist = await this.report.findOne({
+          where: {id: id}
+        })  
+        if(!exist) throw new BadRequestException("Reported not found");
+
+        return await this.report.remove(exist)
 
     }
 }

@@ -8,27 +8,14 @@ import { AuthGuard } from "@nestjs/passport";
 
 export class SubscriptionController {
 
-        constructor (private readonly service: SubscriptionService){}
+    constructor (private readonly service: SubscriptionService){}
 
-    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
-    @Post(":id")
-    async createSubscription(
-        @Param("id", new ParseUUIDPipe()) planId: string, 
-        @Req() req: any
-    ){
-
-        const userId = req.user.sub
-        return await this.service.create(planId, userId)
-    }
-
-    // @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+   
+    
     @Get("/free")
     async viewSubscription(
-        @Query("userId", new ParseUUIDPipe()) userId: string,
-        @Query("planId", new ParseUUIDPipe()) planId: string
     ){
-
-        return await this.service.view(userId, planId)
+        return await this.service.view()
     }
   
 

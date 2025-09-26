@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, ForbiddenException, NotFoundException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, NotFoundException, Res } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ActionType } from "src/pins.enum";
@@ -24,11 +24,14 @@ export class PinsGuardPage implements CanActivate {
             [context.getHandler(), context.getClass()],
         );
         if(!action) return true;
-
+        
+        
         const req = context.switchToHttp().getRequest()
         const user = req.user
-
+        
         if(!user) throw new ForbiddenException("User not found")
+
+        req.action = action;
 
        const activate = await this.sub.findOne({
         where:{
@@ -37,6 +40,8 @@ export class PinsGuardPage implements CanActivate {
             
         }
        })
+
+       req.subscription = activate
 
         if(!activate) throw new ForbiddenException("You don't have any subscription")
         
@@ -51,38 +56,6 @@ export class PinsGuardPage implements CanActivate {
             await this.sub.save(activate)
         }
 
-        // Validar según acción
-        switch (action) {
-            case ActionType.POST:
-            if (activate.dailyPosts >= 3) {
-                throw new ForbiddenException('You have reached the daily limit of 3 posts with the free plan');
-            }
-            activate.dailyPosts++    
-            break;
-
-            case ActionType.LIKE:
-            if (activate.dailyLikes >= 5) {
-                throw new ForbiddenException('You have reached the daily limit of 5 likes with the free plan');
-            }
-            activate.dailyLikes++;
-            break;
-
-            case ActionType.SAVE:
-            if (activate.dailySaves >= 2) {
-                throw new ForbiddenException('You have reached the daily limit of 2 saves with the free plan');
-            }
-            activate.dailySaves++;
-            break;
-
-            case ActionType.COMMENT:
-            if (activate.dailyComments >= 3) {
-                throw new ForbiddenException('You have reached the daily limit of 3 comments with the free plan');
-            }
-            activate.dailyComments++;
-            break;
-        }
-        
-        await this.sub.save(activate);
         return true
     }
 

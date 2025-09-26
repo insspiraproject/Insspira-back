@@ -11,6 +11,7 @@ import { Hashtag } from "./entities/hashtag.entity";
 import { Category } from "../categories/category.entity";
 import { View } from "./entities/view.entity";
 import { Save } from "./entities/save.entity";
+import { throwError } from "rxjs";
 
 export class PinsRepository {
     
@@ -166,17 +167,22 @@ export class PinsRepository {
         if(!user) throw new NotFoundException("User not found.")
 
         const pin = await this.pinsRepo.findOne({where: { id: idPin}})
-            if (!pin) throw new NotFoundException("Pin not found.");
+        if (!pin) throw new NotFoundException("Pin not found.");
 
         const existingLike = await this.likeRepo.findOne({
             where: {pin: {id: pin.id}, user: {id: user.id}},
         });
-        if (existingLike) return{message:"You have already liked this post."};
-        
+        if (existingLike) throw new NotFoundException("You already liked this post")
         const like = await this.likeRepo.create({pin, user: {id: user.id}}) 
 
+        await this.pinsRepo.update(
+            {id: pin.id}, {
+                likesCount: () => '"likesCount" + 1',
+                likesView: true
+            }
+        )
         
-        await this.pinsRepo.increment({id: pin.id}, "likesCount", 1);
+
         await this.likeRepo.save(like)
         
         return like;
@@ -194,7 +200,8 @@ export class PinsRepository {
         const remove = await this.likeRepo.findOne({
         where: {
             pin: {id: pin.id},
-            user: {id: user.id}
+            user: {id: user.id},
+        
         },
         relations:["pin", "user"]
         })
@@ -203,8 +210,12 @@ export class PinsRepository {
 
         if(remove.user.id !== user.id) throw new ForbiddenException("You are not allowed to delete this like.")
 
-        
-        await this.pinsRepo.decrement({id: remove.pin.id}, "likesCount", 1)
+         await this.pinsRepo.update(
+            {id: pin.id}, {
+                likesCount: () => '"likesCount" - 1',
+                likesView: false
+            }
+        )
 
         return await this.likeRepo.remove(remove)
     }

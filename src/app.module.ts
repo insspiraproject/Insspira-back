@@ -15,6 +15,7 @@ import { MercadoPagoController } from './mercadopago/mercadopago.controller';
 import { Payment } from './payments/payment.entity';
 import { SubscriptionModule } from './subscriptions/subscription.module';
 import { ReportModule } from './reports/report.module';
+import { PlanSeeder } from './plans/plan.seeder';
 
 @Module({
   imports: [
@@ -53,8 +54,13 @@ import { ReportModule } from './reports/report.module';
 
 export class AppModule implements OnModuleInit{
 
-  constructor(private readonly category: CategorySeeder){}
+  constructor(
+    private readonly plan: PlanSeeder,
+    private readonly category: CategorySeeder
+  ){}
   async onModuleInit() {
     await this.category.run()
+    await this.plan.run()
   }
+
 }

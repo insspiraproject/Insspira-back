@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { CreateReportDto } from "./dto/create-report.dto";
 import { ReportService } from "./report.service";
 import { AuthGuard } from "@nestjs/passport";
@@ -11,7 +11,9 @@ export class ReportController {
     constructor(private readonly service: ReportService){}
 
     @Get()
-    async viewReport(){}
+    async viewReport(){
+        return await this.service.view()
+    }
     
     @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Post()
@@ -23,11 +25,21 @@ export class ReportController {
         return await this.service.create(dto, userId)
     }
 
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
     @Put(":id")
     async modifieReport(){}
 
-    @Delete()
-    async deleteReport(){}
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+    @Delete(":id")
+    async deleteReport(
+        @Param("id", new ParseUUIDPipe()) id: string,
+        @Req() req: any
+    ){
+        
+        const userId = req.user.sub
+        console.log(userId);
+        return await this.service.delete(userId, id)
+    }
 
     
 }

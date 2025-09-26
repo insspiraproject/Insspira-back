@@ -16,7 +16,6 @@ export class Sub {
     @PrimaryGeneratedColumn("uuid")
     id: string
 
-
     @OneToOne(() => User, (user)=> user.subFree)
     @JoinColumn({ name: "user_id" })
     user: User
@@ -28,7 +27,7 @@ export class Sub {
     @Column({
     type: "enum",
     enum: SubStatus,
-    default: SubStatus.INACTIVE,
+    default: SubStatus.ENABLED,
     })
     status: SubStatus;
 

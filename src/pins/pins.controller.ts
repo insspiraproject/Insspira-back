@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put, Query, Req, UseGuards, UseInterceptors } from "@nestjs/common";
 import { PinsService } from "./pins.service";
 import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
 import { CommentDto } from "./pinsDtos/comments.dto";
@@ -6,6 +6,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { PinsGuardPage } from "src/common/guards/guard.pin";
 import { CheckLimit } from "src/common/decorators/decorator.pin";
 import { ActionType } from "src/pins.enum";
+import { LimitInterceptor } from "src/common/interceptors/interceptor.pin";
 
 @Controller("pins")
 
@@ -38,6 +39,7 @@ export class PinsController {
     //* Ok
     @CheckLimit(ActionType.POST)
     @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
+    @UseInterceptors(LimitInterceptor)
     @Post()
     @HttpCode(HttpStatus.CREATED)
     async createPins(
@@ -80,7 +82,9 @@ export class PinsController {
 
     // Create Like  
     //*OK
+    @CheckLimit(ActionType.LIKE)
     @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
+    @UseInterceptors(LimitInterceptor)
     @Post("/like/:id")
     async createLikes(
         @Param("id", new ParseUUIDPipe()) idPin:string,
@@ -105,7 +109,9 @@ export class PinsController {
 
     // Comments
     //* Ok
+    @CheckLimit(ActionType.COMMENT)
     @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
+    @UseInterceptors(LimitInterceptor)
     @Post("/comments/:id")
     async createComments(
         @Param("id", new ParseUUIDPipe()) pinId:string,
@@ -164,7 +170,9 @@ export class PinsController {
     }
 
     //* Ok
+    @CheckLimit(ActionType.SAVE)
     @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
+    @UseInterceptors(LimitInterceptor)
     @Post("/createSave/:id")
     async savePins(
         @Param("id", new ParseUUIDPipe()) idPins: string,

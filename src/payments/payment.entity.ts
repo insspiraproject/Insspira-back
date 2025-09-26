@@ -1,6 +1,7 @@
+import { Plan } from 'src/plans/plan.entity';
 import { SubStatus } from 'src/status.enum';
 import { User } from 'src/users/entities/user.entity';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('payments')
 export class Payment {
@@ -11,11 +12,16 @@ export class Payment {
     @JoinColumn({ name: "user_id" })
     user: User;
 
+    @ManyToOne(() => Plan, (plan)=> plan.payments)
+    @JoinColumn({ name: "plan_id" })
+    plan: Plan
+
+
     @Column()
     paymentId: string;
 
     @Column()
-    plan: 'monthly' | 'annual';
+    billingCycle: 'monthly' | 'annual';
 
      @Column({
         type: "enum",

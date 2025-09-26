@@ -24,6 +24,9 @@ export class Pin {
     @Column({ default: 0 })
     likesCount: number;
 
+    @Column({default: false})
+    likesView: boolean
+
     @Column({ default: 0 })
     commentsCount: number;
 
