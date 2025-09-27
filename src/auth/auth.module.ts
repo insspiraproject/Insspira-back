@@ -6,6 +6,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { LocalJwtStrategy } from './local-jwt.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Sub } from 'src/subscriptions/subscription.entity';
+import { Plan } from 'src/plans/plan.entity';
 
 @Module({
     imports: [
@@ -16,7 +19,8 @@ import { LocalJwtStrategy } from './local-jwt.strategy';
             secret: process.env.JWT_SECRET || 'your_jwt_secret',
             signOptions: { expiresIn: '60m' },
         }),
-        }),        
+        }),
+        TypeOrmModule.forFeature([Sub, Plan])        
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy, LocalJwtStrategy ],

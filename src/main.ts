@@ -7,6 +7,7 @@ import { config } from './config/auth0.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -16,8 +17,7 @@ async function bootstrap() {
     },
   }));
 
-  // ❌ Quita: app.use(cors());
-  // ✅ Deja SOLO enableCors, antes de middlewares de auth
+
   app.enableCors({
     origin: [
       'http://localhost:3000', // Next dev (ajusta si usas otro puerto)

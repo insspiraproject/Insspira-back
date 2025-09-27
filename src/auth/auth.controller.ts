@@ -9,6 +9,7 @@ import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+
   @Get('me')
   @ApiOperation({
     summary: 'Retrieve the current logged-in user information',
@@ -38,7 +39,9 @@ export class AuthController {
     return { message: 'Logout successful' };
   }
 
-  @Post('register')
+
+
+@Post('register')
   @ApiBody({ type: CreateUserDto })
   @ApiOperation({
     summary: 'Register a new user in the system',
@@ -48,6 +51,7 @@ export class AuthController {
   async register(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
+
 
   @Post('login')
   @ApiBody({ type: LoginUserDto })
@@ -64,6 +68,7 @@ export class AuthController {
 @ApiTags('App')
 @Controller()
 export class AppController {
+
   @Get()
   @ApiOperation({
     summary: 'Redirect to the home page',
@@ -73,3 +78,5 @@ export class AppController {
     return res.redirect('/home');
   }
 }
+
+

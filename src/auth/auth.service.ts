@@ -1,16 +1,25 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import axios from 'axios';
 import * as bcrypt from 'bcryptjs';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Sub } from 'src/subscriptions/subscription.entity';
+import { In, Repository } from 'typeorm';
+import { SubStatus } from 'src/status.enum';
+import { Plan } from 'src/plans/plan.entity';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
          private readonly jwtService: JwtService,
+         @InjectRepository(Sub)
+         private readonly subRepo: Repository<Sub>,
+          @InjectRepository(Plan)
+         private readonly planRepo: Repository<Plan>
     ) {}
 
     async validateUser(payload: any) {
@@ -89,6 +98,10 @@ export class AuthService {
         }
     
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        
+        
+
     
         const user = await this.usersService.createUser({
             email,
@@ -98,10 +111,26 @@ export class AuthService {
             password: hashedPassword,
             isAdmin: isAdmin || false 
         });
+
+        const plan = await this.planRepo.findOne({where: {type: "free"}})
+        if(!plan) throw new BadRequestException("This plan not found")
+        const subs = this.subRepo.create({
+                user,
+                plan,
+                status: SubStatus.ENABLED
+            })    
+
+        const subFree = await this.subRepo.save(subs)
+
     
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
-        return {accessToken}
+        return {
+            accessToken,
+            user: subFree.user.id,
+            name: subFree.user.username,
+            subscription: subFree.plan
+        }
 
     }
     
@@ -124,11 +153,38 @@ export class AuthService {
         if (!(await bcrypt.compare(password, user.password))) {
             throw new UnauthorizedException('Invalid credentials');
         }
-    
+        
+      
+        //Buscar Sub Paga
+        let subs = await this.subRepo.findOne({
+            where: {user: {id: user.id}, status:  SubStatus.ACTIVE},
+            relations: ["plan"]
+        })
+
+        //Buscar Sub Gratuita
+        if(!subs){
+            subs = await this.subRepo.findOne({
+                where: { user: { id: user.id }, status: SubStatus.ENABLED },
+                relations: ["plan"]
+            });
+
+            if(!subs){
+            const plan = await this.planRepo.findOne({where: {type: "free"}})
+            if(!plan) throw new BadRequestException("This plan not found")
+                   
+            subs = this.subRepo.create({
+                user,
+                plan,
+                status: SubStatus.ENABLED
+            })
+            await this.subRepo.save(subs)
+            }
+        } 
+
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
     
-        return {accessToken}
+        return {accessToken, subscription: subs.plan}
     
     }
 }

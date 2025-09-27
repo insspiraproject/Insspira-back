@@ -1,5 +1,5 @@
 import { PartialType } from "@nestjs/mapped-types";
-import { ArrayNotEmpty, IsArray, IsNumber, IsPositive, IsString, IsUrl, IsUUID, Length, Matches } from "class-validator"
+import { ArrayNotEmpty, IsArray, IsNumber, IsPositive, IsString, IsUrl, IsUUID, Length, Matches, Min } from "class-validator"
 
 export class planDto {
     
@@ -7,7 +7,7 @@ export class planDto {
     name: string
     
     @IsNumber({ maxDecimalPlaces: 2 })
-    @IsPositive()
+    @Min(0)
     price: number 
     
     @IsString()
