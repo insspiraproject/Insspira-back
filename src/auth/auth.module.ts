@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { LocalJwtStrategy } from './local-jwt.strategy';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
     imports: [
@@ -16,7 +17,8 @@ import { LocalJwtStrategy } from './local-jwt.strategy';
             secret: process.env.JWT_SECRET || 'your_jwt_secret',
             signOptions: { expiresIn: '60m' },
         }),
-        }),        
+        }),  
+        NotificationsModule      
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy, LocalJwtStrategy ],

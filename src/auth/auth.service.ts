@@ -5,12 +5,14 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import axios from 'axios';
 import * as bcrypt from 'bcryptjs';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
          private readonly jwtService: JwtService,
+         private readonly notificationsService: NotificationsService
     ) {}
 
     async validateUser(payload: any) {
@@ -127,6 +129,10 @@ export class AuthService {
     
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
+        await this.notificationsService.sendWelcome({
+            email: user.email,
+            name: user.name,
+          });
     
         return {accessToken}
     
