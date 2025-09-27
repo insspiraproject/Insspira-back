@@ -8,7 +8,7 @@ const backendBaseURL = process.env.NODE_ENV === 'production'
 
   const frontendRedirect = process.env.NODE_ENV === 'production' 
   ? 'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app'
-  : 'http://localhost:3001/home';
+  : 'http://localhost:3001';
 
 export const config = {
   authRequired: false,

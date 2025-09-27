@@ -42,12 +42,17 @@ export class MercadoPagoController {
     description:
       'This endpoint creates a monthly subscription for a user and returns a MercadoPago preference object for payment. Email is required, userId is optional.',
   })
-  async createMonthly(@Body() body: CreateSubscriptionDto) {
-    if (!body.email) {
-      return { success: false, message: 'Email is required' };
+  async createMonthly(@Req() req: any) {
+    // Tomar email del usuario logueado
+    const userEmail = req.user?.email;
+    const userId = req.user?.id;
+  
+    if (!userEmail) {
+      return { success: false, message: 'Usuario no logueado' };
     }
+  
     try {
-      const result = await this.mpService.createPreference('monthly', body.email, body.userId);
+      const result = await this.mpService.createPreference('monthly', userEmail, userId);
       return result;
     } catch (error: any) {
       return { success: false, message: error.message };
