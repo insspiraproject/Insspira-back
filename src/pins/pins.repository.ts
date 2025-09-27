@@ -227,7 +227,13 @@ export class PinsRepository {
     // Create Comment PINS Repository
 
     async createComment(userId: string, pinId:string , comment: CommentDto) {
-        const pin = await this.pinsRepo.findOne({where: {id: pinId}})
+        console.log('DTO EN REPO:', comment); // 👈 Aquí
+        console.log('COMMENT.TEXT EN REPO:', comment?.text);
+        const pin = await this.pinsRepo.findOne({
+            where: { id: pinId },
+            relations: ['user'],
+        });
+        
         if(!pin) throw new NotFoundException("Post not found.")
         
         const user = await this.userRepo.findOne({where: {id: userId}})
@@ -236,12 +242,18 @@ export class PinsRepository {
             const commentCreate = this.commentRepo.create({
             pin,
             user,
-            text: comment.text,
+            text: comment.text
         })
         await this.commentRepo.save(commentCreate)
 
         await this.pinsRepo.increment({id: pin.id}, "commentsCount", 1)
 
+        await this.notificationsService.sendActivity({
+            recipientEmail: pin.user.email,
+            type: 'comment',
+            photoTitle: pin.description,
+            comment: comment.text
+        });
         return {
             user: commentCreate.user.id,
             pin: commentCreate.pin,

@@ -117,6 +117,7 @@ export class PinsController {
     @Body() comment: CommentDto,
     @Req() req: any,
   ) {
+    console.log('BODY EN CONTROLLER:', comment);
     const userId = req.user.sub;
     return await this.service.commentService(userId, pinId, comment);
   }
