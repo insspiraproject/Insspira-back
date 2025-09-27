@@ -10,7 +10,8 @@ import {
   ValidationPipe,
   UsePipes,
   Res,
-  Req
+  Req,
+  UseGuards
 } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { MercadoPagoService } from './mercadopago.service';
@@ -18,6 +19,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Payment } from '../payments/payment.entity';
 import { Repository } from 'typeorm';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 class CreateSubscriptionDto {
   email: string;
@@ -34,6 +36,7 @@ export class MercadoPagoController {
     private paymentRepository: Repository<Payment>
   ) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('monthly')
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: CreateSubscriptionDto })
