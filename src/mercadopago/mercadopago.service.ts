@@ -84,8 +84,7 @@ export class MercadoPagoService {
         sandbox_init_point: result.body.sandbox_init_point,
         usdPrice,
         arsPrice,
-        arsRate,
-        ...result.body,
+        arsRate
       };
     } catch (error: any) {
       this.logger.error('Error creando preferencia:', error);
