@@ -20,7 +20,10 @@ export class Payment {
     @Column()
     paymentId: string;
 
-    @Column()
+    @Column({
+        type: 'varchar',
+        default: 'monthly'
+    })
     billingCycle: 'monthly' | 'annual';
 
     @Column({
