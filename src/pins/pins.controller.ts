@@ -129,6 +129,7 @@ export class PinsController {
     return { message: 'Like removed.' };
   }
 
+
   
 
     // Comments
@@ -149,7 +150,6 @@ export class PinsController {
         const userId = req.user.sub
         return await this.service.commentService(userId, pinId, comment)
     }
-
 
   @UseGuards(AuthGuard(['local-jwt', 'jwt']))
   @Put('/modifiComments/:id')

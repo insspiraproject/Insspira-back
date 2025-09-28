@@ -9,6 +9,8 @@ import { LocalJwtStrategy } from './local-jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Sub } from 'src/subscriptions/subscription.entity';
 import { Plan } from 'src/plans/plan.entity';
+import { NotificationsModule } from 'src/notifications/notifications.module';
+
 
 @Module({
     imports: [
@@ -19,8 +21,11 @@ import { Plan } from 'src/plans/plan.entity';
             secret: process.env.JWT_SECRET || 'your_jwt_secret',
             signOptions: { expiresIn: '60m' },
         }),
+
         }),
         TypeOrmModule.forFeature([Sub, Plan])        
+        }), 
+        NotificationsModule      
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy, LocalJwtStrategy ],

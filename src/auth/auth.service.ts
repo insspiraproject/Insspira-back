@@ -10,16 +10,21 @@ import { Sub } from 'src/subscriptions/subscription.entity';
 import { In, Repository } from 'typeorm';
 import { SubStatus } from 'src/status.enum';
 import { Plan } from 'src/plans/plan.entity';
+import { NotificationsService } from 'src/notifications/notifications.service';
+
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
          private readonly jwtService: JwtService,
+
          @InjectRepository(Sub)
          private readonly subRepo: Repository<Sub>,
           @InjectRepository(Plan)
          private readonly planRepo: Repository<Plan>
+         private readonly notificationsService: NotificationsService
+
     ) {}
 
     async validateUser(payload: any) {
@@ -183,6 +188,10 @@ export class AuthService {
 
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
+        await this.notificationsService.sendWelcome({
+            email: user.email,
+            name: user.name,
+          });
     
         return {accessToken, subscription: subs.plan}
     
