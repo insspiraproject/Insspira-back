@@ -8,7 +8,7 @@ export class Payment {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(() => User, (user)=> user.subPage)
+    @ManyToOne(() => User, (user)=> user.payments)
     @JoinColumn({ name: "user_id" })
     user: User;
 
@@ -23,7 +23,7 @@ export class Payment {
     @Column()
     billingCycle: 'monthly' | 'annual';
 
-     @Column({
+    @Column({
         type: "enum",
         enum: SubStatus,
         default: SubStatus.ACTIVE,
@@ -42,6 +42,3 @@ export class Payment {
     @CreateDateColumn()
     createdAt: Date;
 }
-
-
- 

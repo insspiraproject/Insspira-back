@@ -83,9 +83,8 @@ export class User {
   @JoinColumn()
   subFree: Sub
 
-  @OneToOne(()=> Payment, (pay)=> pay.user)
-  @JoinColumn()
-  subPage: Sub
+  @OneToMany(() => Payment, (pay)=> pay.user)
+  payments: Payment[];
 
   @OneToMany(()=> Report, (re)=> re.user)
   reports: Report[]
