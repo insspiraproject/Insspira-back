@@ -31,6 +31,9 @@ export class Pin {
   @Column({ default: 0 })
   commentsCount: number;
 
+  @Column({default: false})
+  likesView: boolean
+
   @ApiProperty({ example: 128 })
   @Column({ default: 0 })
   viewsCount: number;

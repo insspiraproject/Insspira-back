@@ -20,6 +20,8 @@ import { Payment } from '../payments/payment.entity';
 import { Repository } from 'typeorm';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { SubStatus } from 'src/status.enum';
+
 
 class CreateSubscriptionDto {
   email: string;
@@ -60,52 +62,71 @@ export class MercadoPagoController {
     } catch (error: any) {
       return { success: false, message: error.message };
     }
-  }
 
-  @Post('annual')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiBody({ type: CreateSubscriptionDto })
-  @ApiOperation({
-    summary: 'Create an annual subscription and initiate payment preference',
-    description:
-      'This endpoint creates an annual subscription for a user and returns a MercadoPago preference object for payment. Email is required, userId is optional.',
-  })
-  async createAnnual(@Body() body: CreateSubscriptionDto) {
-    if (!body.email) {
-      return { success: false, message: 'Email is required' };
-    }
-    try {
-      const result = await this.mpService.createPreference('annual', body.email, body.userId);
-      return result;
-    } catch (error: any) {
-      return { success: false, message: error.message };
-    }
   }
-
-  @Delete('cancel/:userId')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Cancel active subscription for a user',
-    description:
-      'This endpoint cancels the active subscription for a given userId. Access remains valid until the end of the current period.',
-  })
-  async cancelUserPayment(@Param('userId') userId: string) {
-    try {
-      const activePayment = await this.paymentRepository
-        .createQueryBuilder('payment')
-        .where('payment.userId = :userId AND payment.status = :status', {
-          userId,
-          status: 'active'
-        })
-        .orderBy('payment.createdAt', 'DESC')
-        .getOne();
+  
+  
+    // @Post('monthly')
+    // @HttpCode(HttpStatus.CREATED)
+    // async createMonthly(@Body() body: CreateSubscriptionDto) {
+    //   if (!body.email) {
+    //     return {
+    //       success: false,
+    //       message: 'Email es requerido',
+    //     };
+    //   }
+      
+    //   try {
+    //     const result = await this.mpService.createPreference('monthly', body.email, body.userId);
+    //     return result;
+    //   } catch (error: any) {
+    //     return {
+    //       success: false,
+    //       message: error.message,
+    //     };
+    //   }
+    // }
+  
+    @Post('annual')
+    @HttpCode(HttpStatus.CREATED)
+    async createAnnual(@Body() body: CreateSubscriptionDto) {
+      if (!body.email) {
+        return {
+          success: false,
+          message: 'Email es requerido',
+        };
+      }
+      
+      try {
+        const result = await this.mpService.createPreference('annual', body.email, body.userId);
+        return result;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+    }
+  
+    @Delete('cancel/:userId')
+    @HttpCode(HttpStatus.OK)
+    async cancelUserPayment(@Param('userId') userId: string) {
+      try {
+        const activePayment = await this.paymentRepository
+          .createQueryBuilder('payment')
+          .where('payment.userId = :userId AND payment.status = :status', {
+            userId,
+            status: 'active'
+          })
+          .orderBy('payment.createdAt', 'DESC')
+          .getOne();
 
       if (!activePayment) {
         return { success: false, message: 'No active payment found' };
       }
 
-      activePayment.status = 'cancelled';
-      await this.paymentRepository.save(activePayment);
+        activePayment.status = SubStatus.CANCELLED;
+        await this.paymentRepository.save(activePayment);
 
       return {
         success: true,
@@ -143,69 +164,53 @@ export class MercadoPagoController {
         };
       }
 
-      const hasActive = payment.status === 'active' && new Date() <= payment.endsAt;
-      const usdPrice = payment.plan === 'monthly' ? 10 : 100;
-
-      return {
-        success: true,
-        hasActivePayment: hasActive,
-        plan: hasActive ? payment.plan : 'free',
-        usdPrice: hasActive ? usdPrice : 0,
-        arsPaid: payment.amount,
-        status: payment.status,
-        endsAt: payment.endsAt,
-        benefits: hasActive ? {
-          name: `${payment.plan} Premium`,
-          features: payment.plan === 'monthly' 
-            ? ['Unlimited pins', 'Ad-free'] 
-            : ['Everything monthly + 20% discount']
-        } : {
-          name: 'Free Plan',
-          features: ['10 pins/month', 'Basic search']
-        }
-      };
-    } catch (error) {
-      console.error('Error getting subscription status:', error);
-      return { success: false, message: 'Error retrieving subscription status' };
-    }
-  }
-
-  @Get('success')
-  @ApiOperation({
-    summary: 'Handle successful payment redirection from MercadoPago',
-    description:
-      'Processes query parameters from MercadoPago and saves the subscription payment to the database. Displays a success HTML page to the user.',
-  })
-  async success(@Req() req: Request, @Res() res: Response) {
-    const { preference_id, payment_id, external_reference } = req.query as any;
-
-    if (external_reference && payment_id) {
-      try {
-        const [_, userId, plan] = external_reference.split('_');
-        const usdPrice = plan === 'monthly' ? 10.00 : 100.00;
-        const arsRate = await this.mpService.getDolarBlueRate();
-        const arsAmount = usdPrice * arsRate;
-
-        const startsAt = new Date();
-        const endsAt = new Date(startsAt);
-        if (plan === 'monthly') endsAt.setMonth(endsAt.getMonth() + 1);
-        else endsAt.setFullYear(endsAt.getFullYear() + 1);
-
-        await this.paymentRepository.save({
-          userId,
-          paymentId: payment_id,
-          plan,
-          status: 'active',
-          startsAt,
-          endsAt,
-          amount: arsAmount
-        });
-
-        console.log(`✅ Payment created: ${userId} - ${plan}`);
+        const hasActive = payment.status === SubStatus.ACTIVE && new Date() <= payment.endsAt;
+        
+        return {
+          success: true,
+          hasActivePayment: hasActive,
+          plan: payment.plan,
+          status: payment.status,
+          endsAt: payment.endsAt,
+        };
       } catch (error) {
-        console.error('❌ Error saving payment:', error);
+        console.error('Error obteniendo estado:', error);
+        return {
+          success: false,
+          message: 'Error al obtener estado',
+        };
       }
     }
+  
+    @Get('success')
+    async success(@Req() req: Request, @Res() res: Response) {
+      const { preference_id, payment_id, external_reference } = req.query as any;
+      
+      if (external_reference && payment_id) {
+        try {
+          const [_, userId, plan] = external_reference.split('_');
+          const startsAt = new Date();
+          const endsAt = new Date(startsAt);
+          if (plan === 'monthly') {
+            endsAt.setMonth(endsAt.getMonth() + 1);
+          } else {
+            endsAt.setFullYear(endsAt.getFullYear() + 1);
+          }
+          
+          await this.paymentRepository.save({
+            userId,
+            paymentId: payment_id,
+            plan,
+            status: SubStatus.ACTIVE,
+            startsAt: new Date(),
+            endsAt,
+          });
+          
+          console.log(`✅ Payment creado: ${userId} - ${plan}`);
+        } catch (error) {
+          console.error('❌ Error guardando payment:', error);
+        }
+      }
 
     console.log('✅ Successful payment:', { preference_id, payment_id, external_reference });
     res.send(`<html>...success page...</html>`);
@@ -256,19 +261,19 @@ export class MercadoPagoController {
   })
   async getPaymentHistory(@Param('userId') userId: string) {
     try {
-      const payments = await this.paymentRepository.find({ where: { userId }, order: { createdAt: 'DESC' } });
+      const payments = await this.paymentRepository.find({ where: { user: {id: userId} }, order: { createdAt: 'DESC' } });
 
       if (payments.length === 0) return { success: true, history: [], stats: { totalPayments: 0, totalSpentUSD: 0, totalSpentARS: 0, activeSubscriptions: 0 } };
 
       const history = payments.map(payment => {
-        const usdPrice = payment.plan === 'monthly' ? 10 : 100;
+        const usdPrice = payment.billingCycle === 'monthly' ? 10 : 100;
         const statusLabel = payment.status === 'active' ? 'paid' : payment.status === 'cancelled' ? 'cancelled' : 'expired';
         return {
           id: payment.id,
           paymentId: payment.paymentId,
           date: payment.createdAt,
           plan: payment.plan,
-          description: `${payment.plan === 'monthly' ? 'Monthly' : 'Annual'} Premium (${usdPrice} USD)`,
+          description: `${payment.billingCycle === 'monthly' ? 'Monthly' : 'Annual'} Premium (${usdPrice} USD)`,
           status: statusLabel,
           statusLabel: statusLabel === 'paid' ? 'Paid' : statusLabel === 'cancelled' ? 'Cancelled' : 'Expired',
           usdPrice,

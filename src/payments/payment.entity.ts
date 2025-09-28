@@ -1,21 +1,34 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Plan } from 'src/plans/plan.entity';
+import { SubStatus } from 'src/status.enum';
+import { User } from 'src/users/entities/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('payments')
 export class Payment {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
-    userId: string;
+    @OneToOne(() => User, (user)=> user.subPage)
+    @JoinColumn({ name: "user_id" })
+    user: User;
+
+    @ManyToOne(() => Plan, (plan)=> plan.payments)
+    @JoinColumn({ name: "plan_id" })
+    plan: Plan
+
 
     @Column()
     paymentId: string;
 
     @Column()
-    plan: 'monthly' | 'annual';
+    billingCycle: 'monthly' | 'annual';
 
-    @Column({ default: 'active' })
-    status: 'active' | 'cancelled' | 'expired';
+     @Column({
+        type: "enum",
+        enum: SubStatus,
+        default: SubStatus.ACTIVE,
+        })
+    status: SubStatus;
 
     @Column()
     startsAt: Date;
@@ -29,3 +42,6 @@ export class Payment {
     @CreateDateColumn()
     createdAt: Date;
 }
+
+
+ 
