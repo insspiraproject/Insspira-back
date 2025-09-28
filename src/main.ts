@@ -9,6 +9,7 @@ import * as bodyParser from 'body-parser';
 import { Request, Response } from 'express';
 import { AuthService } from './auth/auth.service';
 
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
