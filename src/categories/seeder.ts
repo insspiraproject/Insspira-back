@@ -7,3 +7,4 @@ export const categories = [
     {name: "Tech"}
 
 ]
+

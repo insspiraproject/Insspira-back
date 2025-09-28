@@ -1,11 +1,18 @@
 // src/pins/pins.controller.ts
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
-import { PinsService } from './pins.service';
-import { pinsDto, updateDto } from './pinsDtos/pins.dto';
-import { CommentDto } from './pinsDtos/comments.dto';
-import { AuthGuard } from '@nestjs/passport';
+
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Pin } from './entities/pins.entity';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put, Query, Req, UseGuards, UseInterceptors } from "@nestjs/common";
+import { PinsService } from "./pins.service";
+import { pinsDto, updateDto } from "./pinsDtos/pins.dto";
+import { CommentDto } from "./pinsDtos/comments.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { PinsGuardPage } from "src/common/guards/guard.pin";
+import { CheckLimit } from "src/common/decorators/decorator.pin";
+import { ActionType } from "src/pins.enum";
+import { LimitInterceptor } from "src/common/interceptors/interceptor.pin";
+
+@Controller("pins")
 
 @ApiTags('Pins')
 @Controller('pins')
@@ -39,18 +46,27 @@ export class PinsController {
     return await this.service.getPinsIdService(id);
   }
 
-  // Create pin (auth required)
-  @UseGuards(AuthGuard(['local-jwt', 'jwt']))
-  @Post()
-  @ApiBearerAuth('jwt')
-  @ApiOperation({ summary: 'Create a pin (auth)' })
-  @ApiBody({ type: pinsDto })
-  @ApiResponse({ status: 201, description: 'Pin created' })
-  @HttpCode(HttpStatus.CREATED)
-  async createPins(@Body() dtoPin: pinsDto, @Req() req: any) {
-    const idUser = req.user.sub;
-    return await this.service.postPinsService(dtoPin, idUser);
-  }
+
+
+    // Create pin (auth required)
+    //* Ok
+    @CheckLimit(ActionType.POST)
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
+    @UseInterceptors(LimitInterceptor)
+    @Post()
+    @ApiBearerAuth('jwt')
+    @ApiOperation({ summary: 'Create a pin (auth)' })
+    @ApiBody({ type: pinsDto })
+    @ApiResponse({ status: 201, description: 'Pin created' })
+    @HttpCode(HttpStatus.CREATED)
+    async createPins(
+        @Body() dtoPin: pinsDto, 
+        @Req() req: any 
+    ){
+        const idUser = req.user.sub
+        return await this.service.postPinsService(dtoPin, idUser)
+    }
+
 
   // Update pin (auth) + hashtags
   @UseGuards(AuthGuard(['local-jwt', 'jwt']))
@@ -82,17 +98,25 @@ export class PinsController {
     return { message: 'Post successfully deleted.' };
   }
 
-  // Likes
-  @UseGuards(AuthGuard(['local-jwt', 'jwt']))
-  @Post('/like/:id')
-  @ApiBearerAuth('jwt')
-  @ApiOperation({ summary: 'Create a like (auth)' })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  async createLikes(@Param('id', new ParseUUIDPipe()) idPin: string, @Req() req: any) {
-    const idUser = req.user.sub;
-    await this.service.likeService(idPin, idUser);
-    return { message: 'Like added.' };
-  }
+
+  // Create Like  
+    //*OK
+    @CheckLimit(ActionType.LIKE)
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
+    @UseInterceptors(LimitInterceptor)
+    @Post("/like/:id")
+    @ApiBearerAuth('jwt')
+    @ApiOperation({ summary: 'Create a like (auth)' })
+    @ApiParam({ name: 'id', format: 'uuid' })
+    async createLikes(
+        @Param("id", new ParseUUIDPipe()) idPin:string,
+        @Req() req: any
+        ){
+        const idUser = req.user.sub
+        await this.service.likeService(idPin, idUser)
+        return{message: "Like added."} 
+    }
+
 
   @UseGuards(AuthGuard(['local-jwt', 'jwt']))
   @Delete('/like/:deleteLike')
@@ -105,22 +129,27 @@ export class PinsController {
     return { message: 'Like removed.' };
   }
 
-  // Comments
-  @UseGuards(AuthGuard(['local-jwt', 'jwt']))
-  @Post('/comments/:id')
-  @ApiBearerAuth('jwt')
-  @ApiOperation({ summary: 'Create a comment (auth)' })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiBody({ type: CommentDto })
-  async createComments(
-    @Param('id', new ParseUUIDPipe()) pinId: string,
-    @Body() comment: CommentDto,
-    @Req() req: any,
-  ) {
-    console.log('BODY EN CONTROLLER:', comment);
-    const userId = req.user.sub;
-    return await this.service.commentService(userId, pinId, comment);
-  }
+
+  
+
+    // Comments
+    //* Ok
+    @CheckLimit(ActionType.COMMENT)
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
+    @UseInterceptors(LimitInterceptor)
+    @Post("/comments/:id")
+    @ApiBearerAuth('jwt')
+    @ApiOperation({ summary: 'Create a comment (auth)' })
+    @ApiParam({ name: 'id', format: 'uuid' })
+    @ApiBody({ type: CommentDto })
+    async createComments(
+        @Param("id", new ParseUUIDPipe()) pinId:string,
+        @Body() comment: CommentDto,
+        @Req() req: any
+    ) {
+        const userId = req.user.sub
+        return await this.service.commentService(userId, pinId, comment)
+    }
 
   @UseGuards(AuthGuard(['local-jwt', 'jwt']))
   @Put('/modifiComments/:id')
@@ -137,6 +166,8 @@ export class PinsController {
     await this.service.commentModifieService(id, comment, userId);
     return { message: 'Your comment has been successfully modified.' };
   }
+
+  
 
   @UseGuards(AuthGuard(['local-jwt', 'jwt']))
   @Delete('/deleteComments/:id')
@@ -168,15 +199,23 @@ export class PinsController {
     return await this.service.getSaveService(idUser);
   }
 
-  @UseGuards(AuthGuard(['local-jwt', 'jwt']))
-  @Post('/createSave/:id')
-  @ApiBearerAuth('jwt')
-  @ApiOperation({ summary: 'Save pin for user (auth)' })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  async savePins(@Param('id', new ParseUUIDPipe()) idPins: string, @Req() req) {
-    const idUser = req.user.sub;
-    return await this.service.saveService(idPins, idUser);
-  }
+
+    //* Ok
+    @CheckLimit(ActionType.SAVE)
+    @UseGuards(AuthGuard(["local-jwt", "jwt"]), PinsGuardPage)
+    @UseInterceptors(LimitInterceptor)
+    @Post("/createSave/:id")
+    @ApiBearerAuth('jwt')
+    @ApiOperation({ summary: 'Save pin for user (auth)' })
+    @ApiParam({ name: 'id', format: 'uuid' })
+    async savePins(
+        @Param("id", new ParseUUIDPipe()) idPins: string,
+        @Req() req
+    ){
+        const idUser = req.user.sub
+        return await this.service.saveService(idPins, idUser)
+    }
+
 
   @UseGuards(AuthGuard(['local-jwt', 'jwt']))
   @Delete('/saveDelete/:id')

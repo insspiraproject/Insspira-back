@@ -6,7 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { LocalJwtStrategy } from './local-jwt.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Sub } from 'src/subscriptions/subscription.entity';
+import { Plan } from 'src/plans/plan.entity';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+
 
 @Module({
     imports: [
@@ -17,7 +21,10 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
             secret: process.env.JWT_SECRET || 'your_jwt_secret',
             signOptions: { expiresIn: '60m' },
         }),
-        }),  
+
+        }),
+        TypeOrmModule.forFeature([Sub, Plan])        
+        }), 
         NotificationsModule      
     ],
     controllers: [AuthController],
