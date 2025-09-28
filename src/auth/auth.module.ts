@@ -29,4 +29,4 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
     providers: [AuthService, JwtStrategy, LocalJwtStrategy],
     exports: [AuthService],
   })
-  export class AuthModule {}
+export class AuthModule {}

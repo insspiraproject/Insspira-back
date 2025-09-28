@@ -21,7 +21,7 @@ export const config = {
   authorizationParams: {
     
     response_type: 'code',
-    scope: 'openid profile email',
+    scope: 'openid',
     //audience: process.env.AUTH0_AUDIENCE,
   },
   routes: {
