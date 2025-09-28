@@ -10,50 +10,82 @@ import {
   ValidationPipe,
   UsePipes,
   Res,
-  Req
+  Req,
+  UseGuards
 } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { MercadoPagoService } from './mercadopago.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Payment } from '../payments/payment.entity';
 import { Repository } from 'typeorm';
+import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import { SubStatus } from 'src/status.enum';
-import { ApiOperation } from '@nestjs/swagger';
+
+
+class CreateSubscriptionDto {
+  email: string;
+  userId?: string;
+}
+
+@ApiTags('Subscriptions')
+@Controller('subscriptions')
+@UsePipes(new ValidationPipe({ transform: true }))
+export class MercadoPagoController {
+  constructor(
+    private readonly mpService: MercadoPagoService,
+    @InjectRepository(Payment)
+    private paymentRepository: Repository<Payment>
+  ) {}
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('monthly')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: CreateSubscriptionDto })
+  @ApiOperation({
+    summary: 'Create a monthly subscription and initiate payment preference',
+    description:
+      'This endpoint creates a monthly subscription for a user and returns a MercadoPago preference object for payment. Email is required, userId is optional.',
+  })
+  async createMonthly(@Req() req: any) {
+    // Tomar email del usuario logueado
+    const userEmail = req.user?.email;
+    const userId = req.user?.id;
   
-  class CreateSubscriptionDto {
-    email: string;
-    userId?: string;
+    if (!userEmail) {
+      return { success: false, message: 'Usuario no logueado' };
+    }
+  
+    try {
+      const result = await this.mpService.createPreference('monthly', userEmail, userId);
+      return result;
+    } catch (error: any) {
+      return { success: false, message: error.message };
+    }
+
   }
   
-  @Controller('subscriptions')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  export class MercadoPagoController {
-    constructor(
-      private readonly mpService: MercadoPagoService,
-      @InjectRepository(Payment)
-      private paymentRepository: Repository<Payment>
-    ) {}
   
-    @Post('monthly')
-    @HttpCode(HttpStatus.CREATED)
-    async createMonthly(@Body() body: CreateSubscriptionDto) {
-      if (!body.email) {
-        return {
-          success: false,
-          message: 'Email es requerido',
-        };
-      }
+    // @Post('monthly')
+    // @HttpCode(HttpStatus.CREATED)
+    // async createMonthly(@Body() body: CreateSubscriptionDto) {
+    //   if (!body.email) {
+    //     return {
+    //       success: false,
+    //       message: 'Email es requerido',
+    //     };
+    //   }
       
-      try {
-        const result = await this.mpService.createPreference('monthly', body.email, body.userId);
-        return result;
-      } catch (error: any) {
-        return {
-          success: false,
-          message: error.message,
-        };
-      }
-    }
+    //   try {
+    //     const result = await this.mpService.createPreference('monthly', body.email, body.userId);
+    //     return result;
+    //   } catch (error: any) {
+    //     return {
+    //       success: false,
+    //       message: error.message,
+    //     };
+    //   }
+    // }
   
     @Post('annual')
     @HttpCode(HttpStatus.CREATED)

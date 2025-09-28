@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
@@ -17,19 +17,16 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
         UsersModule,
         PassportModule.register({ defaultStrategy: 'jwt' }),
         JwtModule.registerAsync({
-        useFactory: () => ({
-            secret: process.env.JWT_SECRET || 'your_jwt_secret',
+            useFactory: () => ({
+            secret: process.env.JWT_SECRET || 'default_jwt_secret',
             signOptions: { expiresIn: '60m' },
+            }),
         }),
-
-        }),
-        TypeOrmModule.forFeature([Sub, Plan])        
-        }), 
-        NotificationsModule      
+        TypeOrmModule.forFeature([Sub, Plan]),
+        NotificationsModule,
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, LocalJwtStrategy ],
+    providers: [AuthService, JwtStrategy, LocalJwtStrategy],
     exports: [AuthService],
-})
-export class AuthModule {}
-
+  })
+  export class AuthModule {}

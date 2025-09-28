@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Post, Body, Res } from '@nestjs/common';
+import { Controller, Get, Req, Post, Body, Res, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -7,7 +7,17 @@ import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) {}
+
+    @Get('callback')
+    async callback(@Req() req: any, @Res() res: any) {
+        // El middleware de express-openid-connect maneja el callback
+        // No es necesario duplicar lógica aquí
+        if (!req.oidc?.user) {
+        return res.redirect('http://localhost:3001/login?error=no_user_data');
+        }
+        return; // El middleware ya maneja la redirección
+    }
 
 
   @Get('me')
@@ -29,15 +39,20 @@ export class AuthController {
     return { user, oidcUser };
   }
 
-  @Post('logout')
-  @ApiOperation({
-    summary: 'Log out the current user session',
-    description: 'Ends the current session and logs the user out.',
-  })
-  logout(@Req() req: any) {
-    req.logout();
-    return { message: 'Logout successful' };
-  }
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    async logout(@Req() req: any, @Res() res: any) {
+        
+        req.logout((err) => {
+            if (err) console.error('Logout error:', err);
+        });
+        
+        const logoutUrl = `${process.env.AUTH0_BASE_URL}/v2/logout?` +
+            `client_id=${process.env.AUTH0_CLIENT_ID}&` +
+            `returnTo=https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/`;
+            
+        return res.redirect(logoutUrl);
+    }
 
 
 
@@ -68,15 +83,22 @@ export class AuthController {
 @ApiTags('App')
 @Controller()
 export class AppController {
+    @Get()
+    @ApiOperation({
+      summary: 'Redirect to the home page',
+      description: 'Simple redirection from the root path to the /home page.',
+    })
+    redirectToHome(@Res() res) {
+        return res.redirect('/home');
+    }
 
-  @Get()
-  @ApiOperation({
-    summary: 'Redirect to the home page',
-    description: 'Simple redirection from the root path to the /home page.',
-  })
-  redirectToHome(@Res() res) {
-    return res.redirect('/home');
-  }
+    @Get('home')
+    getHome(@Req() req: any, @Res() res: any) {
+        if (!req.oidc?.user) {
+        return res.redirect('http://localhost:3001/login?error=not_authenticated');
+        }
+        return res.json({ message: 'Welcome to the API', user: req.oidc.user });
+    }
 }
 
 
