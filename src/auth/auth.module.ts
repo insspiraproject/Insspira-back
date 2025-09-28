@@ -23,7 +23,7 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
             }),
         }),
         TypeOrmModule.forFeature([Sub, Plan]),
-        NotificationsModule,
+        NotificationsModule, 
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy, LocalJwtStrategy],
