@@ -8,27 +8,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import { Request, Response } from 'express';
 import { AuthService } from './auth/auth.service';
-import { Catch, ExceptionFilter, ArgumentsHost, HttpException } from '@nestjs/common';
-
-@Catch()
-export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
-    const status = exception instanceof HttpException ? exception.getStatus() : 400;
-
-    console.error('Error caught:', exception.message, exception.stack);
-
-    response.status(status).json({
-      statusCode: status,
-      message: exception.message || 'Error en autenticación',
-      timestamp: new Date().toISOString(),
-      path: request.url,
-    });
-  }
-}
-
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -59,8 +38,6 @@ async function bootstrap() {
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
-
-  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.useGlobalPipes(new ValidationPipe());
 
