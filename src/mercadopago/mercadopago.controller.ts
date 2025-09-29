@@ -274,57 +274,66 @@ export class MercadoPagoController {
   }
 
   @Post('webhook')
-@HttpCode(200)
-async webhook(@Req() req: Request, @Res() res: Response) {
-  try {
-    const { type, data } = req.body;
-    console.log('🔔 Webhook recibido:', type, data);
+  @HttpCode(200)
+  async webhook(@Req() req: Request, @Res() res: Response) {
+    try {
+      const { type, data } = req.body;
+      console.log('🔔 Webhook recibido:', type, data);
 
-    // Solo procesamos eventos de pagos
-    if (type === 'payment') {
-      const paymentId = data.id;
+      // Solo procesamos eventos de pagos
+      if (type === 'payment') {
+        const paymentId = data.id;
 
-      // Traemos detalle del pago desde Mercado Pago
-      const paymentDetails = await this.mpService.getPaymentDetails(paymentId);
+        // Traemos detalle del pago desde Mercado Pago
+        const paymentDetails = await this.mpService.getPaymentDetails(paymentId);
 
-      // Guardamos o actualizamos el registro en nuestra DB
-      const externalRef = paymentDetails.external_reference; // "user_123_monthly"
-      const [_, userId, plan] = externalRef?.split('_') || [];
+        // Guardamos o actualizamos el registro en nuestra DB
+        const externalRef = paymentDetails.external_reference; // "user_123_monthly"
+        const [_, userId, plan] = externalRef?.split('_') || [];
 
-      const startsAt = new Date();
-      const endsAt = new Date(startsAt);
-      if (plan === 'monthly') endsAt.setMonth(endsAt.getMonth() + 1);
-      else if (plan === 'annual') endsAt.setFullYear(endsAt.getFullYear() + 1);
+        const startsAt = new Date();
+        const endsAt = new Date(startsAt);
+        
+        let billingCycle: 'monthly' | 'annual' = 'monthly';
+        if (plan === 'monthly') endsAt.setMonth(endsAt.getMonth() + 1);
+        else if (plan === 'annual') {
+          endsAt.setFullYear(endsAt.getFullYear() + 1);
+          billingCycle = 'annual';
+        }
+  
+        // ← Cambio 2: obtenemos el monto real
+        const amount = paymentDetails.data.transaction_amount || 0;
 
-      let status: SubStatus;
-      switch (paymentDetails.status) {
-        case 'approved':
-          status = SubStatus.ACTIVE;
-          break;
-        case 'pending':
-          status = SubStatus.PENDING;
-          break;
-        default:
-          status = SubStatus.CANCELLED;
+        let status: SubStatus;
+        switch (paymentDetails.status) {
+          case 'approved':
+            status = SubStatus.ACTIVE;
+            break;
+          case 'pending':
+            status = SubStatus.PENDING;
+            break;
+          default:
+            status = SubStatus.CANCELLED;
+        }
+
+        await this.paymentRepository.save({
+          user: { id: userId }, // relación ManyToOne con User
+          paymentId,
+          plan, // guardamos directamente 'monthly' o 'annual'
+          status,
+          startsAt,
+          endsAt,
+          amount,
+          billingCycle,
+        });
+  
+        console.log(`✅ Pago registrado desde webhook: ${paymentId} (${status})`);
       }
 
-      await this.paymentRepository.save({
-        userId,
-        paymentId,
-        plan,
-        status,
-        startsAt,
-        endsAt,
-        amount: paymentDetails.transaction_amount || 0,
-      });
-
-      console.log(`✅ Pago registrado desde webhook: ${paymentId} (${status})`);
+      res.send('ok');
+    } catch (error) {
+      console.error('❌ Error procesando webhook:', error);
+      res.status(500).send('error');
     }
-
-    res.send('ok');
-  } catch (error) {
-    console.error('❌ Error procesando webhook:', error);
-    res.status(500).send('error');
   }
-}
 }
