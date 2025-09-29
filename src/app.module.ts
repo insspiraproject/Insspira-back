@@ -13,6 +13,7 @@ import { PlanModule } from './plans/plan.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MercadoPagoController } from './mercadopago/mercadopago.controller';
 import { Payment } from './payments/payment.entity';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { Payment } from './payments/payment.entity';
     PinModule,
     MercadoPagoModule,
     PlanModule,
-    NotificationsModule
+    NotificationsModule,
+    MaintenanceModule
   ],
   controllers: [AppController, AuthController, MercadoPagoController],
   providers: [],
