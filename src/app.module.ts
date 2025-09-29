@@ -48,7 +48,7 @@ import { PlanSeeder } from './plans/plan.seeder';
     SubscriptionModule,
     ReportModule
   ],
-  controllers: [AppController, AuthController, MercadoPagoController],
+  controllers: [AppController, AuthController],
   providers: [],
 })
 
