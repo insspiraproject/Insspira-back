@@ -16,7 +16,7 @@ export const config = {
   secret: process.env.AUTH0_SECRET,
   baseURL: backendBaseURL,
   clientID: process.env.AUTH0_CLIENT_ID,
-  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+  issuerBaseURL: process.env.AUTH0_BASE_URL,
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
   authorizationParams: {
     
