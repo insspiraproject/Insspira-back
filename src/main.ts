@@ -79,7 +79,6 @@ async function bootstrap() {
         throw new Error('no_user_sub');
       }
 
-      // Inyecta JwtService si no lo tienes accesible (mejor mover esta lógica a AuthService)
       const token = await authService.generateToken({
         id: req.oidc.user.sub,
         email: req.oidc.user.email || 'unknown',
