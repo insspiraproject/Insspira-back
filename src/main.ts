@@ -7,7 +7,7 @@ import { config } from './config/auth0.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import { Request, Response } from 'express';
-import { AuthService } from './auth/auth.service';
+import { AuthService } from './application/auth/auth.service';
 
 
 async function bootstrap() {

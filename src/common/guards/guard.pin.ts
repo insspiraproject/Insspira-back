@@ -1,9 +1,9 @@
 import { CanActivate, ExecutionContext, ForbiddenException, NotFoundException, Res } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ActionType } from "src/pins.enum";
-import { SubStatus } from "src/status.enum";
-import { Sub } from "src/subscriptions/subscription.entity";
+import { ActionType } from "src/rest/types/pins.enum";
+import { SubStatus } from "src/rest/types/status.enum";
+import { Sub } from "src/entities/subscription.entity";
 import { In, Repository } from "typeorm";
 import { CHECK_LIMIT_KEY } from "../decorators/decorator.pin";
 
