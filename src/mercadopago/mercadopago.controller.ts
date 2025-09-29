@@ -295,7 +295,12 @@ export class MercadoPagoController {
 
         // Guardamos o actualizamos el registro en nuestra DB
         const externalRef = paymentDetails.external_reference; // "user_123_monthly"
+
+        console.log("📩 External Reference recibido:", externalRef);
         const [_, userId, plan] = externalRef?.split('_') || [];
+
+        console.log("🧩 UserID detectado:", userId);
+        console.log("🧩 PlanType detectado:", plan);
 
         const startsAt = new Date();
         const endsAt = new Date(startsAt);
@@ -324,6 +329,8 @@ export class MercadoPagoController {
 
         const user = await this.userRepository.findOne({ where: { id: userId } });
         const planEntity = await this.planRepository.findOne({ where: { type: plan } }); // 'monthly' o 'annual'
+
+        console.log("📦 Plan encontrado:", plan);
         
         if (!user || !planEntity) {
           console.error('Usuario o plan no encontrado');
