@@ -1,21 +1,21 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { CategoryModule } from "./categories/category.module";
-import { PinModule } from './pins/pins.module';
-import { UsersModule } from './users/users.module';
+import { CategoryModule } from "./application/categories/category.module";
+import { PinModule } from './application/pins/pins.module';
+import { UsersModule } from './application/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
-import { FilesModule } from './files/files.module';
-import { CategorySeeder } from './categories/category.seeder';
-import { AppController, AuthController } from './auth/auth.controller';
-import { MercadoPagoModule } from './mercadopago/mercadopago.module';
-import { PlanModule } from './plans/plan.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { MercadoPagoController } from './mercadopago/mercadopago.controller';
-import { Payment } from './payments/payment.entity';
-import { SubscriptionModule } from './subscriptions/subscription.module';
-import { ReportModule } from './reports/report.module';
-import { PlanSeeder } from './plans/plan.seeder';
+import { AuthModule } from './application/auth/auth.module';
+import { FilesModule } from './application/files/files.module';
+import { CategorySeeder } from './rest/types/category.seeder';
+import { MercadoPagoModule } from './application/mercadopago/mercadopago.module';
+import { PlanModule } from './application/plans/plan.module';
+import { NotificationsModule } from './application/notifications/notifications.module';
+import { MercadoPagoController } from './rest/controller/mercadopago.controller';
+import { Payment } from './entities/payment.entity';
+import { SubscriptionModule } from './application/subscriptions/subscription.module';
+import { ReportModule } from './application/reports/report.module';
+import { PlanSeeder } from './rest/types/plan.seeder';
+import { AppController, AuthController } from './rest/controller/auth.controller';
 
 @Module({
   imports: [

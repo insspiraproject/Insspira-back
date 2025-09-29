@@ -1,9 +1,9 @@
 import { CallHandler, ExecutionContext, ForbiddenException, NestInterceptor } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { mergeMap, Observable, tap } from "rxjs";
-import { ActionType } from "src/pins.enum";
-import { SubStatus } from "src/status.enum";
-import { Sub } from "src/subscriptions/subscription.entity";
+import { ActionType } from "src/rest/types/pins.enum";
+import { SubStatus } from "src/rest/types/status.enum";
+import { Sub } from "src/entities/subscription.entity";
 import { In, Repository } from "typeorm";
 
 

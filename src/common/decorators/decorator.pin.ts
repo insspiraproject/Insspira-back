@@ -1,5 +1,5 @@
 import { SetMetadata } from "@nestjs/common";
-import { ActionType } from "src/pins.enum";
+import { ActionType } from "src/rest/types/pins.enum";
 
 
 
