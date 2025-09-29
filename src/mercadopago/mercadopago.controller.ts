@@ -21,6 +21,8 @@ import { Repository } from 'typeorm';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { SubStatus } from 'src/status.enum';
+import { User } from '../users/entities/user.entity';
+import { Plan } from '../plans/plan.entity';
 
 
 class CreateSubscriptionDto {
@@ -35,7 +37,11 @@ export class MercadoPagoController {
   constructor(
     private readonly mpService: MercadoPagoService,
     @InjectRepository(Payment)
-    private paymentRepository: Repository<Payment>
+    private paymentRepository: Repository<Payment>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Plan)
+    private planRepository: Repository<Plan>,
   ) {}
 
   @Post('monthly')
@@ -316,10 +322,18 @@ export class MercadoPagoController {
             status = SubStatus.CANCELLED;
         }
 
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        const planEntity = await this.planRepository.findOne({ where: { type: plan } }); // 'monthly' o 'annual'
+        
+        if (!user || !planEntity) {
+          console.error('Usuario o plan no encontrado');
+          return res.status(400).send('Usuario o plan inválido');
+        }
+        
         await this.paymentRepository.save({
-          user: { id: userId }, // relación ManyToOne con User
+          user,
+          plan: planEntity,
           paymentId,
-          plan, // guardamos directamente 'monthly' o 'annual'
           status,
           startsAt,
           endsAt,
