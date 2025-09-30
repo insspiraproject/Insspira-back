@@ -19,16 +19,12 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({ required: false })
-  @Column({ unique: true, nullable: true })
-  auth0Id: string;
-
   @ApiProperty({ required: false, maxLength: 50 })
   @Column({ length: 50, nullable: true })
   name: string;
 
   @ApiProperty({ maxLength: 50 })
-  @Column({ length: 50 })
+  @Column({ length: 50 , default: "user"})
   username: string;
 
   @ApiProperty({ example: 'john@insspira.com' })
@@ -63,6 +59,12 @@ export class User {
   @Column({ default: 0 })
   pinsCount: number;
 
+  @Column({ nullable: true })
+  provider: string;
+
+  @Column({ nullable: true })
+  providerId: string;
+
   @OneToMany(() => Pin, (pin) => pin.user)
   pins: Pin[];
 
@@ -91,3 +93,6 @@ export class User {
 
 }
 
+// @ApiProperty({ required: false })
+  // @Column({ unique: true, nullable: true })
+  // auth0Id: string;

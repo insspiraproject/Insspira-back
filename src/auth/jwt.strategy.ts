@@ -1,28 +1,82 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Scope } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { passportJwtSecret } from 'jwks-rsa';
+import {Strategy, Profile} from "passport-google-oidc"
+import { config as dotenvConfig } from 'dotenv';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { Plan } from 'src/plans/plan.entity';
+import { SubStatus } from 'src/status.enum';
+import { Sub } from 'src/subscriptions/subscription.entity';
+
+
+
+dotenvConfig();
+
+
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor() {
-        super({
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKeyProvider: passportJwtSecret({
-            cache: true,
-            rateLimit: true,
-            jwksRequestsPerMinute: 5,
-            jwksUri: `${process.env.AUTH0_BASE_URL}/.well-known/jwks.json`,
+
+
+
+export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
+
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User> ,
+    @InjectRepository(Plan)
+    private readonly planRepo: Repository<Plan> ,
+    @InjectRepository(Sub)
+    private readonly subRepo: Repository<Sub> ,
+    private readonly jwt: JwtService){
+    super({
+      
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: 'https://api-latest-ejkf.onrender.com/auth/google/callback',
+    scope: ["openid", "email", "profile"],
+    prompt: 'login',
+    })
+  }
+
+
+
+  async validate(issuer: string, profile: Profile, done: Function){
+    
+    let user = await this.userRepo.findOne({where: {provider: 'google', providerId: profile.id}})
+    if(!user){
+    
+        user = this.userRepo.create({
+
+            name: profile.displayName,
+            provider: 'google',
+            providerId: profile.id,
+            email: profile.emails?.[0]?.value,
+            username: (profile.displayName ?? "user").replace(/\s/g, ''),
+            
         }),
-        issuer: `${process.env.AUTH0_BASE_URL}/`,
-        audience: process.env.AUTH0_AUDIENCE,
-        });
+
+       
+          await this.userRepo.save(user);
+
+           const plan = await this.planRepo.findOne({where: {type: "free"}})
+                if(!plan) throw new BadRequestException("This plan not found")
+                const subs = this.subRepo.create({
+                        user,
+                        plan,
+                        status: SubStatus.ENABLED
+                    })    
+            await this.subRepo.save(subs)
     }
 
-   
-        async validate(payload: any) {
-            return { userId: payload.sub, email: payload.email, name: payload.name };
-        }
+
+    const payload = {sub: user.id, email: user.email}
+    user["token"] = this.jwt.sign(payload)
+
+    done(null, user)
+
+  }
 
 }
 
