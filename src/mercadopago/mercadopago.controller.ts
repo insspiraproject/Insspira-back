@@ -319,14 +319,16 @@ export class MercadoPagoController {
         }
   
         // ← Cambio 2: obtenemos el monto real
-        const amount = paymentDetails.transaction_amount || 0;
+        const amount = Number(paymentDetails.transaction_amount || paymentDetails.transaction_details?.total_paid_amount || 0);
 
         let status: SubStatus;
         switch (paymentDetails.status) {
           case 'approved':
+          case 'active':
             status = SubStatus.ACTIVE;
             break;
           case 'pending':
+          case 'in_process':
             status = SubStatus.PENDING;
             break;
           default:
