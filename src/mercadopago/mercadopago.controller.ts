@@ -294,7 +294,7 @@ export class MercadoPagoController {
         const paymentDetails = await this.mpService.getPaymentDetails(paymentId);
 
         // Guardamos o actualizamos el registro en nuestra DB
-        const externalRef = paymentDetails.external_reference; // "user_123_monthly"
+        const externalRef = paymentDetails.external_reference || paymentDetails.data?.external_reference;
 
         if (!externalRef) {
           console.error('❌ external_reference vacío, no se puede asociar usuario ni plan');
@@ -319,7 +319,7 @@ export class MercadoPagoController {
         }
   
         // ← Cambio 2: obtenemos el monto real
-        const amount = paymentDetails.data.transaction_amount || 0;
+        const amount = paymentDetails.transaction_amount || 0;
 
         let status: SubStatus;
         switch (paymentDetails.status) {
@@ -336,7 +336,7 @@ export class MercadoPagoController {
         const user = await this.userRepository.findOne({ where: { id: userId } });
         const planEntity = await this.planRepository.findOne({ where: { type: planType } });
 
-        console.log("📦 Plan encontrado:", planType?.type);
+        console.log("📦 Plan encontrado:", planEntity?.type);
         
         if (!user || !planEntity) {
           console.error('Usuario o plan no encontrado');
