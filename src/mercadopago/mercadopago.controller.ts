@@ -332,8 +332,8 @@ export class MercadoPagoController {
         }
         
         await this.paymentRepository.save({
-          user,                 // relación con User
-          plan: planEntity,     // relación con Plan
+          user,                 
+          plan: planEntity,     
           paymentId,
           status,
           startsAt,
