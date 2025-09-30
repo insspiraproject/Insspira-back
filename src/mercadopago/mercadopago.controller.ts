@@ -178,7 +178,6 @@ export class MercadoPagoController {
       console.log(`🔔 Pago exitoso de usuario ${userId} para plan ${planType}, paymentId: ${payment_id}`);
     }
     
-      // Redirigimos al frontend
     return res.redirect('https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/home');
   }
 
