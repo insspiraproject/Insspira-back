@@ -51,9 +51,9 @@ export class UsersService {
     await this.userRepository.remove(user);
   }
 
-  async findByAuth0Id(auth0Id: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { auth0Id } });
-  }
+  // async findByAuth0Id(auth0Id: string): Promise<User | null> {
+  //   return this.userRepository.findOne({ where: { auth0Id } });
+  // }
   
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });

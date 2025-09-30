@@ -7,7 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { CategorySeeder } from './categories/category.seeder';
-import { AppController, AuthController } from './auth/auth.controller';
+import {  AuthController } from './auth/auth.controller';
 import { MercadoPagoModule } from './mercadopago/mercadopago.module';
 import { PlanModule } from './plans/plan.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -48,7 +48,7 @@ import { PlanSeeder } from './plans/plan.seeder';
     SubscriptionModule,
     ReportModule
   ],
-  controllers: [AppController, AuthController, MercadoPagoController],
+  controllers: [ AuthController, MercadoPagoController],
   providers: [],
 })
 
