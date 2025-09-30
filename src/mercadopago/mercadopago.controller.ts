@@ -166,38 +166,20 @@ export class MercadoPagoController {
       }
     }
   
-    @Get('success')
-    async success(@Req() req: Request, @Res() res: Response) {
-      const { preference_id, payment_id, external_reference } = req.query as any;
-      
-      if (external_reference && payment_id) {
-        try {
-          const [_, userId, plan] = external_reference.split('_');
-          const startsAt = new Date();
-          const endsAt = new Date(startsAt);
-          if (plan === 'monthly') {
-            endsAt.setMonth(endsAt.getMonth() + 1);
-          } else {
-            endsAt.setFullYear(endsAt.getFullYear() + 1);
-          }
-          
-          await this.paymentRepository.save({
-            userId,
-            paymentId: payment_id,
-            plan,
-            status: SubStatus.ACTIVE,
-            startsAt: new Date(),
-            endsAt,
-          });
-          
-          console.log(`✅ Payment creado: ${userId} - ${plan}`);
-        } catch (error) {
-          console.error('❌ Error guardando payment:', error);
-        }
-      }
-
-    console.log('✅ Successful payment:', { preference_id, payment_id, external_reference });
-    res.send(`<html>...success page...</html>`);
+  @Get('success')
+  async success(@Req() req: Request, @Res() res: Response) {
+    const { preference_id, payment_id, external_reference } = req.query as any;
+    
+    console.log('✅ Successful payment redirect:', { preference_id, payment_id, external_reference });
+    
+      // Opcional: podés loguear para monitoreo
+    if (external_reference && payment_id) {
+      const [_, userId, planType] = external_reference.split('_');
+      console.log(`🔔 Pago exitoso de usuario ${userId} para plan ${planType}, paymentId: ${payment_id}`);
+    }
+    
+      // Redirigimos al frontend
+    return res.redirect('https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/home');
   }
 
   @Get('failure')
@@ -292,9 +274,10 @@ export class MercadoPagoController {
 
         // Traemos detalle del pago desde Mercado Pago
         const paymentDetails = await this.mpService.getPaymentDetails(paymentId);
+        const mpData = paymentDetails.data;
 
         // Guardamos o actualizamos el registro en nuestra DB
-        const externalRef = paymentDetails.external_reference || paymentDetails.data?.external_reference;
+        const externalRef = mpData.external_reference;
 
         if (!externalRef) {
           console.error('❌ external_reference vacío, no se puede asociar usuario ni plan');
@@ -319,10 +302,14 @@ export class MercadoPagoController {
         }
   
         // ← Cambio 2: obtenemos el monto real
-        const amount = Number(paymentDetails.transaction_amount || paymentDetails.transaction_details?.total_paid_amount || 0);
+        const amount = Number(
+          mpData.transaction_amount ||
+          mpData.transaction_details?.total_paid_amount ||
+          0
+        );
 
         let status: SubStatus;
-        switch (paymentDetails.status) {
+        switch (mpData.status) {
           case 'approved':
           case 'active':
             status = SubStatus.ACTIVE;
@@ -346,8 +333,8 @@ export class MercadoPagoController {
         }
         
         await this.paymentRepository.save({
-          user,
-          plan: planEntity,
+          user,                 // relación con User
+          plan: planEntity,     // relación con Plan
           paymentId,
           status,
           startsAt,
