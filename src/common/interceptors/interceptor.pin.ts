@@ -63,7 +63,7 @@ export class LimitInterceptor implements NestInterceptor {
             break;
         }
 
-        await this.subRepo.save(activate);
+        this.subRepo.save(activate);
         return await lastValueFrom(next.handle())
     } 
     
