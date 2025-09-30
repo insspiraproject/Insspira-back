@@ -296,18 +296,24 @@ export class MercadoPagoController {
         // Guardamos o actualizamos el registro en nuestra DB
         const externalRef = paymentDetails.external_reference; // "user_123_monthly"
 
-        console.log("📩 External Reference recibido:", externalRef);
-        const [_, userId, plan] = externalRef?.split('_') || [];
+        if (!externalRef) {
+          console.error('❌ external_reference vacío, no se puede asociar usuario ni plan');
+          return res.status(400).send('external_reference inválido');
+        }
 
+        const parts = externalRef.split('_');
+        const userId = parts[1];      // UUID del usuario
+        const planType = parts[2];    // 'monthly' o 'annual'
+  
         console.log("🧩 UserID detectado:", userId);
-        console.log("🧩 PlanType detectado:", plan);
+        console.log("🧩 PlanType detectado:", planType);
 
         const startsAt = new Date();
         const endsAt = new Date(startsAt);
         
         let billingCycle: 'monthly' | 'annual' = 'monthly';
-        if (plan === 'monthly') endsAt.setMonth(endsAt.getMonth() + 1);
-        else if (plan === 'annual') {
+        if (planType === 'monthly') endsAt.setMonth(endsAt.getMonth() + 1);
+        else if (planType === 'annual') {
           endsAt.setFullYear(endsAt.getFullYear() + 1);
           billingCycle = 'annual';
         }
@@ -328,9 +334,9 @@ export class MercadoPagoController {
         }
 
         const user = await this.userRepository.findOne({ where: { id: userId } });
-        const planEntity = await this.planRepository.findOne({ where: { type: plan } }); // 'monthly' o 'annual'
+        const planEntity = await this.planRepository.findOne({ where: { type: planType } });
 
-        console.log("📦 Plan encontrado:", plan);
+        console.log("📦 Plan encontrado:", planType?.type);
         
         if (!user || !planEntity) {
           console.error('Usuario o plan no encontrado');
