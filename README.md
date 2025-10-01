@@ -1,8 +1,9 @@
 # Insspira Backend
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/tu_usuario/Insspira/main/logo.png" width="120" alt="Insspira Logo"/>
+  <img src="./public/insspira-logo.png" width="120" alt="Insspira Logo"/>
 </p>
+
 
 <p align="center">
   Backend de **Insspira**, una aplicación de imágenes inspiradoras, similar a Pinterest.
@@ -32,7 +33,7 @@ Los usuarios pueden registrarse, subir, guardar y comentar imágenes, además de
 - **JWT** - Tokens para rutas privadas  
 - **Swagger** - Documentación de la API  
 - **Cloudinary** - Gestión de imágenes  
-- **MercadoPago & PayPal** - Integración de pagos  
+- **MercadoPago** - Integración de pagos  
 - **Nodemailer** - Envío de correos electrónicos  
 
 ---
