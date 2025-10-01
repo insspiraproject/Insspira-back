@@ -39,43 +39,47 @@ Los usuarios pueden registrarse, subir imágenes, seguir a otros usuarios y expl
 
 ## ⚙️ Instalación y configuración
 
-### 1. Clonar el repositorio:
+1. Clonar el repositorio:
 
 ```bash
-- git clone https://github.com/insspiraproject/Insspira-back.git
-- code .
+git clone https://github.com/insspiraproject/Insspira-back.git
+code .
+```
 
+2. Instalar dependencias:
 
-
-
-
-
-
-### 2. Instalar dependencias:
-
+```bash
 npm install
+```
 
-### 3. Configurar variables de entorno (.env):
+3. Configurar variables de entorno (.env):
 
+```bash
 GOOGLE_CLIENT_ID=tu_google_client_id
 GOOGLE_CLIENT_SECRET=tu_google_client_secret
 SESSION_SECRET=clave_secreta_para_passport
 JWT_SECRET=clave_secreta_jwt
 DATABASE_URL=postgres://usuario:password@host:puerto/dbname
+```
 
-### 4. Levantar la app en desarrollo:
+4. Levantar la app en desarrollo:
 
+```bash
 npm run start:dev
+```
 
-### 5. Levantar la app en desarrollo:
+5. Levantar la app en desarrollo:
 
+```bash
 npm run start:prod
+```
 
 
 ## 🌐 Endpoints principales (Ejemplos)
 
-### Autenticación
+Autenticación
 
+```bash
 POST /auth/login
 Content-Type: application/json
 
@@ -83,9 +87,11 @@ Content-Type: application/json
   "email": "user@example.com",
   "password": "123456"
 }
+```
 
-### Respuesta:
+Respuesta:
 
+```bash
 {
   "accessToken": "jwt_token",
   "subscription": {
@@ -98,15 +104,19 @@ Content-Type: application/json
     "createdAt": "2025-09-30T21:02:13.918Z"
     }
   }
+```
 
-Creación de Imagenes
+Creación de Imagenes:
 
+```bash
 POST /pins
 Authorization: Bearer <jwt_token>
 Content-Type: multipart/form-data
+```
 
 Respuesta:
 
+```bash
 {
   "id": "uuid",
   "category": {
@@ -128,10 +138,12 @@ Respuesta:
   ],
   "date": "2025-10-01T00:27:32.878Z"
 }
+```
 
 
 ## 📊 Diagrama de flujo básico
 
+```bash
 graph TD
   A[Usuario] -->|Login/Register| B[Auth Module]
   B -->|JWT| C[User Module]
@@ -139,19 +151,23 @@ graph TD
   C --> E[Follow/Unfollow Users]
   D --> F[Cloudinary - Imágenes]
   B --> G[Google OAuth]
+```
 
 
-🧪 Testing
+## 🧪 Testing
 
+```bash
 Unitarios: npm run test
 
 E2E: npm run test:e2e
 
 Cobertura: npm run test:cov
+```
 
 
-💡 Recursos
+## 💡 Recursos
 
+```bash
 NestJS Documentation
 
 PostgreSQL
@@ -159,8 +175,10 @@ PostgreSQL
 Passport.js
 
 Cloudinary
+```
 
+## 📄 License
 
-📄 License
-
+```bash
 Insspira Backend está bajo UNLICENSED.
+```
