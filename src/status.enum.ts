@@ -5,3 +5,9 @@ export enum SubStatus {
   EXPIRED = "expired",
   PENDING = "pending"
 }
+
+export enum UserStatus {
+  ACTIVE = 'active',
+  SUSPENDED = 'suspended',
+}
+
