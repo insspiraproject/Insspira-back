@@ -39,17 +39,23 @@ Los usuarios pueden registrarse, subir imágenes, seguir a otros usuarios y expl
 
 ## ⚙️ Instalación y configuración
 
-1. Clonar el repositorio:
+### 1. Clonar el repositorio:
 
 ```bash
-git clone <TU_REPOSITORIO>
-cd back
+- git clone https://github.com/insspiraproject/Insspira-back.git
+- code .
 
-2. Instalar dependencias:
+
+
+
+
+
+
+### 2. Instalar dependencias:
 
 npm install
 
-3. Configurar variables de entorno (.env):
+### 3. Configurar variables de entorno (.env):
 
 GOOGLE_CLIENT_ID=tu_google_client_id
 GOOGLE_CLIENT_SECRET=tu_google_client_secret
@@ -57,18 +63,18 @@ SESSION_SECRET=clave_secreta_para_passport
 JWT_SECRET=clave_secreta_jwt
 DATABASE_URL=postgres://usuario:password@host:puerto/dbname
 
-4. Levantar la app en desarrollo:
+### 4. Levantar la app en desarrollo:
 
 npm run start:dev
 
-5. Levantar la app en desarrollo:
+### 5. Levantar la app en desarrollo:
 
 npm run start:prod
 
 
-🌐 Endpoints principales (Ejemplos)
+## 🌐 Endpoints principales (Ejemplos)
 
-Autenticación
+### Autenticación
 
 POST /auth/login
 Content-Type: application/json
@@ -78,7 +84,7 @@ Content-Type: application/json
   "password": "123456"
 }
 
-Respuesta:
+### Respuesta:
 
 {
   "accessToken": "jwt_token",
@@ -124,7 +130,7 @@ Respuesta:
 }
 
 
-📊 Diagrama de flujo básico
+## 📊 Diagrama de flujo básico
 
 graph TD
   A[Usuario] -->|Login/Register| B[Auth Module]
