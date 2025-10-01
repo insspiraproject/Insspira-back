@@ -13,14 +13,7 @@ import { Plan } from 'src/plans/plan.entity';
 import { NotificationsService } from 'src/notifications/notifications.service';
 
 
-// interface JwtPayload {
-//     sub: string;
-//     email?: string;
-//     name?: string;
-//     iss: string;
-//     aud: string | string[];
-//     [key: string]: any;
-// }
+
 
 @Injectable()
 export class AuthService {
@@ -35,105 +28,7 @@ export class AuthService {
         private readonly notificationsService: NotificationsService
     ) {}
 
-    // async validateAuth0Token(token: string): Promise<JwtPayload> {
-    //     try {
-    //         const decoded = await this.jwtService.verifyAsync<JwtPayload>(token, {
-    //             secret: process.env.JWT_SECRET, // O usa jwks-rsa si prefieres
-    //         });
-            
-    //         if (!decoded.sub || !decoded.email) {
-    //             throw new Error('Invalid token structure');
-    //         }
-            
-    //         if (decoded.iss !== `${process.env.AUTH0_BASE_URL}/`) {
-    //             throw new Error('Invalid token issuer');
-    //         }
-            
-    //         if (!Array.isArray(decoded.aud) && decoded.aud !== process.env.AUTH0_AUDIENCE) {
-    //             throw new Error('Invalid token audience');
-    //         }
-
-    //         const audience = process.env.AUTH0_AUDIENCE || 'https://insspira-api';
-    //         if (Array.isArray(decoded.aud) && !decoded.aud.includes(audience)) {
-    //             throw new Error('Invalid token audience');
-    //         }
-            
-    //         return decoded;
-    //         } catch (error) {
-    //         console.error('Auth0 token validation failed:', error);
-    //         throw new UnauthorizedException('Invalid token');
-    //         }
-    //     }
-
-    // async generateToken(payload: { id: string; email: string; name: string }): Promise<string> {
-    //     const tokenPayload = {
-    //         id: payload.id,
-    //         email: payload.email,
-    //         name: payload.name,
-    //         iat: Math.floor(Date.now() / 1000),
-    //     };
-    //     return this.jwtService.sign(tokenPayload, { expiresIn: '60m' });
-    // }
-
-    // async validateUser(payload: any) {
-    //     const sub = payload.sub;               
-    //     const email = payload.email || null;
-    //     const name = payload.name || (email ? email.split('@')[0] : 'user');
-    
-    //     let user = await this.usersService.findByAuth0Id(sub);
-    //     if (!user) {
-    //         if (email) {
-    //             const byEmail = await this.usersService.findByEmail(email);
-    //             if (byEmail && !byEmail.auth0Id) {
-    //             byEmail.auth0Id = sub;
-    //             return this.usersService.updateUser(byEmail.id, byEmail);
-    //             }
-    //         }
-        
-    //         user = await this.usersService.createUser({
-    //             username: name,
-    //             email,
-    //             phone: null,
-    //             password: null,
-    //             isAdmin: false,
-    //             auth0Id: sub,
-    //           } as any);
-    //         }
-    //         return user;
-    //     }
-
-    // async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
-    //     try {
-    //         const response = await axios.post(`${process.env.AUTH0_BASE_URL}/oauth/token`, {
-    //             grant_type: 'refresh_token',
-    //             client_id: process.env.AUTH0_CLIENT_ID,
-    //             client_secret: process.env.AUTH0_CLIENT_SECRET,
-    //             refresh_token: refreshToken,
-    //         });
-    //         return {
-    //             accessToken: response.data.access_token,
-    //             refreshToken: response.data.refresh_token || refreshToken,
-    //         };
-    //         } catch (error) {
-    //         console.error('Error refreshing token:', error.response?.data || error.message);
-    //         throw new Error('Token refresh failed');
-    //         }
-    //     }
-
-    // async revokeToken(refreshToken: string): Promise<void> {
-    //     try {
-    //     await axios.post(`${process.env.AUTH0_BASE_URL}/oauth/revoke`, {
-    //         client_id: process.env.AUTH0_CLIENT_ID,
-    //         client_secret: process.env.AUTH0_CLIENT_SECRET,
-    //         token: refreshToken,
-    //     });
-    //     console.log('Token has been revoked successfully');
-    //     } catch (error) {
-    //     console.error('Error revoking token:', error.response?.data || error.message);
-    //     throw new Error('The token could not be revoked');
-    //     }
-    // }
-
+   
 
     async register(createUserDto: CreateUserDto){
         const { email, password, confirmPassword, username, name, phone, isAdmin } = createUserDto;
