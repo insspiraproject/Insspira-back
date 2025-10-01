@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
-export class LocalJwtStrategy extends PassportStrategy(Strategy, 'local-jwt') {
+export class LocalJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -12,7 +12,7 @@ export class LocalJwtStrategy extends PassportStrategy(Strategy, 'local-jwt') {
     });
   }
 
-  async validate(payload: any) {
-    return { userId: payload.sub, email: payload.email };
-  }
+ async validate(payload: any) {
+  return { sub: payload.sub, email: payload.email };
+}
 }

@@ -7,13 +7,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { CategorySeeder } from './categories/category.seeder';
-import { AppController, AuthController } from './auth/auth.controller';
+import {  AuthController } from './auth/auth.controller';
 import { MercadoPagoModule } from './mercadopago/mercadopago.module';
 import { PlanModule } from './plans/plan.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MercadoPagoController } from './mercadopago/mercadopago.controller';
 import { Payment } from './payments/payment.entity';
 import { MaintenanceModule } from './maintenance/maintenance.module';
+import { PlanSeeder } from './plans/plan.seeder';
 
 @Module({
   imports: [
@@ -45,14 +46,18 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
     NotificationsModule,
     MaintenanceModule
   ],
-  controllers: [AppController, AuthController, MercadoPagoController],
+  controllers: [ AuthController],
   providers: [],
 })
 
 export class AppModule implements OnModuleInit{
 
-  constructor(private readonly category: CategorySeeder){}
+  constructor(
+    private readonly plan: PlanSeeder,
+    private readonly category: CategorySeeder
+  ){}
   async onModuleInit() {
     await this.category.run()
+    await this.plan.run()
   }
 }

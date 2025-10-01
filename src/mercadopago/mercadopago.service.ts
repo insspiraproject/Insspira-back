@@ -9,8 +9,8 @@ export class MercadoPagoService {
   private readonly client: any;
 
   private readonly usdPrices = {
-    monthly: 10.00,
-    annual: 100.00
+    monthly: 0.10,
+    annual: 0.30
   };
 
   constructor(private readonly configService: ConfigService) {

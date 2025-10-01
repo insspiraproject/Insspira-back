@@ -3,12 +3,17 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { auth } from 'express-openid-connect';
 import { ValidationPipe } from '@nestjs/common';
-import { config } from './config/auth0.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
+import { AuthService } from './auth/auth.service';
+import  session from "express-session"
+import passport from "passport"
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const authService = app.get(AuthService);
 
   app.use(bodyParser.json({
     verify: (req: any, _res, buf) => {
@@ -16,24 +21,34 @@ async function bootstrap() {
     },
   }));
 
-  // ❌ Quita: app.use(cors());
-  // ✅ Deja SOLO enableCors, antes de middlewares de auth
   app.enableCors({
-    origin: [
-      'http://localhost:3000', // Next dev (ajusta si usas otro puerto)
-      'http://localhost:3001',
-      // Agrega aquí tus dominios de prod/preview:
-      // 'https://tu-dominio.com',
-      // 'https://tu-preview.vercel.app',
-    ],
-    credentials: true,
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:3001', 
+        'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app', // Prod Vercel
+        'https://api-latest-ejkf.onrender.com', // Backend mismo
+      ];
+      if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
+        console.log(`CORS allowed for origin: ${origin}`);
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true, // Importante para cookies/sessions
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    // exposedHeaders: ['Content-Range'], // solo si necesitas leer headers personalizados
   });
 
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'supersecret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false },
+  }))
+  app.use(passport.initialize());
+  app.use(passport.session());
   app.useGlobalPipes(new ValidationPipe());
-  app.use(auth(config));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Insspira API')

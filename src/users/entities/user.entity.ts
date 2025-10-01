@@ -1,11 +1,17 @@
+
 // src/users/entities/user.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+
 import { ApiProperty } from '@nestjs/swagger';
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, ManyToOne} from 'typeorm';
 import { Comment } from '../../pins/entities/comments.entity';
 import { Like } from '../../pins/entities/likes.entity';
 import { Pin } from '../../pins/entities/pins.entity';
 import { View } from 'src/pins/entities/view.entity';
 import { Save } from 'src/pins/entities/save.entity';
+import { Sub } from 'src/subscriptions/subscription.entity';
+import { Plan } from 'src/plans/plan.entity';
+import { Payment } from 'src/payments/payment.entity';
+import { Report } from 'src/reports/report.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -13,16 +19,12 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({ required: false })
-  @Column({ unique: true, nullable: true })
-  auth0Id: string;
-
   @ApiProperty({ required: false, maxLength: 50 })
   @Column({ length: 50, nullable: true })
   name: string;
 
   @ApiProperty({ maxLength: 50 })
-  @Column({ length: 50 })
+  @Column({ length: 50 , default: "user"})
   username: string;
 
   @ApiProperty({ example: 'john@insspira.com' })
@@ -57,6 +59,12 @@ export class User {
   @Column({ default: 0 })
   pinsCount: number;
 
+  @Column({ nullable: true })
+  provider: string;
+
+  @Column({ nullable: true })
+  providerId: string;
+
   @OneToMany(() => Pin, (pin) => pin.user)
   pins: Pin[];
 
@@ -69,6 +77,22 @@ export class User {
   @OneToMany(() => View, (view) => view.user)
   views: View[];
 
+
   @OneToMany(() => Save, (save) => save.user)
   saves: Save[];
+
+  @OneToOne(()=> Sub, (sub)=> sub.user)
+  @JoinColumn()
+  subFree: Sub
+
+  @OneToMany(() => Payment, (pay)=> pay.user)
+  payments: Payment[];
+
+  @OneToMany(()=> Report, (re)=> re.user)
+  reports: Report[]
+
 }
+
+// @ApiProperty({ required: false })
+  // @Column({ unique: true, nullable: true })
+  // auth0Id: string;

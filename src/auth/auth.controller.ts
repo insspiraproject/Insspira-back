@@ -1,44 +1,17 @@
-import { Controller, Get, Req, Post, Body, Res } from '@nestjs/common';
+import { Controller, Get, Req, Post, Body, Res, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import express from 'express';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) {}
 
-  @Get('me')
-  @ApiOperation({
-    summary: 'Retrieve the current logged-in user information',
-    description:
-      'Fetches the user information from the current session using OIDC. Returns user data if logged in, otherwise returns a message indicating no user is logged in.',
-  })
-  async me(@Req() req: any) {
-    const oidcUser = req.oidc?.user;
-    if (!oidcUser) return { message: 'No logged in' };
-
-    const user = await this.authService.validateUser({
-      sub: oidcUser.sub,
-      email: oidcUser.email,
-      name: oidcUser.name,
-    });
-
-    return { user, oidcUser };
-  }
-
-  @Post('logout')
-  @ApiOperation({
-    summary: 'Log out the current user session',
-    description: 'Ends the current session and logs the user out.',
-  })
-  logout(@Req() req: any) {
-    req.logout();
-    return { message: 'Logout successful' };
-  }
-
-  @Post('register')
+@Post('register')
   @ApiBody({ type: CreateUserDto })
   @ApiOperation({
     summary: 'Register a new user in the system',
@@ -48,6 +21,7 @@ export class AuthController {
   async register(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
+
 
   @Post('login')
   @ApiBody({ type: LoginUserDto })
@@ -59,17 +33,44 @@ export class AuthController {
   async login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
   }
-}
 
-@ApiTags('App')
-@Controller()
-export class AppController {
-  @Get()
-  @ApiOperation({
-    summary: 'Redirect to the home page',
-    description: 'Simple redirection from the root path to the /home page.',
-  })
-  redirectToHome(@Res() res) {
-    return res.redirect('/home');
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async localLogout() {
+    return { message: 'Logged out successfully' };
+  }
+
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
+    const user = req.user
+    const token = user?.token
+
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 1000 
+    })
+
+    res.redirect("https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/dashboard")
+
+  }
+
+  @Get("google/logout")
+  async logout (@Req() req: express.Request, @Res() res: express.Response){
+
+  if (req.session) {
+    req.session.destroy(err => {
+      if (err) return res.status(500).json({ message: "Error al destruir la sesión" });
+
+      res.clearCookie("connect.sid");
+      return res.json({ message: "Sesión cerrada correctamente" });
+    });
+  } else {
+    res.clearCookie("connect.sid");
+    return res.json({ message: "Sesión ya estaba cerrada" });
+  }
   }
 }
