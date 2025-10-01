@@ -133,6 +133,16 @@ export class PinsController {
   
 
     // Comments
+
+      @Get("/viewComments/:id")
+    async  viewComments(
+        @Param("id", new ParseUUIDPipe()) pinId:string,
+    ) {
+        return await this.service.commentViewService( pinId)
+      }
+
+
+
     //* Ok
     @CheckLimit(ActionType.COMMENT)
     @UseGuards(AuthGuard("jwt"), PinsGuardPage)

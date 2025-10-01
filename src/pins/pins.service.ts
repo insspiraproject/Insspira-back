@@ -7,6 +7,7 @@ import { CommentDto} from "./pinsDtos/comments.dto";
 @Injectable()
 
 export class PinsService {
+    
     constructor(private readonly repository: PinsRepository){}
 
     // Query 
@@ -47,6 +48,10 @@ export class PinsService {
     }
 
     // Comment PINS
+
+    async commentViewService( pinId: string) {
+         return await this.repository.viewComment( pinId)
+    }
 
     async commentService(userId: string, pinId:string , comment: CommentDto) {
         return await this.repository.createComment(userId, pinId, comment)

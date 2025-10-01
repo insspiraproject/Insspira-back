@@ -48,7 +48,7 @@ export class User {
   profilePicture: string;
 
   @ApiProperty({ required: false, maxLength: 150 })
-  @Column({ nullable: true, length: 150 })
+  @Column({ nullable: true, length: 150})
   biography: string;
 
   @ApiProperty({ example: false })
@@ -64,6 +64,9 @@ export class User {
 
   @Column({ nullable: true })
   providerId: string;
+
+  // @Column()
+  // createUserInit: Date;
 
   @OneToMany(() => Pin, (pin) => pin.user)
   pins: Pin[];
@@ -93,6 +96,3 @@ export class User {
 
 }
 
-// @ApiProperty({ required: false })
-  // @Column({ unique: true, nullable: true })
-  // auth0Id: string;
