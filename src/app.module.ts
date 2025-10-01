@@ -16,6 +16,7 @@ import { Payment } from './payments/payment.entity';
 import { SubscriptionModule } from './subscriptions/subscription.module';
 import { ReportModule } from './reports/report.module';
 import { PlanSeeder } from './plans/plan.seeder';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -46,7 +47,8 @@ import { PlanSeeder } from './plans/plan.seeder';
     PlanModule,
     NotificationsModule,
     SubscriptionModule,
-    ReportModule
+    ReportModule,
+    AdminModule
   ],
   controllers: [ AuthController, MercadoPagoController],
   providers: [],

@@ -4,3 +4,8 @@ export enum SubStatus {
   CANCELLED = "cancelled",
   EXPIRED = "expired"
 }
+
+export enum UserStatus {
+  ACTIVE = 'active',
+  SUSPENDED = 'suspended',
+}

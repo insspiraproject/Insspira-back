@@ -1,3 +1,4 @@
+  //src/rest/controller/plan.controller.ts
 import { 
     Body, 
     Controller, 
@@ -6,11 +7,13 @@ import {
     Param, 
     ParseUUIDPipe, 
     Post, 
-    Put 
+    Put, 
+    UseGuards
   } from "@nestjs/common";
   import { PlansService } from "./plan.service";
   import { partialDto, planDto } from "./plan.dto";
   import { ApiTags, ApiBody, ApiOperation, ApiParam } from "@nestjs/swagger";
+import { AdminGuard } from "src/admin/admin.guard";
   
   @ApiTags("Plans")
   @Controller("plans")
@@ -25,7 +28,8 @@ import {
     async viewPlans() {
       return await this.service.view();
     }
-  
+    
+    @UseGuards(AdminGuard)
     @Post()
     @ApiBody({ type: planDto })
     @ApiOperation({
@@ -36,6 +40,7 @@ import {
       return await this.service.create(plans);
     }
   
+    @UseGuards(AdminGuard)
     @Put(":id")
     @ApiParam({
       name: "id",
@@ -48,14 +53,15 @@ import {
       summary: "Update an existing plan by its UUID",
       description: "Updates the data of an existing plan. Only the provided fields will be modified, leaving the rest unchanged.",
     })
-    async modifiePlans(
+    async modifyPlans(
       @Param("id", new ParseUUIDPipe()) id: string,
       @Body() plan: partialDto,
     ) {
-      await this.service.modifie(id, plan);
+      await this.service.modify(id, plan);
       return { message: "The item was successfully modified." };
     }
   
+    @UseGuards(AdminGuard)
     @Delete(":id")
     @ApiParam({
       name: "id",
@@ -72,4 +78,6 @@ import {
       return { message: "Item successfully deleted." };
     }
   }
-  
+
+
+
