@@ -18,6 +18,7 @@ import { NotificationsService } from "src/notifications/notifications.service";
 
 export class PinsRepository {
     
+    
     constructor(
         @InjectRepository(Category)
         private readonly categoryRepo: Repository<Category>,
@@ -71,8 +72,13 @@ export class PinsRepository {
     async pinsId(id: string){
         const pin = await this.pinsRepo.findOne({
             where: {id: id},
-            relations:["user"]
+            relations:["user", "hashtags",  "comments"]
         })
+        const hash = await this.hashtagRepo.findOne({
+            where: {id: pin?.id},
+            relations:["pins"]
+        })
+
         return {
             id: pin?.user.id,
             name: pin?.user.username,
@@ -82,7 +88,10 @@ export class PinsRepository {
             likes:pin?.likesCount,
             comment: pin?.commentsCount,
             views: pin?.viewsCount,
+            comments: pin?.comments,
+            hashtag: pin?.hashtags,
             created: pin?.createdAt
+    
         }
     }
 
@@ -237,9 +246,18 @@ export class PinsRepository {
 
     // Create Comment PINS Repository
 
+    async viewComment( pinId: string) {
+         const pin = await this.pinsRepo.findOne({
+            where: {id: pinId},
+            relations:[ "user", "comments"]
+        })
+
+        return pin?.comments
+        
+    }
+
     async createComment(userId: string, pinId:string , comment: CommentDto) {
-        console.log('DTO EN REPO:', comment); // 👈 Aquí
-        console.log('COMMENT.TEXT EN REPO:', comment?.text);
+       
         const pin = await this.pinsRepo.findOne({
             where: { id: pinId },
             relations: ['user'],
