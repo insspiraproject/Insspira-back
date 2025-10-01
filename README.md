@@ -1,7 +1,7 @@
 # Insspira Backend
 
 <p align="center">
-  <img src="./public/Insspira-icon.png" width="120" alt="Insspira Logo"/>
+  <img src="./public/insspira-logo.png" width="120" alt="Insspira Logo"/>
 </p>
 
 
