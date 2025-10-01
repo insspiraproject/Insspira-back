@@ -34,6 +34,12 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async localLogout() {
+    return { message: 'Logged out successfully' };
+  }
+
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))

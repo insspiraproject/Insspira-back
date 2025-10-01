@@ -10,16 +10,9 @@ import { Plan } from 'src/plans/plan.entity';
 import { SubStatus } from 'src/status.enum';
 import { Sub } from 'src/subscriptions/subscription.entity';
 
-
-
 dotenvConfig();
 
-
-
 @Injectable()
-
-
-
 export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
 
   constructor(
@@ -40,8 +33,6 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
     })
   }
 
-
-
   async validate(issuer: string, profile: Profile, done: Function){
     
     let user = await this.userRepo.findOne({where: {provider: 'google', providerId: profile.id}})
@@ -57,10 +48,8 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
             
         }),
 
-       
           await this.userRepo.save(user);
-
-           const plan = await this.planRepo.findOne({where: {type: "free"}})
+          const plan = await this.planRepo.findOne({where: {type: "free"}})
                 if(!plan) throw new BadRequestException("This plan not found")
                 const subs = this.subRepo.create({
                         user,
@@ -70,14 +59,10 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
             await this.subRepo.save(subs)
     }
 
-
     const payload = {sub: user.id, email: user.email}
     user["token"] = this.jwt.sign(payload)
-
     done(null, user)
-
   }
-
 }
 
 
