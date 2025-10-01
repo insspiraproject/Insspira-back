@@ -54,7 +54,7 @@ export class AuthController {
       maxAge: 60 * 60 * 1000 
     })
 
-    res.redirect("https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/home")
+    res.redirect("https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/dashboard")
 
   }
 
