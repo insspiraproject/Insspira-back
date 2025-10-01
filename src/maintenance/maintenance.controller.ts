@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { MaintenanceService } from './maintenance.service';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
-import { MaintenanceGateway } from './maintenance.getway';
+import { MaintenanceGateway } from './maintenance.gateway';
 
 @Controller('maintenance')
 export class MaintenanceController {
