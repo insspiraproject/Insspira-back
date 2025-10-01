@@ -73,4 +73,4 @@ export class AuthController {
     return res.json({ message: "Sesión ya estaba cerrada" });
   }
   }
-  }
+}
