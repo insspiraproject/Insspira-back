@@ -1,5 +1,3 @@
-
-
 export const PlanFreeMonthlyAnnual = [  {
         name: "Free Plan",
         price: 0,
