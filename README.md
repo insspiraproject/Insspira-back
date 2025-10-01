@@ -18,8 +18,8 @@
 
 ## 📝 Descripción
 
-Insspira es una plataforma para descubrir y compartir imágenes inspiradoras.  
-Los usuarios pueden registrarse, subir imágenes, seguir a otros usuarios y explorar contenido por categorías.
+Insspira es una plataforma para descubrir y compartir imágenes inspiradoras.
+Los usuarios pueden registrarse, subir, guardar y comentar imágenes, además de explorar contenido por categorías, con una interfaz de usuario muy amigable.
 
 ---
 
