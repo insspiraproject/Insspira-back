@@ -29,6 +29,6 @@ import { User } from 'src/users/entities/user.entity';
     ],
     controllers: [AuthController],
     providers: [AuthService, LocalJwtStrategy, GoogleOidcStrategy],
-    exports: [AuthService],
+    exports: [AuthService, JwtModule],
   })
 export class AuthModule {}
