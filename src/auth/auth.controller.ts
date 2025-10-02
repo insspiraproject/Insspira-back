@@ -5,6 +5,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import express from 'express';
+import { JwtCookieAuthGuard } from './jwt-cookie-auth-guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -41,7 +42,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtCookieAuthGuard)
   async getMe(@Req() req: express.Request) {
     return req.user;
   }
