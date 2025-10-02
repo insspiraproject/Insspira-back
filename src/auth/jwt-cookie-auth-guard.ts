@@ -6,6 +6,6 @@ import { Request } from 'express';
 export class JwtCookieAuthGuard extends AuthGuard('jwt') {
   getRequest(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest<Request>();
-    return !!req.user;
+    return req;
   }
 }
