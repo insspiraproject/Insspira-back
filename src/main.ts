@@ -7,11 +7,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import { AuthService } from './auth/auth.service';
 import  session from "express-session"
+import cookieParser from 'cookie-parser';
 import passport from "passport"
 
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser());
 
   const authService = app.get(AuthService);
 
