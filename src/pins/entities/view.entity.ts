@@ -6,7 +6,9 @@ import { User } from "src/users/entities/user.entity";
 @Entity({
     name: "views"
 })
+
 export class View {
+
     @PrimaryGeneratedColumn("uuid")
     id:string
 
@@ -18,4 +20,5 @@ export class View {
 
     @CreateDateColumn()
     createdAt: Date;
+
 }

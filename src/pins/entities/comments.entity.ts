@@ -8,6 +8,7 @@ import { User } from "../../users/entities/user.entity";
 })
 
 export class Comment {
+
   @PrimaryGeneratedColumn("uuid")      
   id: string;
 
@@ -22,4 +23,5 @@ export class Comment {
 
   @ManyToOne(() => User, (user) => user.comments)
   user: User;
+  
 }

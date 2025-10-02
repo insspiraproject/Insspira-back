@@ -7,6 +7,7 @@ import { User } from "src/users/entities/user.entity";
     name: "likes"
 })
 export class Like {
+
     @PrimaryGeneratedColumn("uuid")
     id:string
 
@@ -18,4 +19,5 @@ export class Like {
 
     @CreateDateColumn()
     createdAt: Date;
+    
 }

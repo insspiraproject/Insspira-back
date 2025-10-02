@@ -7,6 +7,7 @@ import { Pin } from "./pins.entity";
 @Entity({ name: "saves" })
 
 export class Save {
+
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -18,4 +19,5 @@ export class Save {
 
   @CreateDateColumn()
   createdAt: Date;
+  
 }

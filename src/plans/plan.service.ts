@@ -34,8 +34,6 @@ import { partialDto, planDto } from "./plan.dto";
 
         }
 
-
-
         async delete(id: string) {
             const planId = await this.planRepo.findOne({where: {id: id}})
             if(!planId)throw new NotFoundException("This item not found.")

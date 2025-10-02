@@ -5,6 +5,7 @@ import { Pin } from "./pins.entity";
 @Entity({ name: "hashtags" })
 
 export class Hashtag {
+
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -13,4 +14,5 @@ export class Hashtag {
 
   @ManyToMany(() => Pin, (pin) => pin.hashtags)
   pins: Pin[];
+  
 }
