@@ -47,10 +47,20 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
 
   async validate(issuer: string, profile: Profile, done: Function){
     
-    let user = await this.userRepo.findOne({where: {provider: 'google', providerId: profile.id}})
-    if(!user){
+    let user = await this.userRepo.findOne({where: { email: profile.emails?.[0]?.value }})
     
-        user = this.userRepo.create({
+    if(user){
+
+      if (!user.provider) {
+      user.provider = 'google';
+      user.providerId = profile.id;
+      await this.userRepo.save(user);
+    }
+    
+      
+    }  else {
+  
+    user = this.userRepo.create({
 
             name: profile.displayName,
             provider: 'google',
@@ -71,7 +81,8 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
                         status: SubStatus.ENABLED
                     })    
             await this.subRepo.save(subs)
-    }
+
+  }
 
 
     const payload = {sub: user.id, email: user.email}
@@ -80,6 +91,11 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
     done(null, user)
 
   }
+
+
+
+
+
 
 }
 
