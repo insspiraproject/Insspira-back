@@ -9,8 +9,8 @@ export class MercadoPagoService {
   private readonly client: any;
 
   private readonly usdPrices = {
-    monthly: 10.00,
-    annual: 100.00
+    monthly: 0.10,
+    annual: 0.30
   };
 
   constructor(private readonly configService: ConfigService) {
@@ -81,10 +81,10 @@ export class MercadoPagoService {
         success: true,
         id: result.body.id,
         init_point: result.body.init_point,
-        sandbox_init_point: result.body.sandbox_init_point,
         usdPrice,
         arsPrice,
-        arsRate
+        arsRate,
+        ...result.body,
       };
     } catch (error: any) {
       this.logger.error('Error creando preferencia:', error);

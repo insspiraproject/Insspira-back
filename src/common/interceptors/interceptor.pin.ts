@@ -16,19 +16,17 @@ export class LimitInterceptor implements NestInterceptor {
     ) {}
 
 
-  intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> {
-        
+intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> {  
     const req = context.switchToHttp().getRequest();
     const user = req.user;
     const action: ActionType = req.action;
     const sub = req.subscription;
 
-
-
     return from(
         ( async()=>{
 
         const activate = sub ?? await this.subRepo.findOne({
+
         where: { user: { id: user.sub }, status: In([SubStatus.ENABLED, SubStatus.ACTIVE]) }
         });
         if(!activate) throw new ForbiddenException("You don't have any subscription")

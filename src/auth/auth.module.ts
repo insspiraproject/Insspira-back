@@ -31,4 +31,6 @@ import { User } from 'src/users/entities/user.entity';
     providers: [AuthService, LocalJwtStrategy, GoogleOidcStrategy],
     exports: [AuthService, JwtModule],
   })
-  export class AuthModule {}
+export class AuthModule {}
+
+

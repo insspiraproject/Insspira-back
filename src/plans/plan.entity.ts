@@ -17,7 +17,7 @@ import {
     @Column({ type: 'varchar', length: 16, nullable: true })
     type: 'free' | 'monthly' | 'annual' ;
     
-    @Column({ length: 50 })
+    @Column({ length: 50, default: 'Plan Free' })
     name: string;
 
     @Column({ type: 'numeric', precision: 10 , scale: 2, default: 0})

@@ -21,6 +21,8 @@ import { Repository } from 'typeorm';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { SubStatus } from 'src/status.enum';
+import { User } from '../users/entities/user.entity';
+import { Plan } from '../plans/plan.entity';
 
 
 class CreateSubscriptionDto {
@@ -35,10 +37,13 @@ export class MercadoPagoController {
   constructor(
     private readonly mpService: MercadoPagoService,
     @InjectRepository(Payment)
-    private paymentRepository: Repository<Payment>
+    private paymentRepository: Repository<Payment>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Plan)
+    private planRepository: Repository<Plan>,
   ) {}
 
-  @UseGuards(AuthGuard('jwt'))
   @Post('monthly')
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: CreateSubscriptionDto })
@@ -47,45 +52,24 @@ export class MercadoPagoController {
     description:
       'This endpoint creates a monthly subscription for a user and returns a MercadoPago preference object for payment. Email is required, userId is optional.',
   })
-  async createMonthly(@Req() req: any) {
-    // Tomar email del usuario logueado
-    const userEmail = req.user?.email;
-    const userId = req.user?.id;
-  
-    if (!userEmail) {
-      return { success: false, message: 'Usuario no logueado' };
-    }
-  
-    try {
-      const result = await this.mpService.createPreference('monthly', userEmail, userId);
-      return result;
-    } catch (error: any) {
-      return { success: false, message: error.message };
-    }
-
-  }
-  
-  
-    // @Post('monthly')
-    // @HttpCode(HttpStatus.CREATED)
-    // async createMonthly(@Body() body: CreateSubscriptionDto) {
-    //   if (!body.email) {
-    //     return {
-    //       success: false,
-    //       message: 'Email es requerido',
-    //     };
-    //   }
+    async createMonthly(@Body() body: CreateSubscriptionDto) {
+      if (!body.email) {
+        return {
+          success: false,
+          message: 'Email es requerido',
+        };
+      }
       
-    //   try {
-    //     const result = await this.mpService.createPreference('monthly', body.email, body.userId);
-    //     return result;
-    //   } catch (error: any) {
-    //     return {
-    //       success: false,
-    //       message: error.message,
-    //     };
-    //   }
-    // }
+      try {
+        const result = await this.mpService.createPreference('monthly', body.email, body.userId);
+        return result;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+    }
   
     @Post('annual')
     @HttpCode(HttpStatus.CREATED)
@@ -182,38 +166,19 @@ export class MercadoPagoController {
       }
     }
   
-    @Get('success')
-    async success(@Req() req: Request, @Res() res: Response) {
-      const { preference_id, payment_id, external_reference } = req.query as any;
-      
-      if (external_reference && payment_id) {
-        try {
-          const [_, userId, plan] = external_reference.split('_');
-          const startsAt = new Date();
-          const endsAt = new Date(startsAt);
-          if (plan === 'monthly') {
-            endsAt.setMonth(endsAt.getMonth() + 1);
-          } else {
-            endsAt.setFullYear(endsAt.getFullYear() + 1);
-          }
-          
-          await this.paymentRepository.save({
-            userId,
-            paymentId: payment_id,
-            plan,
-            status: SubStatus.ACTIVE,
-            startsAt: new Date(),
-            endsAt,
-          });
-          
-          console.log(`✅ Payment creado: ${userId} - ${plan}`);
-        } catch (error) {
-          console.error('❌ Error guardando payment:', error);
-        }
-      }
-
-    console.log('✅ Successful payment:', { preference_id, payment_id, external_reference });
-    res.send(`<html>...success page...</html>`);
+  @Get('success')
+  async success(@Req() req: Request, @Res() res: Response) {
+    const { preference_id, payment_id, external_reference } = req.query as any;
+    
+    console.log('✅ Successful payment redirect:', { preference_id, payment_id, external_reference });
+    
+      // Opcional: podés loguear para monitoreo
+    if (external_reference && payment_id) {
+      const [_, userId, planType] = external_reference.split('_');
+      console.log(`🔔 Pago exitoso de usuario ${userId} para plan ${planType}, paymentId: ${payment_id}`);
+    }
+    
+    return res.redirect('insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/home');
   }
 
   @Get('failure')
@@ -292,6 +257,98 @@ export class MercadoPagoController {
     } catch (error) {
       console.error('Error getting payment history:', error);
       return { success: false, message: 'Error retrieving payment history' };
+    }
+  }
+
+  @Post('webhook')
+  @HttpCode(200)
+  async webhook(@Req() req: Request, @Res() res: Response) {
+    try {
+      const { type, data } = req.body;
+      console.log('🔔 Webhook recibido:', type, data);
+
+      // Solo procesamos eventos de pagos
+      if (type === 'payment') {
+        const paymentId = data.id;
+
+        // Traemos detalle del pago desde Mercado Pago
+        const paymentDetails = await this.mpService.getPaymentDetails(paymentId);
+        const mpData = paymentDetails.data;
+
+        // Guardamos o actualizamos el registro en nuestra DB
+        const externalRef = mpData.external_reference;
+
+        if (!externalRef) {
+          console.error('❌ external_reference vacío, no se puede asociar usuario ni plan');
+          return res.status(400).send('external_reference inválido');
+        }
+
+        const parts = externalRef.split('_');
+        const userId = parts[1];      // UUID del usuario
+        const planType = parts[2];    // 'monthly' o 'annual'
+  
+        console.log("🧩 UserID detectado:", userId);
+        console.log("🧩 PlanType detectado:", planType);
+
+        const startsAt = new Date();
+        const endsAt = new Date(startsAt);
+        
+        let billingCycle: 'monthly' | 'annual' = 'monthly';
+        if (planType === 'monthly') endsAt.setMonth(endsAt.getMonth() + 1);
+        else if (planType === 'annual') {
+          endsAt.setFullYear(endsAt.getFullYear() + 1);
+          billingCycle = 'annual';
+        }
+  
+        // ← Cambio 2: obtenemos el monto real
+        const amount = Number(
+          mpData.transaction_amount ||
+          mpData.transaction_details?.total_paid_amount ||
+          0
+        );
+
+        let status: SubStatus;
+        switch (mpData.status) {
+          case 'approved':
+          case 'active':
+            status = SubStatus.ACTIVE;
+            break;
+          case 'pending':
+          case 'in_process':
+            status = SubStatus.PENDING;
+            break;
+          default:
+            status = SubStatus.CANCELLED;
+        }
+
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        const planEntity = await this.planRepository.findOne({ where: { type: planType } });
+
+        console.log("📦 Plan encontrado:", planEntity?.type);
+        
+        if (!user || !planEntity) {
+          console.error('Usuario o plan no encontrado');
+          return res.status(400).send('Usuario o plan inválido');
+        }
+        
+        await this.paymentRepository.save({
+          user,                 
+          plan: planEntity,     
+          paymentId,
+          status,
+          startsAt,
+          endsAt,
+          amount,
+          billingCycle,
+        });
+  
+        console.log(`✅ Pago registrado desde webhook: ${paymentId} (${status})`);
+      }
+
+      res.send('ok');
+    } catch (error) {
+      console.error('❌ Error procesando webhook:', error);
+      res.status(500).send('error');
     }
   }
 }

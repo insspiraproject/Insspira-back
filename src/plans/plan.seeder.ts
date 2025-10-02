@@ -22,7 +22,7 @@ export class PlanSeeder {
                 }))
             }
         }
-        console.log("✅ Free Plan Seeded");
+        console.log("✅ All plans seeded")
     }
 }
 

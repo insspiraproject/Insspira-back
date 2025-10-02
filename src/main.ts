@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { auth } from 'express-openid-connect';
 import { ValidationPipe } from '@nestjs/common';
-// import { config } from './config/auth0.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import { AuthService } from './auth/auth.service';
@@ -26,7 +25,7 @@ async function bootstrap() {
     origin: (origin, callback) => {
       const allowedOrigins = [
         'http://localhost:3001', 
-        'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app', // Prod Vercel
+        'insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
         'https://api-latest-ejkf.onrender.com', // Backend mismo
       ];
       if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
@@ -51,8 +50,6 @@ async function bootstrap() {
   app.use(passport.session());
   app.useGlobalPipes(new ValidationPipe());
 
-  
-
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Insspira API')
     .setDescription('API documentation for Insspira application')
@@ -66,6 +63,4 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
-
-
 

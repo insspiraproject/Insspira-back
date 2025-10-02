@@ -13,10 +13,11 @@ import { PlanModule } from './plans/plan.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MercadoPagoController } from './mercadopago/mercadopago.controller';
 import { Payment } from './payments/payment.entity';
-import { SubscriptionModule } from './subscriptions/subscription.module';
-import { ReportModule } from './reports/report.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 import { PlanSeeder } from './plans/plan.seeder';
 import { AdminModule } from './admin/admin.module';
+import { SubscriptionModule } from './subscriptions/subscription.module';
+import { ReportModule } from './reports/report.module';
 
 @Module({
   imports: [
@@ -46,11 +47,12 @@ import { AdminModule } from './admin/admin.module';
     MercadoPagoModule,
     PlanModule,
     NotificationsModule,
+    MaintenanceModule,
     SubscriptionModule,
     ReportModule,
     AdminModule
   ],
-  controllers: [ AuthController, MercadoPagoController],
+  controllers: [ AuthController],
   providers: [],
 })
 
@@ -64,5 +66,4 @@ export class AppModule implements OnModuleInit{
     await this.category.run()
     await this.plan.run()
   }
-
 }

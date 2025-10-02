@@ -2,7 +2,6 @@ import { BadRequestException, Inject, Injectable, UnauthorizedException } from '
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-
 import * as bcrypt from 'bcryptjs';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,9 +10,6 @@ import { In, Repository } from 'typeorm';
 import { SubStatus } from 'src/status.enum';
 import { Plan } from 'src/plans/plan.entity';
 import { NotificationsService } from 'src/notifications/notifications.service';
-
-
-
 
 @Injectable()
 export class AuthService {
@@ -27,8 +23,6 @@ export class AuthService {
         private readonly planRepo: Repository<Plan>,
         private readonly notificationsService: NotificationsService
     ) {}
-
-   
 
     async register(createUserDto: CreateUserDto){
         const { email, password, confirmPassword, username, name, phone, isAdmin } = createUserDto;
@@ -47,10 +41,6 @@ export class AuthService {
     
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        
-        
-
-    
         const user = await this.usersService.createUser({
             email,
             username,
@@ -70,7 +60,6 @@ export class AuthService {
 
         const subFree = await this.subRepo.save(subs)
 
-    
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
         return {
@@ -79,7 +68,6 @@ export class AuthService {
             name: subFree.user.username,
             subscription: subFree.plan
         }
-
     }
     
     async login(loginUserDto: LoginUserDto) {
@@ -102,7 +90,6 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
         
-      
         //Buscar Sub Paga
         let subs = await this.subRepo.findOne({
             where: {user: {id: user.id}, status:  SubStatus.ACTIVE},
@@ -119,7 +106,7 @@ export class AuthService {
             if(!subs){
             const plan = await this.planRepo.findOne({where: {type: "free"}})
             if(!plan) throw new BadRequestException("This plan not found")
-                   
+
             subs = this.subRepo.create({
                 user,
                 plan,
@@ -134,9 +121,8 @@ export class AuthService {
         await this.notificationsService.sendWelcome({
             email: user.email,
             name: user.name,
-          });
-    
+        });
+
         return {accessToken, subscription: subs.plan}
-    
     }
 }

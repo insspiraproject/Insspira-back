@@ -1,6 +1,3 @@
-
-
-
 import { BadRequestException, Injectable, Scope } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import {Strategy, Profile} from "passport-google-oidc"
@@ -14,15 +11,9 @@ import { SubStatus } from 'src/status.enum';
 import { Sub } from 'src/subscriptions/subscription.entity';
 
 
-
 dotenvConfig();
 
-
-
 @Injectable()
-
-
-
 export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
 
   constructor(
@@ -37,13 +28,11 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
       
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.API_BASE_URL}/auth/google/callback`,
+    callbackURL: `https://api-latest-ejkf.onrender.com/auth/google/callback`,
     scope: ["openid", "email", "profile"],
     prompt: 'login',
     })
   }
-
-
 
   async validate(issuer: string, profile: Profile, done: Function){
     
@@ -56,8 +45,7 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
       user.providerId = profile.id;
       await this.userRepo.save(user);
     }
-    
-      
+
     }  else {
   
     user = this.userRepo.create({
@@ -67,10 +55,10 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
             providerId: profile.id,
             email: profile.emails?.[0]?.value,
             username: (profile.displayName ?? "user").replace(/\s/g, '')
-            
+
         }),
 
-       
+
           await this.userRepo.save(user);
 
            const plan = await this.planRepo.findOne({where: {type: "free"}})
@@ -79,19 +67,19 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
                         user,
                         plan,
                         status: SubStatus.ENABLED
-                    })    
+                    })
             await this.subRepo.save(subs)
 
   }
 
 
     const payload = {sub: user.id, email: user.email}
-    user["token"] = this.jwt.sign(payload)
+    const token = this.jwt.sign(payload)
 
-    done(null, user)
+    done(null, {...user, token})
 
   }
-
 }
+
 
 
