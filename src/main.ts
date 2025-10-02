@@ -44,7 +44,10 @@ async function bootstrap() {
     secret: process.env.SESSION_SECRET || 'supersecret',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false },
+    cookie: { 
+      secure: true,
+      sameSite: "none"
+    },
   }))
   app.use(passport.initialize());
   app.use(passport.session());
