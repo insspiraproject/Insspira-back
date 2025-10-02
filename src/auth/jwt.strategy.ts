@@ -34,41 +34,50 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
   }
 
   async validate(issuer: string, profile: Profile, done: Function){
-    
-    let user = await this.userRepo.findOne({where: {provider: 'google', providerId: profile.id}})
-    if(!user){
-    
-        user = this.userRepo.create({
+
+    let user = await this.userRepo.findOne({where: { email: profile.emails?.[0]?.value }})
+
+    if(user){
+
+      if (!user.provider) {
+      user.provider = 'google';
+      user.providerId = profile.id;
+      await this.userRepo.save(user);
+    }
+
+
+    }  else {
+
+    user = this.userRepo.create({
 
             name: profile.displayName,
             provider: 'google',
             providerId: profile.id,
             email: profile.emails?.[0]?.value,
             username: (profile.displayName ?? "user").replace(/\s/g, '')
-            
+
         }),
 
+
           await this.userRepo.save(user);
-          const plan = await this.planRepo.findOne({where: {type: "free"}})
+
+           const plan = await this.planRepo.findOne({where: {type: "free"}})
                 if(!plan) throw new BadRequestException("This plan not found")
                 const subs = this.subRepo.create({
                         user,
                         plan,
                         status: SubStatus.ENABLED
-                    })    
+                    })
             await this.subRepo.save(subs)
-            
-    } else {
 
-      if (!user.provider) {
-        user.provider = 'google';
-        user.providerId = profile.id;
-        await this.userRepo.save(user);
-      }
-    }
+  }
+
+
     const payload = {sub: user.id, email: user.email}
     user["token"] = this.jwt.sign(payload)
+
     done(null, user)
+
   }
 }
 
