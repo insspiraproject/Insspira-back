@@ -38,6 +38,13 @@ export class AuthController {
   }
 
 
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {
+  // Este método nunca se ejecuta, Passport redirige a Google automáticamente
+  }
+
+
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
@@ -51,7 +58,12 @@ export class AuthController {
       maxAge: 60 * 60 * 1000 
     })
 
-    res.redirect("http://localhost:3001/home")
+      const redirectUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/home"
+      : "http://localhost:3001/home";
+
+    res.redirect(redirectUrl)
 
   }
 
