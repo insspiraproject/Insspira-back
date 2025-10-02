@@ -27,7 +27,7 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
       
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.API_BASE_URL}/auth/google/callback`,
+    callbackURL: `https://api-latest-ejkf.onrender.com/auth/google/callback`,
     scope: ["openid", "email", "profile"],
     prompt: 'login',
     })
