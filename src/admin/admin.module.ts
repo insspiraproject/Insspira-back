@@ -20,5 +20,6 @@ import { User } from 'src/users/entities/user.entity';
   ],
   controllers: [AdminController],
   providers: [AdminService, AdminGuard],
+   exports: [JwtModule]
 })
 export class AdminModule {}

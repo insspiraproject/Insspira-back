@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { GoogleOidcStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { LocalJwtStrategy } from './local-jwt.strategy';
@@ -29,6 +29,6 @@ import { User } from 'src/users/entities/user.entity';
     ],
     controllers: [AuthController],
     providers: [AuthService, LocalJwtStrategy, GoogleOidcStrategy],
-    exports: [AuthService],
+    exports: [AuthService, JwtModule],
   })
   export class AuthModule {}
