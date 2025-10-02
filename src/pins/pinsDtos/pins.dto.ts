@@ -4,6 +4,7 @@ import { ArrayNotEmpty, IsArray, IsString, IsUrl, IsUUID, Length } from 'class-v
 import { ApiProperty } from '@nestjs/swagger';
 
 export class pinsDto {
+  
   @ApiProperty({ example: 'https://res.cloudinary.com/.../image.jpg' })
   @IsUrl({}, { message: 'Image has to be a valid URL' })
   image: string;
@@ -16,5 +17,6 @@ export class pinsDto {
   @ApiProperty({ example: '5c20797c-5c07-42be-8cda-18cc063e8b3c', format: 'uuid' })
   @IsUUID('4', { message: 'ID category must be a valid UUID' })
   categoryId: string;
+
 }
 export class updateDto extends PartialType(pinsDto) {}

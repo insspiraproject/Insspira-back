@@ -13,7 +13,7 @@ import {
   import { PlansService } from "./plan.service";
   import { partialDto, planDto } from "./plan.dto";
   import { ApiTags, ApiBody, ApiOperation, ApiParam } from "@nestjs/swagger";
-import { AdminGuard } from "src/admin/admin.guard";
+  import { AdminGuard } from "src/admin/admin.guard";
   
   @ApiTags("Plans")
   @Controller("plans")

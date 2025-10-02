@@ -36,7 +36,7 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
   async validate(issuer: string, profile: Profile, done: Function){
 
     let user = await this.userRepo.findOne({where: { email: profile.emails?.[0]?.value }})
-
+    
     if(user){
 
       if (!user.provider) {
@@ -45,9 +45,8 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
       await this.userRepo.save(user);
     }
 
-
     }  else {
-
+  
     user = this.userRepo.create({
 
             name: profile.displayName,

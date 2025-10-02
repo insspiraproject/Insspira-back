@@ -245,7 +245,6 @@ export class PinsRepository {
     }
 
     // Create Comment PINS Repository
-
     async viewComment( pinId: string) {
          const pin = await this.pinsRepo.findOne({
             where: {id: pinId},
@@ -316,7 +315,6 @@ export class PinsRepository {
     }
 
     // Create View PINS Repository
-
     async createView(idUser: string, idPins: string) {
         const pin = await this.pinsRepo.findOne({where: {id: idPins}})
         if(!pin) throw new NotFoundException("Post not found.")
@@ -336,7 +334,6 @@ export class PinsRepository {
     }
 
     // Create Save PINS Repository
-
     async createGetSave( idUser:string) {
         const user = await this.userRepo.findOne({ where: { id: idUser } });
         if (!user) throw new NotFoundException("User not found.");
@@ -348,9 +345,9 @@ export class PinsRepository {
             relations: ["pin"]
         })
 
-       const pins = save.map(e=> e.pin)
+        const pins = save.map(e=> e.pin)
 
-       return pins
+        return pins
     }
 
     async createSave(idPin: string, idUser: string ) {

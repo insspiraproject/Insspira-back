@@ -9,8 +9,11 @@ import { Hashtag } from './hashtag.entity';
 import { View } from './view.entity';
 import { Save } from './save.entity';
 
+
 @Entity({ name: 'pins' })
+
 export class Pin {
+
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -64,4 +67,5 @@ export class Pin {
 
   @OneToMany(() => Save, (save) => save.pin)
   saves: Save[];
+  
 }
