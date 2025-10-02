@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Post, Body, Res, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Post, Body, Res, HttpCode, HttpStatus, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -43,6 +43,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtCookieAuthGuard)
   async getMe(@Req() req: express.Request) {
+
     return req.user;
   }
 
