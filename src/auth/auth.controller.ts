@@ -5,6 +5,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import express from 'express';
+import { JwtCookieAuthGuard } from './jwt-cookie-auth-guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -21,7 +22,6 @@ export class AuthController {
   async register(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
-
 
   @Post('login')
   @ApiBody({ type: LoginUserDto })
@@ -41,7 +41,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtCookieAuthGuard)
   async getMe(@Req() req: express.Request) {
     return req.user;
   }
@@ -61,14 +61,14 @@ export class AuthController {
 
     res.cookie('jwt', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
+      secure: true, 
       sameSite: 'none',
       maxAge: 60 * 60 * 1000 
     })
 
       const redirectUrl =
     process.env.NODE_ENV === "production"
-      ? "https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/home"
+      ? "https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/home"
       : "http://localhost:3001/home";
 
     res.redirect(redirectUrl)
@@ -96,5 +96,5 @@ export class AuthController {
   //   return res.json({ message: "Sesión ya estaba cerrada" });
   // }
   // }
-    
+  //  
 }
