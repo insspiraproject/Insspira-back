@@ -57,8 +57,15 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
                         status: SubStatus.ENABLED
                     })    
             await this.subRepo.save(subs)
-    }
+            
+    } else {
 
+      if (!user.provider) {
+        user.provider = 'google';
+        user.providerId = profile.id;
+        await this.userRepo.save(user);
+      }
+    }
     const payload = {sub: user.id, email: user.email}
     user["token"] = this.jwt.sign(payload)
     done(null, user)
