@@ -12,20 +12,14 @@ import passport from "passport"
 
 
 async function bootstrap() {
+
   const app = await NestFactory.create(AppModule);
-
-  app.use(cookieParser());
-
-  const authService = app.get(AuthService);
 
   app.use(bodyParser.json({
     verify: (req: any, _res, buf) => {
       if (buf && buf.length) req.rawBody = buf.toString();
     },
   }));
-
-  app.use(cookieParser());
-  app.use(passport.initialize());
 
   app.enableCors({
     origin: (origin, callback) => {
@@ -46,6 +40,25 @@ async function bootstrap() {
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
+
+  app.use(cookieParser());
+
+  app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'supersecret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+    },
+  }),
+);
+
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
 
   app.useGlobalPipes(new ValidationPipe());
 
