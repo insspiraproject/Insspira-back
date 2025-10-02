@@ -26,7 +26,7 @@ async function bootstrap() {
       const allowedOrigins = [
         'http://localhost:3001', 
         'insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
-        'https://api-latest-ejkf.onrender.com', // Backend mismo
+        'https://api-latest-ejkf.onrender.com', // Backend mism
       ];
       if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
         console.log(`CORS allowed for origin: ${origin}`);
