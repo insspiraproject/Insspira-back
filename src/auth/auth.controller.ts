@@ -68,7 +68,7 @@ export class AuthController {
 
       const redirectUrl =
     process.env.NODE_ENV === "production"
-      ? "https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/home"
+      ? "https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/home"
       : "http://localhost:3001/home";
 
     res.redirect(redirectUrl)
