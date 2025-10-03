@@ -86,36 +86,74 @@ async googleCallback(@Req() req: express.Request, @Res() res: express.Response) 
   @Get("google/logout")
     async logout(@Res() res: express.Response, @Req() req: express.Request) {
 
-      
+  //   const cookieOptions = {
+  //    httpOnly: true,
+  //   secure: true,
+  //   sameSite: 'none' as const
+  // };
+
+  //   res.clearCookie('jwt', cookieOptions);
+
+    
+  //   if (req.session) {
+  //       req.session.destroy((err) => {
+  //           if (err) {
+  //               console.error("Error destroying session:", err);
+  //           }
+  //       });
+  //   }
+  //   return res.json({message: "Sesión cerrada correctamente"});
+try {
+    console.log('=== INICIANDO LOGOUT COMPLETO ===');
+    
+    // Opciones para localhost (desarrollo)
     const cookieOptions = {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none' as const,
-      domain: '.onrender.com', 
-      path: '/'
+      secure: false, // ⚠️ En localhost secure debe ser false
+      sameSite: 'lax' as const // ⚠️ En localhost sameSite: 'lax'
     };
 
-
-    res.clearCookie("jwt", cookieOptions);
-    res.clearCookie("session", cookieOptions);
-    res.clearCookie("connect.sid", cookieOptions);
-    res.clearCookie("oauth_token", cookieOptions);
-    res.clearCookie("oauth_refresh_token", cookieOptions);
-
-   
-    res.clearCookie("jwt", { domain: 'api-latest-ejkf.onrender.com' });
-    res.clearCookie("session", { domain: 'api-latest-ejkf.onrender.com' });
-    res.clearCookie("connect.sid", { domain: 'api-latest-ejkf.onrender.com' });
+    // Limpiar TODAS las cookies de auth
+    res.clearCookie('jwt', cookieOptions);
+    res.clearCookie('connect.sid', cookieOptions);
+    res.clearCookie('session', cookieOptions);
     
-    if (req.session) {
-        req.session.destroy((err) => {
-            if (err) {
-                console.error("Error destroying session:", err);
-            }
-        });
-    }
-    return res.json({message: "Sesión cerrada correctamente"});
+    console.log('Cookies limpiadas:', ['jwt', 'connect.sid', 'session']);
 
+    // Destruir la sesión del servidor
+    return new Promise((resolve) => {
+      if (req.session) {
+        console.log('Destruyendo sesión de Passport...');
+        req.session.destroy((err) => {
+          if (err) {
+            console.error("Error destroying session:", err);
+          } else {
+            console.log('Sesión de Passport destruida');
+          }
+          
+          res.json({ 
+            success: true, 
+            message: "Sesión cerrada correctamente" 
+          });
+          resolve(null);
+        });
+      } else {
+        console.log('No había sesión activa');
+        res.json({ 
+          success: true, 
+          message: "Sesión cerrada correctamente" 
+        });
+        resolve(null);
+      }
+    });
+
+  } catch (error) {
+    console.error("Error en logout:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Error al cerrar sesión" 
+    });
+  }
    
 
     }
