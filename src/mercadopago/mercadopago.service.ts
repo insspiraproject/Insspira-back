@@ -56,9 +56,9 @@ export class MercadoPagoService {
         email: email,
       },
       back_urls: {
-        success: process.env.BACK_URL_SUCCESS || 'http://localhost:3000/success',
-        failure: process.env.BACK_URL_FAILURE || 'http://localhost:3000/failure',
-        pending: process.env.BACK_URL_PENDING || 'http://localhost:3000/pending',
+        success: process.env.BACK_URL_SUCCESS || 'https://api-latest-ejkf.onrender.com/success',
+        failure: process.env.BACK_URL_FAILURE || 'https://api-latest-ejkf.onrender.com/failure',
+        pending: process.env.BACK_URL_PENDING || 'https://api-latest-ejkf.onrender.com/pending',
       },
       auto_return: 'approved',
       payment_methods: {
@@ -134,7 +134,7 @@ export class MercadoPagoService {
         currency_id: 'ARS',
       },
       payer_email: email,
-      back_url: process.env.BACK_URL_SUCCESS || 'http://localhost:3000/success',
+      back_url: process.env.BACK_URL_SUCCESS || 'https://api-latest-ejkf.onrender.com/success',
     };
 
     if (userId) {
