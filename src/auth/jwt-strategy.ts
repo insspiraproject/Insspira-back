@@ -49,6 +49,31 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
       username: (profile.displayName ?? "user").replace(/\s/g, ''),
     });
     await this.userRepo.save(user);
+
+     let subs = await this.subRepo.findOne({
+            where: {user: {id: user.id}, status:  SubStatus.ACTIVE},
+            relations: ["plan"]
+        })
+
+        //Buscar Sub Gratuita
+        if(!subs){
+            subs = await this.subRepo.findOne({
+                where: { user: { id: user.id }, status: SubStatus.ENABLED },
+                relations: ["plan"]
+            });
+
+            if(!subs){
+            const plan = await this.planRepo.findOne({where: {type: "free"}})
+            if(!plan) throw new BadRequestException("This plan not found")
+
+            subs = this.subRepo.create({
+                user,
+                plan,
+                status: SubStatus.ENABLED
+            })
+            await this.subRepo.save(subs)
+            }
+        } 
   }
 
   const payload = { sub: user.id, email: user.email, name: user.name };

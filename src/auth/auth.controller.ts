@@ -72,7 +72,13 @@ async googleCallback(@Req() req: express.Request, @Res() res: express.Response) 
   const { token } = req.user as any;
   if (!token) return res.redirect('http://localhost:3001/login?error=notoken');
 
-  res.cookie('jwt', token, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 3600000 });
+  res.cookie('jwt', token, {
+    httpOnly: true, 
+    secure: true, 
+    sameSite: 'none', 
+    maxAge: 3600000 
+  });
+
   return res.redirect('http://localhost:3001/home');
 }
 
