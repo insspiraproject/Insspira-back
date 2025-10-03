@@ -91,10 +91,8 @@ async logout(@Res() res: express.Response, @Req() req: express.Request) {
   const cookieOptions = {
     httpOnly: true,
     secure: true,
-    sameSite: 'none' as const,
-    domain: '.onrender.com', 
-    path: '/'
-  };
+    sameSite: 'none' as const
+};
 
 
   res.clearCookie("jwt", cookieOptions);
