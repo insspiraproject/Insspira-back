@@ -74,7 +74,7 @@ async googleCallback(@Req() req: express.Request, @Res() res: express.Response) 
   const { token } = req.user as any;
   if (!token) return res.redirect('https://insspira-front.onrender.com/login?error=notoken');
 
-  res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax', maxAge: 3600000 });
+  res.cookie('jwt', token, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 3600000 });
   return res.redirect('https://insspira-front.onrender.com/home');
 }
 
@@ -84,5 +84,8 @@ async logout(@Res() res: express.Response) {
 
   res.clearCookie("jwt");
 return res.json({ message: "Sesión cerrada correctamente" });
-}
   }
+}
+
+
+

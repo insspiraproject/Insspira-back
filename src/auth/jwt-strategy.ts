@@ -54,7 +54,7 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
   const payload = { sub: user.id, email: user.email, name: user.name };
   const token = await this.jwt.signAsync(payload);
 
-  return { ...user, token }; // 👈 sin done
+  return { ...user, token }; 
 }
 
   
