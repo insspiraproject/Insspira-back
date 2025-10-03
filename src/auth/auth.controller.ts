@@ -86,10 +86,26 @@ async googleCallback(@Req() req: express.Request, @Res() res: express.Response) 
   @Get("google/logout")
     async logout(@Res() res: express.Response, @Req() req: express.Request) {
 
-    res.clearCookie("jwt");
-    res.clearCookie("session");
-    res.clearCookie("connect.sid"); 
-    
+      
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none' as const,
+      domain: '.onrender.com', 
+      path: '/'
+    };
+
+
+    res.clearCookie("jwt", cookieOptions);
+    res.clearCookie("session", cookieOptions);
+    res.clearCookie("connect.sid", cookieOptions);
+    res.clearCookie("oauth_token", cookieOptions);
+    res.clearCookie("oauth_refresh_token", cookieOptions);
+
+   
+    res.clearCookie("jwt", { domain: 'api-latest-ejkf.onrender.com' });
+    res.clearCookie("session", { domain: 'api-latest-ejkf.onrender.com' });
+    res.clearCookie("connect.sid", { domain: 'api-latest-ejkf.onrender.com' });
     
     if (req.session) {
         req.session.destroy((err) => {
