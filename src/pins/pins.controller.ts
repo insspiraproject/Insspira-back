@@ -50,7 +50,7 @@ export class PinsController {
     // Create pin (auth required)
     //* Ok
     @CheckLimit(ActionType.POST)
-    @UseGuards(AuthGuard('jwt'), PinsGuardPage)
+    //@UseGuards(AuthGuard('jwt'), PinsGuardPage)
     @UseInterceptors(LimitInterceptor)
     @Post()
     @ApiBearerAuth('jwt')
@@ -67,7 +67,7 @@ export class PinsController {
     }
 
     // Update pin (auth) + hashtags
-    @UseGuards(AuthGuard('jwt'))
+    //@UseGuards(AuthGuard('jwt'))
     @Put('/:id')
     @ApiBearerAuth('jwt')
     @ApiOperation({ summary: 'Update a pin (auth)' })
@@ -85,7 +85,7 @@ export class PinsController {
     }
 
     // Delete pin (auth)
-    @UseGuards(AuthGuard('jwt'))
+    //@UseGuards(AuthGuard('jwt'))
     @Delete('/:id')
     @ApiBearerAuth('jwt')
     @ApiOperation({ summary: 'Delete a pin (auth)' })
@@ -99,7 +99,7 @@ export class PinsController {
     // Create Like  
     //*OK
     @CheckLimit(ActionType.LIKE)
-    @UseGuards(AuthGuard("jwt"), PinsGuardPage)
+    //@UseGuards(AuthGuard("jwt"), PinsGuardPage)
     @UseInterceptors(LimitInterceptor)
     @Post("/like/:id")
     @ApiBearerAuth('jwt')
@@ -114,7 +114,7 @@ export class PinsController {
         return{message: "Like added."} 
     }
 
-    @UseGuards(AuthGuard('jwt'))
+    //@UseGuards(AuthGuard('jwt'))
     @Delete('/like/:deleteLike')
     @ApiBearerAuth('jwt')
     @ApiOperation({ summary: 'Delete a like (auth)' })
@@ -135,7 +135,7 @@ export class PinsController {
 
     //* Ok
     @CheckLimit(ActionType.COMMENT)
-    @UseGuards(AuthGuard("jwt"), PinsGuardPage)
+    //@UseGuards(AuthGuard("jwt"), PinsGuardPage)
     @UseInterceptors(LimitInterceptor)
     @Post("/comments/:id")
     @ApiBearerAuth('jwt')
@@ -151,7 +151,7 @@ export class PinsController {
         return await this.service.commentService(userId, pinId, comment)
     }
 
-    @UseGuards(AuthGuard('jwt'))
+    //@UseGuards(AuthGuard('jwt'))
     @Put('/modifiComments/:id')
     @ApiBearerAuth('jwt')
     @ApiOperation({ summary: 'Update a comment (auth)' })
@@ -167,7 +167,7 @@ export class PinsController {
       return { message: 'Your comment has been successfully modified.' };
     }
 
-    @UseGuards(AuthGuard('jwt'))
+    //@UseGuards(AuthGuard('jwt'))
     @Delete('/deleteComments/:id')
     @ApiBearerAuth('jwt')
     @ApiOperation({ summary: 'Delete a comment (auth)' })
@@ -179,7 +179,7 @@ export class PinsController {
     }
 
     // Views
-    @UseGuards(AuthGuard('jwt'))
+    //@UseGuards(AuthGuard('jwt'))
     @Post('/view/:id')
     @ApiBearerAuth('jwt')
     @ApiOperation({ summary: 'Create a view (auth)' })
@@ -199,7 +199,7 @@ export class PinsController {
 
     //* Ok
     @CheckLimit(ActionType.SAVE)
-    @UseGuards(AuthGuard("jwt"), PinsGuardPage)
+    //@UseGuards(AuthGuard("jwt"), PinsGuardPage)
     @UseInterceptors(LimitInterceptor)
     @Post("/createSave/:id")
     @ApiBearerAuth('jwt')
@@ -213,7 +213,7 @@ export class PinsController {
         return await this.service.saveService(idPins, idUser)
     }
 
-    @UseGuards(AuthGuard('jwt'))
+    //@UseGuards(AuthGuard('jwt'))
     @Delete('/saveDelete/:id')
     @ApiBearerAuth('jwt')
     @ApiOperation({ summary: 'Delete saved pin (auth)' })
