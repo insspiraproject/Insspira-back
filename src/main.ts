@@ -7,6 +7,7 @@ import * as bodyParser from 'body-parser';
 import { AuthService } from './auth/auth.service';
 import  session from "express-session"
 import passport from "passport"
+import cookieParser from 'cookie-parser';
 
 
 async function bootstrap() {
@@ -20,11 +21,12 @@ async function bootstrap() {
     },
   }));
 
+
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigins = [
         'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app', // Prod Vercel
-        'insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
+        'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
         'https://api-latest-ejkf.onrender.com', // Backend mismo
       ];
       if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
@@ -39,14 +41,16 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
 
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'supersecret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
-  }))
-  app.use(passport.initialize());
-  app.use(passport.session());
+  app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'devsecret',
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
   app.useGlobalPipes(new ValidationPipe());
 
   const swaggerConfig = new DocumentBuilder()
