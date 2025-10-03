@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Post, Body, Res, HttpCode, HttpStatus, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Req, Post, Body, Res, HttpCode, HttpStatus, UseGuards, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -7,10 +7,12 @@ import { AuthGuard } from '@nestjs/passport';
 import express from 'express';
 import { JwtCookieAuthGuard } from './jwt-cookie-auth-guard';
 
+
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor(
+      private readonly authService: AuthService) {}
 
 @Post('register')
   @ApiBody({ type: CreateUserDto })
@@ -42,38 +44,38 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtCookieAuthGuard)
-  async getMe(@Req() req: express.Request) {
+  async getMe(@Req() req: express.Request, res: express.Response) {
+      console.log('User in getMe:', req.user);
 
-    return req.user;
+  if (!req.user) {
+    throw new UnauthorizedException('No user found');
   }
+
+  return {
+    user: req.user, 
+    timestamp: new Date().toISOString(),
+  };
+  }
+
+
 
   @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth() {
-  // Este método nunca se ejecuta, Passport redirige a Google automáticamente
-  }
+@UseGuards(AuthGuard('google'))
+googleAuth() {
+  // passport redirige a Google
+}
 
+@Get('google/callback')
+@UseGuards(AuthGuard('google'))
+async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
+  console.log('>>> callback request reached. req.user =', req.user);
+  const { token } = req.user as any;
+  if (!token) return res.redirect('http://localhost:3001/login?error=notoken');
 
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
-    const user = req.user
-    const token = user?.token
+  res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax', maxAge: 3600000 });
+  return res.redirect('http://localhost:3001/home');
+}
 
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      secure: true, 
-      sameSite: 'none',
-      maxAge: 60 * 60 * 1000 
-    })
-
-      const redirectUrl =
-    process.env.NODE_ENV === "production"
-      ? "https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/home"
-      : "http://localhost:3001/home";
-
-    res.redirect(redirectUrl)
-  }
 
   @Get("google/logout")
     async logout(@Res() res: express.Response) {
@@ -82,20 +84,16 @@ export class AuthController {
     return res.json({ message: "Sesión cerrada correctamente" });
     }
 
-  // @Get("google/logout")
-  // async logout (@Req() req: express.Request, @Res() res: express.Response){
+    @Get('passport-status')
+passportStatus() {
+  const passport = require('passport');
+  return {
+    strategies: Object.keys(passport._strategies || {}),
+    session: true,
+    initialized: true
+  };}
+   
 
-  // if (req.session) {
-  //   req.session.destroy(err => {
-  //     if (err) return res.status(500).json({ message: "Error al destruir la sesión" });
 
-  //     res.clearCookie("connect.sid");
-  //     return res.json({ message: "Sesión cerrada correctamente" });
-  //   });
-  // } else {
-  //   res.clearCookie("connect.sid");
-  //   return res.json({ message: "Sesión ya estaba cerrada" });
-  // }
-  // }
-  //  
+
 }

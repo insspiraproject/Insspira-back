@@ -21,6 +21,7 @@ async function bootstrap() {
     },
   }));
 
+
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigins = [
@@ -42,22 +43,17 @@ async function bootstrap() {
   });
 
   app.use(cookieParser());
-
-  app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'supersecret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-    },
-  }),
-);
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'devsecret',
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 
-  app.use(passport.initialize());
-  app.use(passport.session());
+
+
 
 
   app.useGlobalPipes(new ValidationPipe());
