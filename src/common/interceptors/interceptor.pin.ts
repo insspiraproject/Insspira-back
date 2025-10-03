@@ -27,7 +27,7 @@ intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> {
 
         const activate = await this.subRepo.findOne({
 
-        where: { user: { id: user.sub }, status: In([SubStatus.ENABLED, SubStatus.ACTIVE]) }
+        where: { user: { id: user.sub}, status: In([SubStatus.ENABLED, SubStatus.ACTIVE]) }
         });
         if(!activate) throw new ForbiddenException("You don't have any subscription")
 
