@@ -72,7 +72,7 @@ async googleCallback(@Req() req: express.Request, @Res() res: express.Response) 
   const { token } = req.user as any;
   if (!token) return res.redirect('http://localhost:3001/login?error=notoken');
 
-  res.cookie('jwt', token, { httpOnly: true, sameSite: 'lax', maxAge: 3600000 });
+  res.cookie('jwt', token, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 3600000 });
   return res.redirect('http://localhost:3001/home');
 }
 
@@ -80,18 +80,10 @@ async googleCallback(@Req() req: express.Request, @Res() res: express.Response) 
   @Get("google/logout")
     async logout(@Res() res: express.Response) {
 
-      res.clearCookie("jwt");
+    res.clearCookie("jwt");
     return res.json({ message: "Sesión cerrada correctamente" });
-    }
 
-    @Get('passport-status')
-passportStatus() {
-  const passport = require('passport');
-  return {
-    strategies: Object.keys(passport._strategies || {}),
-    session: true,
-    initialized: true
-  };}
+    }
    
 
 
