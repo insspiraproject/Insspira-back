@@ -25,8 +25,7 @@ async function bootstrap() {
     origin: (origin, callback) => {
       const allowedOrigins = [
         'http://localhost:3001', 
-        'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
-        'https://api-latest-ejkf.onrender.com', // Backend mism
+        'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app'
       ];
       if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
         console.log(`CORS allowed for origin: ${origin}`);
@@ -43,21 +42,21 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'supersecret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-    },
-  }),
-);
+//   app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET || 'supersecret',
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: process.env.NODE_ENV === 'production',
+//       sameSite: 'none',
+//     },
+//   }),
+// );
 
 
   app.use(passport.initialize());
-  app.use(passport.session());
+  //app.use(passport.session());
 
 
   app.useGlobalPipes(new ValidationPipe());
