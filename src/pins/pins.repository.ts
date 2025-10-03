@@ -61,13 +61,50 @@ export class PinsRepository {
 
     // Create PINS Repository
 
-    async getPins(page: number, limit: number): Promise<Pin[]> {
-        return await this.pinsRepo.find({
+    async getPins(page: number, limit: number) {
+     
+        const pins = await this.pinsRepo.find({
             skip: (page - 1) * 10,
             take: limit,
-            order: {createdAt: "DESC"}
+         
+            order: {createdAt: "DESC"},
+            relations:[ "likes"]
+         
         })
-    }
+
+        if (!pins) throw new NotFoundException("No pins found");
+
+
+      const pinsWithLike = await Promise.all(
+    pins.map(async (pin) => {
+      const existingLike = await this.likeRepo.findOne({
+        where: {
+          pin: { id: pin.id },
+          
+        },
+      });
+
+      return {
+        id: pin.id,
+        image: pin.image,
+        description: pin.description,
+        likesCount: pin.likesCount,
+        commentsCount: pin.commentsCount,
+        viewsCount: pin.viewsCount,
+        createdAt: pin.createdAt,
+        hashtags: pin.hashtags,
+        liked: !!existingLike, 
+      };
+    })
+  );
+
+  return pinsWithLike;
+
+
+
+}
+
+ 
 
     async pinsId(id: string){
         const pin = await this.pinsRepo.findOne({
