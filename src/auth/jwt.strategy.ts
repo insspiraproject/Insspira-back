@@ -35,6 +35,10 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
   }
 
   async validate(issuer: string, profile: Profile, done: Function){
+
+    if (!profile.emails?.[0]?.value) {
+      throw new BadRequestException("Google profile has no email");
+    }
     
     let user = await this.userRepo.findOne({where: { email: profile.emails?.[0]?.value }})
     
@@ -74,7 +78,13 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
 
 
     const payload = {sub: user.id, email: user.email}
+
+    console.log('Google profile:', profile);
+    console.log('User found or created:', user);
+    console.log('Payload for JWT:', { sub: user.id, email: user.email });
+
     const token = this.jwt.sign(payload)
+    console.log('Generated token:', token);
 
     done(null, {...user, token})
 

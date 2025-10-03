@@ -56,7 +56,7 @@ async function bootstrap() {
 
 
   app.use(passport.initialize());
-  app.use(passport.session());
+  //app.use(passport.session());
 
   passport.serializeUser((user, done) => {
     done(null, user); // guardamos lo que necesitemos en session
