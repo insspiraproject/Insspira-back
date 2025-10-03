@@ -25,8 +25,7 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigins = [
-        'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app', // Prod Vercel
-        'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
+        'https://insspira-front.onrender.com/', // Prod Vercel
         'https://api-latest-ejkf.onrender.com', // Backend mismo
       ];
       if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
@@ -41,7 +40,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
 
-  app.use(cookieParser());
+app.use(cookieParser());
 app.use(session({
   secret: process.env.SESSION_SECRET || 'devsecret',
   resave: false,
