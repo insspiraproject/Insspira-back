@@ -1,6 +1,7 @@
 import { CallHandler, ExecutionContext, ForbiddenException, NestInterceptor } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { from, lastValueFrom, mergeMap, Observable } from "rxjs";
+import { Payment } from "src/payments/payment.entity";
 import { ActionType } from "src/pins.enum";
 import { SubStatus } from "src/status.enum";
 import { Sub } from "src/subscriptions/subscription.entity";
@@ -13,6 +14,8 @@ export class LimitInterceptor implements NestInterceptor {
     constructor(
     @InjectRepository(Sub)
     private readonly subRepo: Repository<Sub>,
+     @InjectRepository(Payment)
+            private readonly pay: Repository<Payment>,
     ) {}
 
 
@@ -25,10 +28,19 @@ intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> {
     return from(
         ( async()=>{
 
-        const activate = await this.subRepo.findOne({
+            const activeSub = await this.pay.findOne({
+                where: { user: { id: user.sub }, status: SubStatus.ACTIVE },
+            });
 
-        where: { user: { id: user.sub}, status: In([SubStatus.ENABLED, SubStatus.ACTIVE]) }
-        });
+            if (activeSub?.status === SubStatus.ACTIVE) {
+  
+            return next.handle();
+            }
+
+            const activate = await this.subRepo.findOne({
+            where: { user: { id: user.sub }, status: SubStatus.ENABLED },
+            });
+
         if(!activate) throw new ForbiddenException("You don't have any subscription")
 
             if(activate.status === SubStatus.ENABLED){

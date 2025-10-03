@@ -15,11 +15,12 @@ import { Save } from './entities/save.entity';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { Sub } from 'src/subscriptions/subscription.entity';
 import { PinsGuardPage } from 'src/common/guards/guard.pin';
+import { Payment } from 'src/payments/payment.entity';
 
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, Like, Pin, User, Category, Hashtag, View, Save, Sub]),
+  imports: [TypeOrmModule.forFeature([Comment, Like, Pin, User, Category, Hashtag, View, Save, Sub, Payment]),
   NotificationsModule
 ],
   controllers: [PinsController],

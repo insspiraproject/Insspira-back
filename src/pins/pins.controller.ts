@@ -11,7 +11,6 @@ import { CheckLimit } from "src/common/decorators/decorator.pin";
 import { ActionType } from "src/pins.enum";
 import { LimitInterceptor } from "src/common/interceptors/interceptor.pin";
 
-@Controller("pins")
 
 @ApiTags('Pins')
 @Controller('pins')

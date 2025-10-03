@@ -194,12 +194,9 @@ export class PinsRepository {
 
         const like = await this.likeRepo.create({pin, user: {id: user.id}}) 
 
-        await this.pinsRepo.update(
-            {id: pin.id}, {
-                likesCount: () => '"likesCount" + 1',
-                likesView: true
-            }
-        )
+        await this.pinsRepo.increment({id: pin.id}, "likesCount", 1)
+        
+        like.likesView = true
 
         await this.notificationsService.sendActivity({
             recipientEmail: pin.user.email,
@@ -234,12 +231,9 @@ export class PinsRepository {
 
         if(remove.user.id !== user.id) throw new ForbiddenException("You are not allowed to delete this like.")
 
-        await this.pinsRepo.update(
-            {id: pin.id}, {
-                likesCount: () => '"likesCount" - 1',
-                likesView: false
-            }
-        )
+        
+        await this.pinsRepo.decrement({id: pin.id}, "likesCount", 1)
+        remove.likesView = false
 
         return await this.likeRepo.remove(remove)
     }

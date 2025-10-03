@@ -25,6 +25,7 @@ import { User } from '../users/entities/user.entity';
 import { Plan } from '../plans/plan.entity';
 
 
+
 class CreateSubscriptionDto {
   email: string;
   userId?: string;
