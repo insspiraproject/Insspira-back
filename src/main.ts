@@ -23,7 +23,6 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigins = [
-        'http://localhost:3001', 
         'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app', // Prod Vercel
         'insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
         'https://api-latest-ejkf.onrender.com', // Backend mismo
