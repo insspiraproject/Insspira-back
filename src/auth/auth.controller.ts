@@ -55,25 +55,27 @@ export class AuthController {
 
 
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
-    const user = req.user
-    const token = user?.token
+@UseGuards(AuthGuard('google'))
+async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
+  const user: any = req.user;
+  const token = user?.token;
 
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", 
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 60 * 60 * 1000 
-    })
+  res.cookie('jwt', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", 
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 60 * 60 * 1000,
+  });
 
-      const redirectUrl =
+  res.clearCookie('connect.sid');
+
+  const redirectUrl =
     process.env.NODE_ENV === "production"
       ? "https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/home"
       : "http://localhost:3001/home";
 
-    res.redirect(redirectUrl)
-  }
+  return res.redirect(redirectUrl);
+}
 
   @Get("google/logout")
     async logout(@Res() res: express.Response) {

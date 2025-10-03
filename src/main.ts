@@ -42,21 +42,29 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-//   app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET || 'supersecret',
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: process.env.NODE_ENV === 'production',
-//       sameSite: 'none',
-//     },
-//   }),
-// );
+  app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'supersecret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+    },
+  }),
+);
 
 
   app.use(passport.initialize());
-  //app.use(passport.session());
+  app.use(passport.session());
+
+  passport.serializeUser((user, done) => {
+    done(null, user); // guardamos lo que necesitemos en session
+  });
+  
+  passport.deserializeUser((obj, done) => {
+    done(null, obj); // reconstruimos req.user desde la session
+  });
 
 
   app.useGlobalPipes(new ValidationPipe());
