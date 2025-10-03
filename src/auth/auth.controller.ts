@@ -85,6 +85,7 @@ async googleCallback(@Req() req: express.Request, @Res() res: express.Response) 
 }
 
 
+
 @Get("google/logout")
 async logout(@Res() res: express.Response, @Req() req: express.Request) {
 
@@ -94,14 +95,11 @@ async logout(@Res() res: express.Response, @Req() req: express.Request) {
     sameSite: 'none' as const
 };
 
-
   res.clearCookie("jwt", cookieOptions);
   res.clearCookie("session", cookieOptions);
   res.clearCookie("connect.sid", cookieOptions);
   res.clearCookie("oauth_token", cookieOptions);
   res.clearCookie("oauth_refresh_token", cookieOptions);
-
-
   res.clearCookie("jwt", { domain: 'api-latest-ejkf.onrender.com' });
   res.clearCookie("session", { domain: 'api-latest-ejkf.onrender.com' });
   res.clearCookie("connect.sid", { domain: 'api-latest-ejkf.onrender.com' });
@@ -116,6 +114,5 @@ async logout(@Res() res: express.Response, @Req() req: express.Request) {
   return res.json({message: "Sesión cerrada correctamente"});
 }
 }
-
 
 

@@ -17,6 +17,7 @@ export class PinsService {
 
     // PINS 
     async getPinsService(page: number, limit: number) {
+        
         return await this.repository.getPins(page, limit)
     }
     
