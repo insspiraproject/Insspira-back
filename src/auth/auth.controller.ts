@@ -84,10 +84,23 @@ async googleCallback(@Req() req: express.Request, @Res() res: express.Response) 
 
 
   @Get("google/logout")
-    async logout(@Res() res: express.Response) {
+    async logout(@Res() res: express.Response, @Req() req: express.Request) {
 
     res.clearCookie("jwt");
-    return res.json({ message: "Sesión cerrada correctamente" });
+    res.clearCookie("session");
+    res.clearCookie("connect.sid"); 
+    
+    
+    if (req.session) {
+        req.session.destroy((err) => {
+            if (err) {
+                console.error("Error destroying session:", err);
+            }
+        });
+    }
+    return res.json({message: "Sesión cerrada correctamente"});
+
+   
 
     }
    
