@@ -25,7 +25,7 @@ intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> {
     return from(
         ( async()=>{
 
-        const activate = sub ?? await this.subRepo.findOne({
+        const activate = await this.subRepo.findOne({
 
         where: { user: { id: user.sub }, status: In([SubStatus.ENABLED, SubStatus.ACTIVE]) }
         });
