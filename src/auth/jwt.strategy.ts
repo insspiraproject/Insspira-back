@@ -1,5 +1,3 @@
-import { BadRequestException, Injectable, Scope } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
 import {Strategy, Profile} from "passport-google-oidc"
 import { config as dotenvConfig } from 'dotenv';
 import { JwtService } from '@nestjs/jwt';
@@ -9,7 +7,8 @@ import { Repository } from 'typeorm';
 import { Plan } from 'src/plans/plan.entity';
 import { SubStatus } from 'src/status.enum';
 import { Sub } from 'src/subscriptions/subscription.entity';
-
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { PassportStrategy } from "@nestjs/passport";
 
 dotenvConfig();
 
@@ -25,7 +24,7 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
     private readonly subRepo: Repository<Sub> ,
     private readonly jwt: JwtService){
     super({
-      
+
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: `https://api-latest-ejkf.onrender.com/auth/google/callback`,
@@ -36,11 +35,8 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
 
   async validate(issuer: string, profile: Profile, done: Function){
 
-    if (!profile.emails?.[0]?.value) {
-      throw new BadRequestException("Google profile has no email");
-    }
-    
     let user = await this.userRepo.findOne({where: { email: profile.emails?.[0]?.value }})
+
     
     if(user){
 
@@ -50,7 +46,9 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
       await this.userRepo.save(user);
     }
 
+
     }  else {
+
   
     user = this.userRepo.create({
 
@@ -78,18 +76,9 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
 
 
     const payload = {sub: user.id, email: user.email}
+    user["token"] = this.jwt.sign(payload)
 
-    console.log('Google profile:', profile);
-    console.log('User found or created:', user);
-    console.log('Payload for JWT:', { sub: user.id, email: user.email });
-
-    const token = this.jwt.sign(payload)
-    console.log('Generated token:', token);
-
-    done(null, {...user, token})
+    done(null, user)
 
   }
 }
-
-
-

@@ -1,11 +1,10 @@
-import { Controller, Get, Req, Post, Body, Res, HttpCode, HttpStatus, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Req, Post, Body, Res, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import express from 'express';
-import { JwtCookieAuthGuard } from './jwt-cookie-auth-guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -22,6 +21,7 @@ export class AuthController {
   async register(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
+
 
   @Post('login')
   @ApiBody({ type: LoginUserDto })
@@ -40,12 +40,6 @@ export class AuthController {
     return { message: 'Logged out successfully' };
   }
 
-  @Get('me')
-  @UseGuards(JwtCookieAuthGuard)
-  async getMe(@Req() req: express.Request) {
-
-    return req.user;
-  }
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
@@ -55,49 +49,40 @@ export class AuthController {
 
 
   @Get('google/callback')
-@UseGuards(AuthGuard('google'))
-async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
-  const user: any = req.user;
-  const token = user?.token;
+  @UseGuards(AuthGuard('google'))
+  async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
+    const user = req.user
+    const token = user?.token
 
-  res.cookie('jwt', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
-  });
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 1000 
+    })
 
-  res.clearCookie('connect.sid');
-
-  const redirectUrl =
+    res.redirect("insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/dashboard")
+      const redirectUrl =
     process.env.NODE_ENV === "production"
-      ? "https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app/home"
+      ? "https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/home"
       : "http://localhost:3001/home";
 
-  return res.redirect(redirectUrl);
-}
+    res.redirect(redirectUrl)
+  }
 
   @Get("google/logout")
-    async logout(@Res() res: express.Response) {
+  async logout (@Req() req: express.Request, @Res() res: express.Response){
 
-      res.clearCookie("jwt");
-    return res.json({ message: "Sesión cerrada correctamente" });
-    }
+  if (req.session) {
+    req.session.destroy(err => {
+      if (err) return res.status(500).json({ message: "Error al destruir la sesión" });
 
-  // @Get("google/logout")
-  // async logout (@Req() req: express.Request, @Res() res: express.Response){
-
-  // if (req.session) {
-  //   req.session.destroy(err => {
-  //     if (err) return res.status(500).json({ message: "Error al destruir la sesión" });
-
-  //     res.clearCookie("connect.sid");
-  //     return res.json({ message: "Sesión cerrada correctamente" });
-  //   });
-  // } else {
-  //   res.clearCookie("connect.sid");
-  //   return res.json({ message: "Sesión ya estaba cerrada" });
-  // }
-  // }
-  //  
+      res.clearCookie("connect.sid");
+      return res.json({ message: "Sesión cerrada correctamente" });
+    });
+  } else {
+    res.clearCookie("connect.sid");
+    return res.json({ message: "Sesión ya estaba cerrada" });
+  }
+  }
 }

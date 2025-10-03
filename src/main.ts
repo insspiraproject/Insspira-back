@@ -1,4 +1,3 @@
-// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { auth } from 'express-openid-connect';
@@ -7,13 +6,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import { AuthService } from './auth/auth.service';
 import  session from "express-session"
-import cookieParser from 'cookie-parser';
 import passport from "passport"
 
 
 async function bootstrap() {
-
   const app = await NestFactory.create(AppModule);
+
+  const authService = app.get(AuthService);
 
   app.use(bodyParser.json({
     verify: (req: any, _res, buf) => {
@@ -25,7 +24,9 @@ async function bootstrap() {
     origin: (origin, callback) => {
       const allowedOrigins = [
         'http://localhost:3001', 
-        'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app'
+        'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app', // Prod Vercel
+        'insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
+        'https://api-latest-ejkf.onrender.com', // Backend mismo
       ];
       if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
         console.log(`CORS allowed for origin: ${origin}`);
@@ -34,39 +35,19 @@ async function bootstrap() {
         callback(new Error('Not allowed by CORS'));
       }
     },
-    credentials: true,
-    
+    credentials: true, // Importante para cookies/sessions
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
 
-  app.use(cookieParser());
-
-  app.use(
-  session({
+  app.use(session({
     secret: process.env.SESSION_SECRET || 'supersecret',
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-    },
-  }),
-);
-
-
+    cookie: { secure: false },
+  }))
   app.use(passport.initialize());
-  //app.use(passport.session());
-
-  passport.serializeUser((user, done) => {
-    done(null, user); // guardamos lo que necesitemos en session
-  });
-  
-  passport.deserializeUser((obj, done) => {
-    done(null, obj); // reconstruimos req.user desde la session
-  });
-
-
+  app.use(passport.session());
   app.useGlobalPipes(new ValidationPipe());
 
   const swaggerConfig = new DocumentBuilder()
@@ -82,4 +63,3 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
-
