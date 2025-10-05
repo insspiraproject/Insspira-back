@@ -109,21 +109,11 @@ export class PinsController {
         @Req() req: any
         ){
         const idUser = req.user.sub
-        await this.service.likeService(idPin, idUser)
-        return{message: "Like added."} 
+        return await this.service.likeService(idPin, idUser)
+ 
     }
 
-    @UseGuards(AuthGuard('jwt'))
-    @Delete('/like/:deleteLike')
-    @ApiBearerAuth('jwt')
-    @ApiOperation({ summary: 'Delete a like (auth)' })
-    @ApiParam({ name: 'deleteLike', format: 'uuid' })
-    async deleteLikes(@Param('deleteLike', new ParseUUIDPipe()) id: string, @Req() req: any) {
-      const userId = req.user.sub;
-      await this.service.likeDeleteService(id, userId);
-      return { message: 'Like removed.' };
-    }
-    
+
     // Comments
     @Get("/viewComments/:id")
     async  viewComments(
