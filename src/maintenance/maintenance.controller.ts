@@ -1,13 +1,7 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { MaintenanceService } from './maintenance.service';
-<<<<<<< HEAD
-import { MaintenanceGateway } from './maintenance.getway';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-=======
-import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
-import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
 import { MaintenanceGateway } from './maintenance.gateway';
->>>>>>> add830e75ae61cba4c9f849d7bf863da66a7171c
 
 @ApiTags('Maintenance')
 @Controller('maintenance')

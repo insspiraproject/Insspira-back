@@ -123,10 +123,7 @@ export class AuthService {
 
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
-        await this.notificationsService.sendWelcome({
-            email: user.email,
-            name: user.name,
-        });
+        
 
         return {accessToken, subscription: subs.plan}
     }

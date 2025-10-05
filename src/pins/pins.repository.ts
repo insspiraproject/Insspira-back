@@ -111,10 +111,10 @@ export class PinsRepository {
             user: users,
             })
 
-        await this.userRepo.increment({id: users.id}, "pinsCount", 1)
+        await this.userRepo.increment({id: users.id}, "pinsCount", 1);
 
-        await this.pinsRepo.save(create)
-
+        await this.pinsRepo.save(create);
+    
         return {
             id: create.id,
             category: {id: initialización.id},
@@ -182,7 +182,7 @@ export class PinsRepository {
     async createLike(idPin:string, idUser: string) {
 
             
-    const pin = await this.pinsRepo.findOne({ where: { id: idPin } });
+    const pin = await this.pinsRepo.findOne({ where: { id: idPin }, relations: ['user']});
     if (!pin) throw new NotFoundException('Pin not found');
     
     const user = await this.userRepo.findOne({where: {id: idUser}})
@@ -203,6 +203,11 @@ export class PinsRepository {
 
     const newLike = this.likeRepo.create({ pin, user});
     await this.likeRepo.save(newLike);
+    await this.notificationsService.sendActivity({
+        recipientEmail: pin.user.email,
+        type: 'like',
+        photoTitle: pin.user.username
+    });
     await this.pinsRepo.increment({ id: pin.id }, 'likesCount', 1);
     return true; 
     }
