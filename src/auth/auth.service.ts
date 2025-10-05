@@ -15,7 +15,6 @@ import { NotificationsService } from 'src/notifications/notifications.service';
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
-
         private readonly jwtService: JwtService,
         @InjectRepository(Sub)
         private readonly subRepo: Repository<Sub>,
@@ -49,6 +48,7 @@ export class AuthService {
             password: hashedPassword,
             isAdmin: isAdmin || false 
         });
+        
 
         const plan = await this.planRepo.findOne({where: {type: "free"}})
         if(!plan) throw new BadRequestException("This plan not found")
@@ -58,7 +58,12 @@ export class AuthService {
                 status: SubStatus.ENABLED
             })    
 
-        const subFree = await this.subRepo.save(subs)
+        const subFree = await this.subRepo.save(subs);
+
+        await this.notificationsService.sendWelcome({
+            email: user.email,
+            name: user.name,
+          });
 
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
