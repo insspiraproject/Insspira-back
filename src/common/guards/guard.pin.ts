@@ -10,11 +10,13 @@ import { CHECK_LIMIT_KEY } from "../decorators/decorator.pin";
 
 
 
+
 export class PinsGuardPage implements CanActivate {
 
     constructor(
         @InjectRepository(Sub)
         private readonly sub: Repository<Sub>,
+        
         private readonly reflector: Reflector
     ){}  
    
@@ -43,11 +45,14 @@ export class PinsGuardPage implements CanActivate {
 
        req.subscription = activate
 
+      
+
         if(!activate) throw new ForbiddenException("You don't have any subscription")
+       
         
         // Reset diario
         const today = new Date().toISOString().split("T")[0];
-        if(!activate.lastReset || activate.lastReset.toISOString().split("T")[0] !== today){
+        if(!activate?.lastReset || activate.lastReset.toISOString().split("T")[0] !== today){
             activate.dailyPosts = 0;
             activate.dailyLikes = 0;
             activate.dailySaves = 0;

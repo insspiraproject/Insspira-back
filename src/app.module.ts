@@ -15,6 +15,9 @@ import { MercadoPagoController } from './mercadopago/mercadopago.controller';
 import { Payment } from './payments/payment.entity';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { PlanSeeder } from './plans/plan.seeder';
+import { AdminModule } from './admin/admin.module';
+import { SubscriptionModule } from './subscriptions/subscription.module';
+import { ReportModule } from './reports/report.module';
 
 @Module({
   imports: [
@@ -44,7 +47,10 @@ import { PlanSeeder } from './plans/plan.seeder';
     MercadoPagoModule,
     PlanModule,
     NotificationsModule,
-    MaintenanceModule
+    MaintenanceModule,
+    SubscriptionModule,
+    ReportModule,
+    AdminModule
   ],
   controllers: [ AuthController],
   providers: [],

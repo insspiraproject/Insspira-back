@@ -1,10 +1,17 @@
+type PlanSeed = {
+    type: 'free'|'monthly'|'annual';
+    name: string;
+    price: number;
+    currency: 'USD'|'COP'|'ARS';
+    features: string;
+};
 
-
-export const PlanFreeMonthlyAnnual = [  {
+export const  PlanFreeMonthlyAnnual: PlanSeed[] = [
+    {
         name: "Free Plan",
         price: 0,
         type: "free",
-        currency: "ARS",  
+        currency: "ARS",
         features: "Pin creation limit. Limit of likes per post, saves, and comments."
     },
     {
@@ -21,5 +28,5 @@ export const PlanFreeMonthlyAnnual = [  {
         currency: "ARS",  
         features: "Pin creation limit. Limit of likes per post, saves, and comments."
     }
-
 ]
+

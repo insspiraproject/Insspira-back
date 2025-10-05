@@ -1,40 +1,49 @@
+// src/entities/plan.entity.ts
 import { Payment } from "src/payments/payment.entity";
 import { Sub } from "src/subscriptions/subscription.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Entity, PrimaryGeneratedColumn, Column,
+  CreateDateColumn, UpdateDateColumn, OneToMany
+} from 'typeorm';
 
+    @Entity({ name: 'plans' })
 
-@Entity({
-    name: "plans"
-})
+  export class Plan {
 
-export class Plan {
-
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryGeneratedColumn('uuid')
     id: string;
+
+    @Column({ type: 'varchar', length: 16, nullable: true })
+    type: 'free' | 'monthly' | 'annual' ;
     
-    @Column()
-    name: string	
-    
-    @Column("numeric", { precision: 10 , scale: 2, default: 0})
-    price: number
+    @Column({ length: 50, default: 'Plan Free' })
+    name: string;
 
-    @Column({unique: true})
-    type: 'free' | 'monthly' | 'annual';
+    @Column({ type: 'numeric', precision: 10 , scale: 2, default: 0})
+    price: number;
 
-    @Column()
-    currency: string
 
-    @Column()
-    features: string
+    @Column({ type: 'varchar', length: 10, default: 'USD' })
+    currency: string;
+
+    @Column({ type: 'text', nullable: true })
+    features: string | null;
+
+    @Column({ default: true })
+    isActive: boolean;
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+    
 
     @OneToMany(()=> Sub, (sub)=> sub.plan)
     subs: Sub[]
 
     @OneToMany(()=> Payment, (pay)=> pay.plan)
     payments: Payment[]
-
-}
+    
+    }

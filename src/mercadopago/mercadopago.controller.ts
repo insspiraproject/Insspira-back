@@ -126,11 +126,10 @@ export class MercadoPagoController {
   })
   async getPaymentStatus(@Param('userId') userId: string) {
     try {
-      const payment = await this.paymentRepository
-        .createQueryBuilder('payment')
-        .where('payment.userId = :userId', { userId })
-        .orderBy('payment.createdAt', 'DESC')
-        .getOne();
+      const payment = await this.paymentRepository.findOne({
+        where: { user: { id: userId } },  // <-- aquí usamos la relación user
+        order: { createdAt: 'DESC' },     // <-- ordenamos por fecha de creación
+      });
 
       if (!payment) {
         return {

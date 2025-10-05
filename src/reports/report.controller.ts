@@ -15,7 +15,7 @@ export class ReportController {
         return await this.service.view()
     }
     
-    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+    @UseGuards(AuthGuard("jwt"))
     @Post()
     async createReport(
         @Body() dto: CreateReportDto,
@@ -25,11 +25,7 @@ export class ReportController {
         return await this.service.create(dto, userId)
     }
 
-    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
-    @Put(":id")
-    async modifieReport(){}
-
-    @UseGuards(AuthGuard(["local-jwt", "jwt"]))
+    @UseGuards(AuthGuard("jwt"))
     @Delete(":id")
     async deleteReport(
         @Param("id", new ParseUUIDPipe()) id: string,

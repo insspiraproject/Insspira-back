@@ -3,6 +3,7 @@ import { User } from "../../users/entities/user.entity";
 
 @Entity({ name: "files" })
 export class File {
+    
     @PrimaryGeneratedColumn()
     id: number;
 

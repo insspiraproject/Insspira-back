@@ -16,7 +16,6 @@ export class Payment {
     @JoinColumn({ name: "plan_id" })
     plan: Plan
 
-
     @Column()
     paymentId: string;
 

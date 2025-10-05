@@ -6,6 +6,8 @@ import { PlanFreeMonthlyAnnual } from "./seeder.plan";
 
 @Injectable()
 
+
+
 export class PlanSeeder {
     constructor(private readonly dataSource: DataSource){}
     async run(){
@@ -23,3 +25,5 @@ export class PlanSeeder {
         console.log("✅ All plans seeded")
     }
 }
+
+

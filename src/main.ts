@@ -7,13 +7,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import { AuthService } from './auth/auth.service';
 import  session from "express-session"
+import cookieParser from 'cookie-parser';
 import passport from "passport"
 
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
 
-  const authService = app.get(AuthService);
+  const app = await NestFactory.create(AppModule);
 
   app.use(bodyParser.json({
     verify: (req: any, _res, buf) => {
@@ -21,6 +21,7 @@ async function bootstrap() {
     },
   }));
 
+<<<<<<< HEAD
   // app.enableCors({
   //   origin: (origin, callback) => {
   //     const allowedOrigins = [
@@ -46,6 +47,15 @@ async function bootstrap() {
         'https://insspira-front.vercel.app', 
         'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app',
         'https://api-latest-ejkf.onrender.com',
+=======
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "http://localhost:3001",
+        'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app',
+        'https://api-latest-ejkf.onrender.com', // Backend mismo
+>>>>>>> add830e75ae61cba4c9f849d7bf863da66a7171c
       ];
       
       // Para desarrollo, permitir cualquier origen localhost
@@ -60,6 +70,10 @@ async function bootstrap() {
       }
     },
     credentials: true,
+<<<<<<< HEAD
+=======
+    
+>>>>>>> add830e75ae61cba4c9f849d7bf863da66a7171c
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type', 
@@ -76,14 +90,20 @@ async function bootstrap() {
     exposedHeaders: ['Set-Cookie', 'Cookie'],
   });
 
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'supersecret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
-  }))
-  app.use(passport.initialize());
-  app.use(passport.session());
+  app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'devsecret',
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
+
+
+
   app.useGlobalPipes(new ValidationPipe());
 
   const swaggerConfig = new DocumentBuilder()
@@ -99,3 +119,4 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
+

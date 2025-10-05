@@ -2,16 +2,16 @@
 // src/users/entities/user.entity.ts
 
 import { ApiProperty } from '@nestjs/swagger';
-import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, ManyToOne} from 'typeorm';
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, ManyToOne, CreateDateColumn} from 'typeorm';
 import { Comment } from '../../pins/entities/comments.entity';
 import { Like } from '../../pins/entities/likes.entity';
 import { Pin } from '../../pins/entities/pins.entity';
 import { View } from 'src/pins/entities/view.entity';
 import { Save } from 'src/pins/entities/save.entity';
 import { Sub } from 'src/subscriptions/subscription.entity';
-import { Plan } from 'src/plans/plan.entity';
 import { Payment } from 'src/payments/payment.entity';
 import { Report } from 'src/reports/report.entity';
+import { UserStatus } from 'src/status.enum';
 
 @Entity({ name: 'users' })
 export class User {
@@ -48,7 +48,7 @@ export class User {
   profilePicture: string;
 
   @ApiProperty({ required: false, maxLength: 150 })
-  @Column({ nullable: true, length: 150 })
+  @Column({ nullable: true, length: 150})
   biography: string;
 
   @ApiProperty({ example: false })
@@ -64,6 +64,13 @@ export class User {
 
   @Column({ nullable: true })
   providerId: string;
+
+  @ApiProperty()
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
+  status: UserStatus;
 
   @OneToMany(() => Pin, (pin) => pin.user)
   pins: Pin[];
@@ -93,6 +100,3 @@ export class User {
 
 }
 
-// @ApiProperty({ required: false })
-  // @Column({ unique: true, nullable: true })
-  // auth0Id: string;
