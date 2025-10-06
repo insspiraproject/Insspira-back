@@ -44,9 +44,11 @@ export class PinsService {
         
     }
 
-    async likeDeleteService(id: string, userId: string) {
-        return await this.repository.deleteLike(id, userId)        
+    async likeView(userId: any, pinId: string) {
+       return await this.repository.likeStatus(pinId, userId)
     }
+    
+
 
     // Comment PINS
 

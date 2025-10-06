@@ -98,7 +98,7 @@ export class PinsController {
     //*OK
     @CheckLimit(ActionType.LIKE)
     @UseGuards(AuthGuard("jwt"), PinsGuardPage)
-    @UseInterceptors(LimitInterceptor)
+    // @UseInterceptors(LimitInterceptor)
     @Post("/like/:id")
     @ApiBearerAuth('jwt')
     @ApiOperation({ summary: 'Create a like (auth)' })
@@ -108,21 +108,26 @@ export class PinsController {
         @Req() req: any
         ){
         const idUser = req.user.sub
-        await this.service.likeService(idPin, idUser)
-        return{message: "Like added."} 
+        return await this.service.likeService(idPin, idUser)
+ 
     }
 
-    @UseGuards(AuthGuard('jwt'))
-    @Delete('/like/:deleteLike')
+
+    @UseGuards(AuthGuard("jwt"), PinsGuardPage)
+    @Get('/likeStatus/:pinId')
     @ApiBearerAuth('jwt')
-    @ApiOperation({ summary: 'Delete a like (auth)' })
-    @ApiParam({ name: 'deleteLike', format: 'uuid' })
-    async deleteLikes(@Param('deleteLike', new ParseUUIDPipe()) id: string, @Req() req: any) {
-      const userId = req.user.sub;
-      await this.service.likeDeleteService(id, userId);
-      return { message: 'Like removed.' };
+    @ApiOperation({ summary: 'Get a like (auth)' })
+    @ApiParam({ name: 'id', format: 'uuid' })
+    async getUserLike(
+       @Param("pinId", new ParseUUIDPipe()) pinId: string, 
+       @Req() req: any  
+    ) {
+        const userId = req.user.sub
+        return await this.service.likeView(userId, pinId)
+      
     }
-    
+
+
     // Comments
     @Get("/viewComments/:id")
     async  viewComments(

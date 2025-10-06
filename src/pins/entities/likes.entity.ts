@@ -17,9 +17,6 @@ export class Like {
     @ManyToOne(() => User, (user) => user.like)
     user: User;
 
-    @Column({default: false})
-    likesView: boolean
-
     @CreateDateColumn()
     createdAt: Date;
     
