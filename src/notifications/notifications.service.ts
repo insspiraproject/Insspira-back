@@ -60,6 +60,8 @@ export class NotificationsService {
     }
   }
 
+  
+
   public async sendEmail(to: string, subject: string, message: string) {
     try {
       const info = await this.transporter.sendMail({
@@ -71,15 +73,28 @@ export class NotificationsService {
 
       this.logger.log(`Correo enviado: ${info.messageId} a ${to}`);
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
+      
       this.logger.error(`Error enviando correo a ${to}: ${error.message}`, error.stack);
-      return { success: false, error: error.message };
+    return { 
+      success: false, 
+      error: error.message  
+    };
+ 
+      
+      
     }
   }
 
   async sendWelcome(dto: SendEmailDto) {
     const { subject, message } = this.buildWelcomeMessage(dto);
-    return this.sendEmail(dto.email, subject, message);
+    const result = this.sendEmail(dto.email, subject, message);
+
+    if (!(await result).success) {
+    throw new BadRequestException(`No se pudo enviar el email de bienvenida: ${(await result).error}`);
+  }
+  
+  return result;
   }
 
   async sendActivity(dto: CreateNotificationDto) {

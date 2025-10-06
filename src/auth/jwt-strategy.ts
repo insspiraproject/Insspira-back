@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { Plan } from 'src/plans/plan.entity';
 import { SubStatus } from 'src/status.enum';
 import { Sub } from 'src/subscriptions/subscription.entity';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 
 dotenvConfig();
@@ -23,7 +24,8 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
     private readonly planRepo: Repository<Plan> ,
     @InjectRepository(Sub)
     private readonly subRepo: Repository<Sub> ,
-    private readonly jwt: JwtService
+    private readonly jwt: JwtService,
+      private readonly notificationsService: NotificationsService
     
   ){
 
@@ -49,6 +51,13 @@ export class GoogleOidcStrategy extends PassportStrategy(Strategy, "google"){
       username: (profile.displayName ?? "user").replace(/\s/g, ''),
     });
     await this.userRepo.save(user);
+           
+  await this.notificationsService.sendWelcome({
+    email: user.email,
+    name: user.name,
+  });
+ 
+  
 
      let subs = await this.subRepo.findOne({
             where: {user: {id: user.id}, status:  SubStatus.ACTIVE},
