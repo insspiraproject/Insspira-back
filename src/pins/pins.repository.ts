@@ -222,9 +222,13 @@ export class PinsRepository {
     
     const existingLike = await this.likeRepo.findOne({
         where: { pin: { id: pin.id }, user: { id: user.id } },
+        relations: ["pin"]
     });
     
-    return { liked: !!existingLike };
+    return { 
+        liked: !!existingLike,
+        likesCount: existingLike?.pin.likesCount
+    };
 
 
     }
