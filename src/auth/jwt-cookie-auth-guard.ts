@@ -6,6 +6,10 @@ import { Request } from 'express';
 export class JwtCookieAuthGuard extends AuthGuard('jwt') {
   getRequest(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest<Request>();
+    
+    const token = req.cookies?.['jwt']; 
+    if (token) req.headers.authorization = `Bearer ${token}`; 
+    
     return req;
   }
 }

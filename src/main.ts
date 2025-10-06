@@ -21,24 +21,47 @@ async function bootstrap() {
     },
   }));
 
-
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigins = [
+<<<<<<< HEAD
         'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app', // Prod Vercel
+=======
+>>>>>>> caedac7370df0bad964d720e208129cf8c26712c
         'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
         'https://api-latest-ejkf.onrender.com', // Backend mismo
       ];
-      if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
-        console.log(`CORS allowed for origin: ${origin}`);
+      
+      // Para desarrollo, permitir cualquier origen localhost
+      const isLocalhost = origin && origin.includes('localhost');
+      const isAllowed = !origin || allowedOrigins.includes(origin) || isLocalhost;
+      
+      if (isAllowed) {
         callback(null, true);
       } else {
+        console.log('CORS bloqueado para origen:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     },
+<<<<<<< HEAD
     credentials: true, // Importante para cookies/sessions
+=======
+    credentials: true,
+>>>>>>> caedac7370df0bad964d720e208129cf8c26712c
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+      'Access-Control-Allow-Headers',
+      'Access-Control-Request-Method',
+      'Access-Control-Request-Headers',
+      'Cookie',
+      'Set-Cookie'
+    ],
+    exposedHeaders: ['Set-Cookie', 'Cookie'],
   });
 
   app.use(cookieParser());

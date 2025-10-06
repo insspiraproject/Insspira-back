@@ -14,6 +14,7 @@ export class AuthController {
     constructor(
       private readonly authService: AuthService) {}
 
+<<<<<<< HEAD
 @Post('register')
   @ApiBody({ type: CreateUserDto })
   @ApiOperation({
@@ -86,3 +87,124 @@ async logout(@Res() res: express.Response) {
 return res.json({ message: "Sesión cerrada correctamente" });
 }
   }
+=======
+    @Post('register')
+    @ApiBody({ type: CreateUserDto })
+    @ApiOperation({
+      summary: 'Register a new user in the system',
+      description:
+        'Creates a new user account using the provided details. Returns the created user information or error if registration fails.',
+    })
+    async register(@Body() createUserDto: CreateUserDto) {
+      return this.authService.register(createUserDto);
+    }
+
+    @Post('login')
+    @ApiBody({ type: LoginUserDto })
+    @ApiOperation({
+      summary: 'Authenticate a user and create a session',
+      description:
+        'Logs in a user using email and password. Returns an access token and user info on successful authentication.',
+    })
+    async login(@Body() loginUserDto: LoginUserDto) {
+      return this.authService.login(loginUserDto);
+    }
+
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({
+      summary: 'Log out the current user session',
+      description:
+        'Terminates the authenticated session for the currently logged-in user.',
+    })
+    async localLogout() {
+      return { message: 'Logged out successfully' };
+    }
+
+      @Get('me')
+      @UseGuards(JwtCookieAuthGuard)
+      async getMe(@Req() req: express.Request, res: express.Response) {
+        console.log('User in getMe:', req.user);
+
+    if (!req.user) {
+      throw new UnauthorizedException('No user found');
+    }
+
+    return {
+      user: req.user, 
+      timestamp: new Date().toISOString(),
+    };
+    }
+
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
+    googleAuth() {
+      // passport redirige a Google
+    }
+
+
+    @Get('google/callback')
+    @UseGuards(AuthGuard('google'))
+    @ApiOperation({
+      summary: 'Google authentication callback',
+      description:
+        'Handles the callback from Google OAuth, sets the authentication cookie, and redirects the user to the dashboard.',
+    })
+    async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
+    const { token } = req.user as any;
+    if (!token) return res.redirect('http://localhost:3001/login?error=notoken');
+
+    res.cookie('jwt', token, {
+      httpOnly: true, 
+      secure: true, 
+      sameSite: 'none', 
+      maxAge: 3600000 
+    });
+
+
+
+      // res.redirect("https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/dashboard")
+        return res.redirect('http://localhost:3001/home');
+    }
+
+
+    @Get("google/logout")
+    @ApiOperation({
+      summary: 'Log out from Google session',
+      description:
+        'Destroys the current Google OAuth session, clears cookies, and confirms logout to the client.',
+    })
+    async logout(@Res() res: express.Response, @Req() req: express.Request) {
+
+      const cookieOptions = {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none' as const
+    };
+
+      res.clearCookie("jwt", cookieOptions);
+      res.clearCookie("session", cookieOptions);
+      res.clearCookie("connect.sid", cookieOptions);
+      res.clearCookie("oauth_token", cookieOptions);
+      res.clearCookie("oauth_refresh_token", cookieOptions);
+      res.clearCookie("jwt", { domain: 'api-latest-ejkf.onrender.com' });
+      res.clearCookie("session", { domain: 'api-latest-ejkf.onrender.com' });
+      res.clearCookie("connect.sid", { domain: 'api-latest-ejkf.onrender.com' });
+
+      if (req.session) {
+          req.session.destroy((err) => {
+              if (err) {
+                  console.error("Error destroying session:", err);
+              }
+          });
+      }
+      return res.json({message: "Sesión cerrada correctamente"});
+    }
+}
+
+   
+
+
+
+
+>>>>>>> caedac7370df0bad964d720e208129cf8c26712c
