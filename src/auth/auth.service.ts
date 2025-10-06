@@ -40,6 +40,8 @@ export class AuthService {
     
         const hashedPassword = await bcrypt.hash(password, 10);
 
+ 
+
         const user = await this.usersService.createUser({
             email,
             username,
@@ -48,8 +50,12 @@ export class AuthService {
             password: hashedPassword,
             isAdmin: isAdmin || false 
         });
-        
 
+        await this.notificationsService.sendWelcome({
+            email: user.email,
+            name: user.name,
+        });
+ 
         const plan = await this.planRepo.findOne({where: {type: "free"}})
         if(!plan) throw new BadRequestException("This plan not found")
         const subs = this.subRepo.create({
@@ -59,11 +65,7 @@ export class AuthService {
             })    
 
         const subFree = await this.subRepo.save(subs);
-
-        await this.notificationsService.sendWelcome({
-            email: user.email,
-            name: user.name,
-          });
+         
 
         const payload = { sub: user.id, email: user.email, name: user.name };
         const accessToken = this.jwtService.sign(payload);
