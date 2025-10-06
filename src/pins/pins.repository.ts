@@ -19,6 +19,7 @@ import { NotificationsService } from "src/notifications/notifications.service";
 export class PinsRepository {
     
     
+    
     constructor(
         @InjectRepository(Category)
         private readonly categoryRepo: Repository<Category>,
@@ -206,10 +207,26 @@ export class PinsRepository {
     await this.notificationsService.sendActivity({
         recipientEmail: pin.user.email,
         type: 'like',
-        photoTitle: pin.user.username
+        photoTitle: pin.description
     });
     await this.pinsRepo.increment({ id: pin.id }, 'likesCount', 1);
     return true; 
+    }
+
+    async likeStatus(pinId: string, userId: any) {
+    const user = await this.userRepo.findOne({where: {id: userId}})
+    if(!user) throw new NotFoundException("User not found.")
+    
+    const pin = await this.pinsRepo.findOne({ where: { id: pinId }, relations: ['user', "likes"]});
+    if (!pin) throw new NotFoundException('Pin not found');
+    
+    const existingLike = await this.likeRepo.findOne({
+        where: { pin: { id: pin.id }, user: { id: user.id } },
+    });
+    
+    return { liked: !!existingLike };
+
+
     }
 
 

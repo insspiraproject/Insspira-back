@@ -6,14 +6,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import { AuthService } from './auth/auth.service';
-import  session from "express-session";
-import cookieParser from 'cookie-parser';
+import  session from "express-session"
 import passport from "passport"
+import cookieParser from 'cookie-parser';
 
 
 async function bootstrap() {
-
   const app = await NestFactory.create(AppModule);
+
+  const authService = app.get(AuthService);
 
   app.use(bodyParser.json({
     verify: (req: any, _res, buf) => {
@@ -23,31 +24,9 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-       const allowedOrigins = [
-        'http://localhost:3001', 
-        'http://localhost:3000', 
-        'https://insspira-front.vercel.app', 
-        'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app',
-        'https://api-latest-ejkf.onrender.com',
-      ];
-      if (!origin || allowedOrigins.includes(origin)|| /^https?:\/\/.*\.vercel\.app$/.test(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true, // Importante para cookies/sessions
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  });
-  app.enableCors({
-    origin: (origin, callback) => {
       const allowedOrigins = [
-        'http://localhost:3001', 
-        'http://localhost:3000', 
-        'https://insspira-front.vercel.app', 
-        'https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app',
-        'https://api-latest-ejkf.onrender.com',
+        'https://insspira-front-git-develop-insspiras-projects-818b6651.vercel.app', // Prod Vercel
+        'https://api-latest-ejkf.onrender.com', // Backend mismo
       ];
       
       // Para desarrollo, permitir cualquier origen localhost
@@ -86,10 +65,6 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-
-
-
-
 
 
   app.useGlobalPipes(new ValidationPipe());

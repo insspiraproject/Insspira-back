@@ -99,7 +99,7 @@ export class PinsController {
     //*OK
     @CheckLimit(ActionType.LIKE)
     @UseGuards(AuthGuard("jwt"), PinsGuardPage)
-    @UseInterceptors(LimitInterceptor)
+    // @UseInterceptors(LimitInterceptor)
     @Post("/like/:id")
     @ApiBearerAuth('jwt')
     @ApiOperation({ summary: 'Create a like (auth)' })
@@ -111,6 +111,21 @@ export class PinsController {
         const idUser = req.user.sub
         return await this.service.likeService(idPin, idUser)
  
+    }
+
+
+    @UseGuards(AuthGuard("jwt"), PinsGuardPage)
+    @Get('/likeStatus/:pinId')
+    @ApiBearerAuth('jwt')
+    @ApiOperation({ summary: 'Get a like (auth)' })
+    @ApiParam({ name: 'id', format: 'uuid' })
+    async getUserLike(
+       @Param("pinId", new ParseUUIDPipe()) pinId: string, 
+       @Req() req: any  
+    ) {
+        const userId = req.user.sub
+        return await this.service.likeView(userId, pinId)
+      
     }
 
 

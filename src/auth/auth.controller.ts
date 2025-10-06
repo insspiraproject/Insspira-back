@@ -47,6 +47,28 @@ export class AuthController {
       return { message: 'Logged out successfully' };
     }
 
+      @Get('me')
+      @UseGuards(JwtCookieAuthGuard)
+      async getMe(@Req() req: express.Request, res: express.Response) {
+        console.log('User in getMe:', req.user);
+
+    if (!req.user) {
+      throw new UnauthorizedException('No user found');
+    }
+
+    return {
+      user: req.user, 
+      timestamp: new Date().toISOString(),
+    };
+    }
+
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
+    googleAuth() {
+      // passport redirige a Google
+    }
+
+
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
     @ApiOperation({
@@ -55,18 +77,22 @@ export class AuthController {
         'Handles the callback from Google OAuth, sets the authentication cookie, and redirects the user to the dashboard.',
     })
     async googleCallback(@Req() req: express.Request, @Res() res: express.Response) {
-      const user = req.user
-      const token = user?.token
+    const { token } = req.user as any;
+    if (!token) return res.redirect('http://localhost:3001/login?error=notoken');
 
-      res.cookie('jwt', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', 
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 1000 
-      })
+    res.cookie('jwt', token, {
+      httpOnly: true, 
+      secure: true, 
+      sameSite: 'none', 
+      maxAge: 3600000 
+    });
 
-      res.redirect("https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/dashboard")
+
+
+      // res.redirect("https://insspira-front-git-vercel-insspiras-projects-818b6651.vercel.app/dashboard")
+        return res.redirect('http://localhost:3001/home');
     }
+
 
     @Get("google/logout")
     @ApiOperation({
@@ -74,18 +100,31 @@ export class AuthController {
       description:
         'Destroys the current Google OAuth session, clears cookies, and confirms logout to the client.',
     })
-    async logout (@Req() req: express.Request, @Res() res: express.Response){
-      if (req.session) {
-        req.session.destroy(err => {
-          if (err) return res.status(500).json({ message: "Error al destruir la sesión" });
+    async logout(@Res() res: express.Response, @Req() req: express.Request) {
 
-          res.clearCookie("connect.sid");
-          return res.json({ message: "Sesión cerrada correctamente" });
-        });
-      } else {
-        res.clearCookie("connect.sid");
-        return res.json({ message: "Sesión ya estaba cerrada" });
+      const cookieOptions = {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none' as const
+    };
+
+      res.clearCookie("jwt", cookieOptions);
+      res.clearCookie("session", cookieOptions);
+      res.clearCookie("connect.sid", cookieOptions);
+      res.clearCookie("oauth_token", cookieOptions);
+      res.clearCookie("oauth_refresh_token", cookieOptions);
+      res.clearCookie("jwt", { domain: 'api-latest-ejkf.onrender.com' });
+      res.clearCookie("session", { domain: 'api-latest-ejkf.onrender.com' });
+      res.clearCookie("connect.sid", { domain: 'api-latest-ejkf.onrender.com' });
+
+      if (req.session) {
+          req.session.destroy((err) => {
+              if (err) {
+                  console.error("Error destroying session:", err);
+              }
+          });
       }
+      return res.json({message: "Sesión cerrada correctamente"});
     }
 }
 

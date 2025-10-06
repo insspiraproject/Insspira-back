@@ -44,6 +44,11 @@ export class PinsService {
         
     }
 
+    async likeView(userId: any, pinId: string) {
+       return await this.repository.likeStatus(pinId, userId)
+    }
+    
+
 
     // Comment PINS
 
